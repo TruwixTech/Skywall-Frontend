@@ -107,7 +107,7 @@ function News() {
   return (
     <>
       <div>
-        <h1 className="w-full px-5 md:px-10 lg:px-20 xl:px-32 py-10 bg-gray-200 items-center flex text-center text-lg sm:text-xl md:text-2xl lg:text-4xl">
+        <h1 className="w-full px-5 md:px-10 lg:px-20 xl:px-32 py-10 bg-gray-200 flex justify-center md:justify-start text-2xl md:text-4xl">
           Latest News & Updates
         </h1>
       </div>
@@ -131,7 +131,7 @@ function News() {
 
               {/* Content */}
               <div className="flex flex-col p-5 flex-grow">
-                <h3 className="text-xl font-bold text-gray-800 mb-2 transition-colors">
+                <h3 className="text-xl font-semibold text-gray-800 mb-2 transition-colors">
                   {article.title}
                 </h3>
                 <p className="text-gray-600 flex-grow mb-4">

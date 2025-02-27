@@ -13,6 +13,7 @@ import SignUp from './Pages/Signup.jsx'
 import Television from './Components/Television.jsx'
 import News from './Components/News.jsx'
 import SingleNews from './Components/SingleNews.jsx'
+import TelevisionSinglePage from './Components/TelevisionSinglepage.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -26,6 +27,7 @@ const router = createBrowserRouter(
         <Route path='/signin' element={<SignIn />} />
         <Route path='/signup' element={<SignUp />} />
         <Route path='/televisions' element={<Television/>} />
+        <Route path="/television/:id" element={<TelevisionSinglePage />} />
         <Route path="/news-media" element={<News />} />
         <Route path="/news-media/:id" element={<SingleNews />} />
       </Route>

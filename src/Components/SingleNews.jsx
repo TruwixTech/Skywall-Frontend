@@ -221,7 +221,7 @@ function SingleNews() {
 
         {/* Related articles */}
         <div className="mt-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          <h2 className="text-2xl text-center md:text-start font-semibold text-gray-800 mb-6">
             Related Articles
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -236,13 +236,13 @@ function SingleNews() {
                   <img
                     src={relatedArticle.image}
                     alt={relatedArticle.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
 
                 {/* Content */}
                 <div className="flex flex-col p-4">
-                  <h3 className="text-lg font-bold text-gray-800 mb-2 transition-colors line-clamp-2">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2 transition-colors line-clamp-2">
                     {relatedArticle.title}
                   </h3>
                   <div className="flex items-center justify-between text-sm text-gray-500 mt-2">

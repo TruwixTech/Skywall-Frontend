@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom";
 import TelevisionCard from "../assets/productCard.jpg";
 import TelevisionCardHover from "../assets/productCardHover.jpg";
 
@@ -138,7 +138,7 @@ function Television() {
   return (
     <>
       <div>
-        <h1 className="w-full px-5 md:px-10 lg:px-20 xl:px-32 py-10 bg-gray-200 items-center flex text-center text-lg sm:text-xl md:text-2xl lg:text-4xl">
+        <h1 className="w-full px-5 md:px-10 lg:px-20 xl:px-32 py-10 bg-gray-200 flex justify-center md:justify-start text-2xl md:text-4xl">
           Televisions
         </h1>
       </div>
@@ -195,6 +195,7 @@ function Television() {
 
         <div className="w-full h-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 cursor-pointer ">
           {sortedTelevisions.map((television, index) => (
+            <Link to={`/television/${index}`} key={index}>
             <div
               key={index}
               className="group w-full p-4 rounded-lg bg-white relative duration-300 ease-in-out transition-all overflow-hidden"
@@ -223,7 +224,7 @@ function Television() {
                 <img
                   src={television.imgHover}
                   alt="hover image"
-                  className="absolute inset-0 w-full h-full object-cover rounded-md transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100"
+                  className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100"
                 />
               </div>
 
@@ -247,6 +248,7 @@ function Television() {
                 </span>
               </div>
             </div>
+            </Link>
           ))}
         </div>
       </div>
