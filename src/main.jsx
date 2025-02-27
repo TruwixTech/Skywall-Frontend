@@ -14,6 +14,9 @@ import Television from './Components/Television.jsx'
 import News from './Components/News.jsx'
 import SingleNews from './Components/SingleNews.jsx'
 import TelevisionSinglePage from './Components/TelevisionSinglepage.jsx'
+import TermsCondition from './Pages/TermsCondition.jsx'
+import PrivacyPolicy from './Pages/PrivacyPolicy.jsx'
+import ShippingPolicy from './Pages/ShippingPolicy.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,6 +33,9 @@ const router = createBrowserRouter(
         <Route path="/television/:id" element={<TelevisionSinglePage />} />
         <Route path="/news-media" element={<News />} />
         <Route path="/news-media/:id" element={<SingleNews />} />
+        <Route path="/terms-conditions" element={<TermsCondition />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/shipping-policy" element={<ShippingPolicy />} />
       </Route>
     </>
   )
