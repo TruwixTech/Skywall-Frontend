@@ -97,7 +97,7 @@ function TelevisionCollections() {
                             className="group w-64 p-4 rounded-lg bg-white relative duration-300 ease-in-out transition-all overflow-hidden"
                         >
                             {/* Sale Badge */}
-                            <span className="absolute z-20 top-2 left-2 bg-blue-600 text-white text-sm px-6 py-1 rounded-full">
+                            <span className="absolute z-10 top-2 left-2 bg-blue-600 text-white text-sm px-6 py-1 rounded-full">
                                 Sale
                             </span>
 
