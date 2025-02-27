@@ -12,11 +12,15 @@ import { FaChevronDown } from "react-icons/fa6";
 function Header() {
   const [dropdown, setDropDown] = useState(false);
   const [infoDropdown, setInfoDropdown] = useState(false); // State for "Information" 
-  
+  const [infoDropdown2, setInfoDropdown2] = useState(false); // State for "Information" 
+
+
   const location = useLocation()
 
   const dropdownRef = useRef(null);
   const infoDropdownRef = useRef(null);
+  const infoDropdownRef2 = useRef(null);
+
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -26,6 +30,9 @@ function Header() {
       }
       if (infoDropdownRef.current && !infoDropdownRef.current.contains(event.target)) {
         setInfoDropdown(false);
+      }
+      if (infoDropdownRef2.current && !infoDropdownRef2.current.contains(event.target)) {
+        setInfoDropdown2(false);
       }
     }
 
@@ -66,8 +73,8 @@ function Header() {
           <div className="relative" ref={infoDropdownRef}>
             <button
               onClick={() => setInfoDropdown(!infoDropdown)}
-              className={`${location.pathname === '/unboxing-policy' || location.pathname === '/disclaimer' || location.pathname === '/terms-conditions' || location.pathname === '/privacy-policy' || location.pathname === '/shipping-policy' ? 'underline underline-offset-4' : '' } cursor-pointer transition-colors duration-300 text-gray-500 hover:text-black hover:underline hover:underline-offset-4 flex items-center gap-2`}
-              // className="cursor-pointer transition-colors duration-300 text-gray-500 hover:text-black hover:underline hover:underline-offset-4 flex items-center gap-2"
+              className={`${location.pathname === '/unboxing-policy' || location.pathname === '/disclaimer' || location.pathname === '/terms-conditions' || location.pathname === '/privacy-policy' || location.pathname === '/shipping-policy' ? 'underline underline-offset-4' : ''} cursor-pointer transition-colors duration-300 text-gray-500 hover:text-black hover:underline hover:underline-offset-4 flex items-center gap-2`}
+            // className="cursor-pointer transition-colors duration-300 text-gray-500 hover:text-black hover:underline hover:underline-offset-4 flex items-center gap-2"
             >
               INFORMATION <span>{infoDropdown ? <FaChevronDown size={15} className="rotate-180" /> : <FaChevronDown size={15} />}</span>
             </button>
@@ -136,7 +143,6 @@ function Header() {
           { name: "News & Media", path: "/news-media" },
           { name: "About Us", path: "/about" },
           { name: "Contact", path: "/contact" },
-          { name: "Information", path: "/information" },
         ].map((link) => (
           <NavLink
             key={link.path}
@@ -152,6 +158,42 @@ function Header() {
             {link.name}
           </NavLink>
         ))}
+        <div className="relative flex items-center justify-center" ref={infoDropdownRef2}>
+          <button
+            onClick={() => setInfoDropdown2(!infoDropdown2)}
+            className={`${location.pathname === '/unboxing-policy' || location.pathname === '/disclaimer' || location.pathname === '/terms-conditions' || location.pathname === '/privacy-policy' || location.pathname === '/shipping-policy' ? 'underline underline-offset-4' : ''} cursor-pointer transition-colors duration-300 text-gray-500 hover:text-black hover:underline hover:underline-offset-4 flex items-center gap-2`}
+          // className="cursor-pointer transition-colors duration-300 text-gray-500 hover:text-black hover:underline hover:underline-offset-4 flex items-center gap-2"
+          >
+            INFORMATION <span>{infoDropdown2 ? <FaChevronDown size={15} className="rotate-180" /> : <FaChevronDown size={15} />}</span>
+          </button>
+
+          {/* Dropdown Menu */}
+          {infoDropdown2 && (
+            <div className="absolute top-10 right-0 w-64 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-10">
+              {[
+                { name: "Unboxing Policy", path: "/unboxing-policy" },
+                { name: "Disclaimer", path: "/disclaimer" },
+                { name: "Terms and Conditions", path: "/terms-conditions" },
+                { name: "Privacy Policy", path: "/privacy-policy" },
+                { name: "Shipping Policy", path: "/shipping-policy" },
+              ].map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => {setInfoDropdown2(false);setDropDown(false);}} // Close on click
+                  className={({ isActive }) =>
+                    `cursor-pointer px-4 py-2 transition-colors duration-300 ${isActive
+                      ? "text-black underline underline-offset-4"
+                      : "hover:text-black text-gray-500 hover:underline hover:underline-offset-4"
+                    }`
+                  }
+                >
+                  {item.name}
+                </NavLink>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
