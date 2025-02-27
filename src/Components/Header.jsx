@@ -64,7 +64,7 @@ function Header() {
       </header>
       {/* Dropdown Menu */}
       <div
-        className={`absolute top-[65px] sm:top-20 right-2 w-44 bg-white border shadow-lg rounded-lg py-3 flex flex-col gap-2 transition-all duration-300 transform md:hidden ${dropdown
+        className={`absolute z-10 top-[65px] sm:top-20 right-2 w-44 bg-white border shadow-lg rounded-lg py-3 flex flex-col gap-2 transition-all duration-300 transform md:hidden ${dropdown
             ? "opacity-100 scale-100 translate-y-0"
             : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
           }`}
