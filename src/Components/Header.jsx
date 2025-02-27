@@ -1,15 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Logo from "../assets/logo.png";
 import { HiBars3 } from "react-icons/hi2";
 import { FaRegUser } from "react-icons/fa6";
 import { IoIosSearch } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { TiShoppingCart } from "react-icons/ti";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+import { FaChevronDown } from "react-icons/fa6";
 
 
 function Header() {
   const [dropdown, setDropDown] = useState(false);
+  const [infoDropdown, setInfoDropdown] = useState(false); // State for "Information" 
+  
+  const location = useLocation()
+
+  const dropdownRef = useRef(null);
+  const infoDropdownRef = useRef(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropDown(false);
+      }
+      if (infoDropdownRef.current && !infoDropdownRef.current.contains(event.target)) {
+        setInfoDropdown(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <>
@@ -26,47 +48,86 @@ function Header() {
             { name: "News & Media", path: "/news-media" },
             { name: "About Us", path: "/about" },
             { name: "Contact", path: "/contact" },
-            { name: "Information", path: "/information" },
           ].map((link) => (
             <NavLink
               key={link.path}
               to={link.path}
               className={({ isActive }) =>
-                `cursor-pointer transition-colors duration-300 ${isActive ? "text-black underline underline-offset-4" : "hover:text-black text-gray-500 hover:underline hover:underline-offset-4"
+                `cursor-pointer transition-colors duration-300 ${isActive
+                  ? "text-black underline underline-offset-4"
+                  : "hover:text-black text-gray-500 hover:underline hover:underline-offset-4"
                 }`
               }
             >
               {link.name}
             </NavLink>
           ))}
+
+          <div className="relative" ref={infoDropdownRef}>
+            <button
+              onClick={() => setInfoDropdown(!infoDropdown)}
+              className={`${location.pathname === '/unboxing-policy' || location.pathname === '/disclaimer' || location.pathname === '/terms-conditions' || location.pathname === '/privacy-policy' || location.pathname === '/shipping-policy' ? 'underline underline-offset-4' : '' } cursor-pointer transition-colors duration-300 text-gray-500 hover:text-black hover:underline hover:underline-offset-4 flex items-center gap-2`}
+              // className="cursor-pointer transition-colors duration-300 text-gray-500 hover:text-black hover:underline hover:underline-offset-4 flex items-center gap-2"
+            >
+              INFORMATION <span>{infoDropdown ? <FaChevronDown size={15} className="rotate-180" /> : <FaChevronDown size={15} />}</span>
+            </button>
+
+            {/* Dropdown Menu */}
+            {infoDropdown && (
+              <div className="absolute top-10 left-0 w-64 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-10">
+                {[
+                  { name: "Unboxing Policy", path: "/unboxing-policy" },
+                  { name: "Disclaimer", path: "/disclaimer" },
+                  { name: "Terms and Conditions", path: "/terms-conditions" },
+                  { name: "Privacy Policy", path: "/privacy-policy" },
+                  { name: "Shipping Policy", path: "/shipping-policy" },
+                ].map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setInfoDropdown(false)} // Close on click
+                    className={({ isActive }) =>
+                      `cursor-pointer px-4 py-2 transition-colors duration-300 ${isActive
+                        ? "text-black underline underline-offset-4"
+                        : "hover:text-black text-gray-500 hover:underline hover:underline-offset-4"
+                      }`
+                    }
+                  >
+                    {item.name}
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Icons */}
         <div className="w-auto h-auto flex gap-3 items-center relative sm:gap-5 xl:gap-8">
           <IoIosSearch size={20} className="text-black cursor-pointer sm:size-6" />
-          <FaRegUser size={20} className="text-black cursor-pointer sm:size-6" />
+          <NavLink to='/signin'><FaRegUser size={20} className="text-black cursor-pointer sm:size-6 md:hover:scale-110 duration-300 ease-in-out" /></NavLink>
           <TiShoppingCart size={25} className="hidden md:block text-black cursor-pointer" />
 
-          {
-            dropdown
-              ? <IoClose
-                onClick={() => setDropDown(!dropdown)}
-                size={25}
-                className="text-black cursor-pointer sm:size-8 md:hidden"
-              />
-              : <HiBars3
-                onClick={() => setDropDown(!dropdown)}
-                size={25}
-                className="text-black cursor-pointer sm:size-8 md:hidden"
-              />
-          }
+          {dropdown ? (
+            <IoClose
+              onClick={() => setDropDown(!dropdown)}
+              size={25}
+              className="text-black cursor-pointer sm:size-8 md:hidden"
+            />
+          ) : (
+            <HiBars3
+              onClick={() => setDropDown(!dropdown)}
+              size={25}
+              className="text-black cursor-pointer sm:size-8 md:hidden"
+            />
+          )}
         </div>
       </header>
       {/* Dropdown Menu */}
       <div
-        className={`absolute top-[65px] sm:top-20 right-2 w-44 bg-white border shadow-lg rounded-lg py-3 flex flex-col gap-2 transition-all duration-300 transform md:hidden ${dropdown
-            ? "opacity-100 scale-100 translate-y-0"
-            : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+        ref={dropdownRef}
+        className={`absolute top-[64px] sm:top-20 border border-gray-200 right-2 z-20 w-60 bg-white shadow-xl py-3 flex flex-col gap-2 transition-all duration-300 transform md:hidden ${dropdown
+          ? "opacity-100 scale-100 translate-y-0"
+          : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
           }`}
       >
         {[

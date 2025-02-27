@@ -67,7 +67,7 @@ function HeroSection() {
             </button>
 
             {/* Bullet Indicators */}
-            <div className="hidden md:flex absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+            <div className="hidden md:flex absolute bottom-4 left-1/2 transform -translate-x-1/2 gap-2">
                 {carousel.map((_, index) => (
                     <div
                         key={index}
