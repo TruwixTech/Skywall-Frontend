@@ -33,7 +33,7 @@ const Footer = () => {
               placeholder="Enter Email Id"
               className="outline-none text-black bg-[#D9D9D9] w-full py-1.5 px-4"
             />
-            <span className="bg-[#0159A5] hover:bg-[#01447A] text-white font-medium flex justify-center items-center px-6 rounded-3xl cursor-pointer">
+            <span className="bg-blue-600 hover:bg-blue-700 text-white font-medium flex justify-center items-center px-6 rounded-3xl cursor-pointer">
               Submit
             </span>
           </div>
@@ -121,25 +121,25 @@ const Footer = () => {
         <div className="flex flex-col">
           {/* <h1 className="font-bold text-2xl xl:text-3xl">Follow Us</h1> */}
           <div className="mt-4 flex gap-3">
-            <span className="w-fit cursor-pointer p-2 bg-[#0159A5] hover:bg-[#01447A] rounded-full flex justify-center items-center">
+            <span className="w-fit cursor-pointer p-2 bg-blue-600 hover:bg-blue-700 rounded-full flex justify-center items-center">
               <FaFacebookF size={18} className="text-white" />
             </span>
-            <span className="w-fit cursor-pointer p-2 bg-[#0159A5] hover:bg-[#01447A] rounded-full flex justify-center items-center">
+            <span className="w-fit cursor-pointer p-2 bg-blue-600 hover:bg-blue-700 rounded-full flex justify-center items-center">
               <FaXTwitter size={18} className="text-white" />
             </span>
-            <span className="w-fit cursor-pointer p-2 bg-[#0159A5] hover:bg-[#01447A] rounded-full flex justify-center items-center">
+            <span className="w-fit cursor-pointer p-2 bg-blue-600 hover:bg-blue-700 rounded-full flex justify-center items-center">
               <FaThreads size={18} className="text-white" />
             </span>
           </div>
           <button
             onClick={() => navigate("/")}
-            className="w-41 mt-5 py-2 cursor-pointer px-4 bg-[#0159A5] hover:bg-[#01447A] text-white font-semibold rounded-2xl"
+            className="w-41 mt-5 py-2 cursor-pointer px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl"
           >
             Track Orders
           </button>
           <button
             onClick={() => navigate("/")}
-            className="w-41 mt-5 py-2 cursor-pointer px-4 bg-[#0159A5] hover:bg-[#01447A] text-white font-semibold rounded-2xl"
+            className="w-41 mt-5 py-2 cursor-pointer px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl"
           >
             Wholesale Orders
           </button>
