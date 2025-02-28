@@ -17,6 +17,14 @@ import TelevisionSinglePage from './Components/TelevisionSinglepage.jsx'
 import TermsCondition from './Pages/TermsCondition.jsx'
 import PrivacyPolicy from './Pages/PrivacyPolicy.jsx'
 import ShippingPolicy from './Pages/ShippingPolicy.jsx'
+import AdminLogin from './Components/AdminDashboardComponents/AdminLogin.jsx'
+import AdminDashboard from './Components/AdminDashboardComponents/AdminDashboard.jsx'
+import Admin from './Admin.jsx'
+import AddProduct from './Components/AdminDashboardComponents/ProductsRelatedComponents/AddProduct.jsx'
+import { ToastContainer } from 'react-toastify'
+import NotFound from './Pages/ErrorPage.jsx'
+import AllProducts from './Components/AdminDashboardComponents/ProductsRelatedComponents/AllProducts.jsx'
+import AllOrders from './Components/AdminDashboardComponents/OrdersRelatedComponents/AllOrders.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -29,20 +37,31 @@ const router = createBrowserRouter(
         <Route path='/contact' element={<Contact />} />
         <Route path='/signin' element={<SignIn />} />
         <Route path='/signup' element={<SignUp />} />
-        <Route path='/televisions' element={<Television/>} />
+        <Route path='/televisions' element={<Television />} />
         <Route path="/television/:id" element={<TelevisionSinglePage />} />
         <Route path="/news-media" element={<News />} />
         <Route path="/news-media/:id" element={<SingleNews />} />
         <Route path="/terms-conditions" element={<TermsCondition />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/shipping-policy" element={<ShippingPolicy />} />
+        <Route path='/admin-login' element={<AdminLogin />} />
+        {/* Admin Dashboard Route */}
+        <Route path='/admin-dashboard' element={<Admin />}>
+          <Route path='/admin-dashboard' element={<AdminDashboard />} />
+          <Route path='/admin-dashboard/addproduct' element={<AddProduct />} />
+          <Route path='/admin-dashboard/allproduct' element={<AllProducts />} />
+          <Route path='/admin-dashboard/orders' element={<AllOrders />} />
+        </Route>
       </Route>
+      <Route path="*" element={<NotFound />} />
+
     </>
   )
 )
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <ToastContainer />
     <RouterProvider router={router} />
   </StrictMode>,
 )
