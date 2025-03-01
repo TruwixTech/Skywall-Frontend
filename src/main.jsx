@@ -25,6 +25,8 @@ import { ToastContainer } from 'react-toastify'
 import NotFound from './Pages/ErrorPage.jsx'
 import AllProducts from './Components/AdminDashboardComponents/ProductsRelatedComponents/AllProducts.jsx'
 import AllOrders from './Components/AdminDashboardComponents/OrdersRelatedComponents/AllOrders.jsx'
+import 'react-toastify/dist/ReactToastify.css';
+import DiscountCoupon from './Components/AdminDashboardComponents/DiscountCoupan/DiscountCoupon.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -51,6 +53,7 @@ const router = createBrowserRouter(
           <Route path='/admin-dashboard/addproduct' element={<AddProduct />} />
           <Route path='/admin-dashboard/allproduct' element={<AllProducts />} />
           <Route path='/admin-dashboard/orders' element={<AllOrders />} />
+          <Route path='/admin-dashboard/coupon' element={<DiscountCoupon />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFound />} />
