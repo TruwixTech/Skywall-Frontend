@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
     FaEdit,
@@ -9,183 +9,19 @@ import {
     FaPlus,
     FaThLarge,
     FaListUl,
-    FaTimes
+    FaTimes,
+    FaChevronLeft,
+    FaChevronRight
 } from 'react-icons/fa';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import LoadingSpinner from '../../../utils/LoadingSpinner';
+import EditProduct from './EditProductForm';
 
-// Mock data based on your schema
-const mockProducts = [
-    {
-        _id: '1',
-        name: 'Wireless Bluetooth Headphones',
-        price: 199.99,
-        discount_percentage: 15,
-        new_price: 169.99,
-        stock: 25,
-        warranty_years: 2,
-        highlights: [
-            'Noise-cancelling technology',
-            '40hrs battery life',
-            'IPX4 water resistance'
-        ],
-        specifications: [
-            { title: 'Audio', key: 'Frequency Range', value: '20Hz-20kHz' },
-            { title: 'Connectivity', key: 'Bluetooth Version', value: '5.0' }
-        ],
-        image: [
-            'https://via.placeholder.com/400',
-            'https://via.placeholder.com/400'
-        ],
-        description: 'Premium wireless headphones with advanced noise cancellation',
-        category: 'Electronics'
-    },
-    {
-        _id: '2',
-        name: 'Smart Watch Series 6',
-        price: 299.99,
-        discount_percentage: 10,
-        new_price: 269.99,
-        stock: 12,
-        warranty_years: 1,
-        highlights: [
-            'Heart rate monitoring',
-            'Sleep tracking',
-            'GPS & Cellular'
-        ],
-        specifications: [
-            { title: 'Screen', key: 'Display Size', value: '1.78 inches' },
-            { title: 'Battery', key: 'Life', value: '18 hours' }
-        ],
-        image: [
-            'https://via.placeholder.com/400',
-            'https://via.placeholder.com/400'
-        ],
-        description: 'Smartwatch with health tracking and seamless connectivity',
-        category: 'Wearables'
-    },
-    {
-        _id: '3',
-        name: 'Gaming Laptop X15',
-        price: 1499.99,
-        discount_percentage: 20,
-        new_price: 1199.99,
-        stock: 5,
-        warranty_years: 3,
-        highlights: [
-            'NVIDIA RTX 3070',
-            '144Hz Display',
-            '16GB RAM'
-        ],
-        specifications: [
-            { title: 'Processor', key: 'CPU', value: 'Intel i7 12th Gen' },
-            { title: 'Graphics', key: 'GPU', value: 'NVIDIA RTX 3070' }
-        ],
-        image: [
-            'https://via.placeholder.com/400',
-            'https://via.placeholder.com/400'
-        ],
-        description: 'High-performance gaming laptop with powerful graphics',
-        category: 'Computers'
-    },
-    {
-        _id: '4',
-        name: '4K Smart TV 55"',
-        price: 799.99,
-        discount_percentage: 12,
-        new_price: 703.99,
-        stock: 7,
-        warranty_years: 2,
-        highlights: [
-            'Dolby Vision & HDR10+',
-            'Voice Assistant Support',
-            '120Hz Refresh Rate'
-        ],
-        specifications: [
-            { title: 'Display', key: 'Resolution', value: '3840x2160' },
-            { title: 'Smart Features', key: 'OS', value: 'Android TV' }
-        ],
-        image: [
-            'https://via.placeholder.com/400',
-            'https://via.placeholder.com/400'
-        ],
-        description: 'Ultra HD Smart TV with vivid colors and deep blacks',
-        category: 'Home Appliances'
-    },
-    {
-        _id: '5',
-        name: 'Noise Cancelling Earbuds',
-        price: 149.99,
-        discount_percentage: 18,
-        new_price: 122.99,
-        stock: 0, // Out of stock
-        warranty_years: 1,
-        highlights: [
-            'ANC & Transparency mode',
-            'Wireless Charging',
-            'IPX7 Waterproof'
-        ],
-        specifications: [
-            { title: 'Audio', key: 'Driver Size', value: '10mm' },
-            { title: 'Battery', key: 'Playtime', value: '28 hours' }
-        ],
-        image: [
-            'https://via.placeholder.com/400',
-            'https://via.placeholder.com/400'
-        ],
-        description: 'True wireless earbuds with immersive sound and ANC',
-        category: 'Audio'
-    },
-    {
-        _id: '6',
-        name: 'Electric Scooter Pro',
-        price: 899.99,
-        discount_percentage: 5,
-        new_price: 854.99,
-        stock: 15,
-        warranty_years: 2,
-        highlights: [
-            'Max speed 25mph',
-            '30-mile range',
-            'Foldable & lightweight'
-        ],
-        specifications: [
-            { title: 'Performance', key: 'Max Speed', value: '25 mph' },
-            { title: 'Battery', key: 'Range', value: '30 miles' }
-        ],
-        image: [
-            'https://via.placeholder.com/400',
-            'https://via.placeholder.com/400'
-        ],
-        description: 'Electric scooter for urban commuting with long battery life',
-        category: 'Transportation'
-    },
-    {
-        _id: '7',
-        name: 'DSLR Camera 24MP',
-        price: 999.99,
-        discount_percentage: 10,
-        new_price: 899.99,
-        stock: 8,
-        warranty_years: 3,
-        highlights: [
-            '4K Video Recording',
-            'Fast Autofocus',
-            'Interchangeable Lens'
-        ],
-        specifications: [
-            { title: 'Sensor', key: 'Megapixels', value: '24MP' },
-            { title: 'Lens', key: 'Mount Type', value: 'EF-M' }
-        ],
-        image: [
-            'https://via.placeholder.com/400',
-            'https://via.placeholder.com/400'
-        ],
-        description: 'Professional DSLR camera with high-resolution sensor',
-        category: 'Photography'
-    }
-];
+const backend = import.meta.env.VITE_BACKEND
 
 const AllProducts = () => {
-    const [products, setProducts] = useState(mockProducts);
+    const [products, setProducts] = useState([]);
     const [showOutOfStock, setShowOutOfStock] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('price');
@@ -196,6 +32,9 @@ const AllProducts = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedProduct, setSelectedProduct] = useState(null); // For modal
     const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Modal state
+    const [loading, setLoading] = useState(false);
+    const [editPopUp, setEditPopUp] = useState(false);
     const productsPerPage = 6;
 
 
@@ -211,12 +50,37 @@ const AllProducts = () => {
         setIsModalOpen(false);
     };
 
+    // Open Modal for delete products
+    const openModalDelete = (product) => {
+        setSelectedProduct(product);
+        setIsDeleteModalOpen(true);
+    };
+
+    // Close Modal  for delete products
+    const closeModalDelete = () => {
+        setSelectedProduct(null);
+        setIsDeleteModalOpen(false);
+    };
+
+    // Open Modal for edit products
+    const openEditModal = (product) => {
+        setSelectedProduct(product);
+        setEditPopUp(true);
+    };
+
+    // Close Modal for edit products
+    const closeEditModal = () => {
+        setSelectedProduct(null);
+        setEditPopUp(false);
+    };
+
+
     // Filtering logic
     const filteredProducts = products.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             product.category.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-        const stockCheck = showOutOfStock ? true : product.stock > 0;
+        const stockCheck = showOutOfStock ? true : product.stock >= 0;
 
         return matchesSearch && matchesCategory && stockCheck;
     });
@@ -262,9 +126,53 @@ const AllProducts = () => {
 
     // Single product delete
     const handleDelete = (productId) => {
-        setProducts(prev => prev.filter(p => p._id !== productId));
-        setSelectedProducts(prev => prev.filter(id => id !== productId));
+        openModalDelete(productId);
     };
+
+    async function deleteProduct(id) {
+        try {
+            setLoading(true);
+            const response = await axios.post(`${backend}/product/${id}/remove`, {}, {
+                headers: {
+                    'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
+                },
+            });
+            if (response.data.status === "Success") {
+                setLoading(false);
+                setSelectedProduct(null)
+                toast.success('Product deleted successfully.');
+                fetchAllProducts()
+                closeModalDelete()
+            }
+
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            setLoading(false);
+        }
+    }
+
+    async function fetchAllProducts() {
+        try {
+            setLoading(true);
+            const response = await axios.post(`${backend}/product/list`, {
+                pageNum: currentPage,
+                pageSize: productsPerPage,
+                filters: {}
+            });
+            if (response.data.status === "Success") {
+                setLoading(false);
+                setProducts(response.data.data.productList);
+            }
+
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        fetchAllProducts();
+    }, [])
 
     // View mode toggle buttons
     const ViewModeToggle = () => (
@@ -307,12 +215,12 @@ const AllProducts = () => {
                     <button onClick={() => openModal(product)} className="p-2 bg-white rounded-full shadow-sm hover:bg-blue-100">
                         <FaEye className="text-gray-600" />
                     </button>
-                    <Link
-                        to={`/admin-dashboard/edit-product/${product._id}`}
+                    <button
+                        onClick={() => openEditModal(product)}
                         className="p-2 bg-white rounded-full shadow-sm hover:bg-green-100"
                     >
                         <FaEdit className="text-green-600" />
-                    </Link>
+                    </button>
                 </div>
             </div>
 
@@ -340,7 +248,7 @@ const AllProducts = () => {
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                         <span className="text-xl font-bold text-blue-600">
-                        ₹{product.new_price ?? product.price}
+                            ₹{product.new_price ?? product.price}
                         </span>
                         {product.discount_percentage > 0 && (
                             <span className="text-sm text-gray-500 line-through">
@@ -358,12 +266,12 @@ const AllProducts = () => {
                         View Details
                     </button>
                     <div className="grid grid-cols-2 gap-2">
-                        <Link
-                            to={`/admin-dashboard/edit-product/${product._id}`}
+                        <button
+                            onClick={() => openEditModal(product)}
                             className="flex items-center justify-center gap-2 bg-green-100 text-green-600 hover:bg-green-200 p-2 rounded-md"
                         >
                             <FaEdit /> Edit
-                        </Link>
+                        </button>
                         <button
                             onClick={() => handleDelete(product._id)}
                             className="flex items-center justify-center gap-2 bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded-md"
@@ -376,49 +284,171 @@ const AllProducts = () => {
         </div>
     );
 
-    // Modal Component
-    const ProductModal = () => (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative">
-                <button
-                    className="absolute top-3 right-3 text-gray-600 hover:text-red-600"
-                    onClick={closeModal}
-                >
-                    <FaTimes size={20} />
-                </button>
+    const DeleteConfirmationModal = () => {
+        if (!isDeleteModalOpen) return null;
 
-                <div className="text-center">
-                    <img
-                        src={selectedProduct.image[0]}
-                        alt={selectedProduct.name}
-                        className="w-full h-64 object-cover rounded-md"
-                    />
-                    <h2 className="text-2xl font-bold mt-4">{selectedProduct.name}</h2>
-                    <p className="text-gray-500">{selectedProduct.category}</p>
-
-                    <div className="flex items-center justify-center gap-4 mt-3">
-                        <span className="text-2xl font-bold text-blue-600">
-                        ₹{selectedProduct.new_price ?? selectedProduct.price}
-                        </span>
-                        {selectedProduct.discount_percentage > 0 && (
-                            <span className="text-gray-500 line-through">₹{selectedProduct.price}</span>
-                        )}
-                    </div>
-
-                    <p className="mt-2 text-gray-600">Warranty: {selectedProduct.warranty_years} years</p>
-                </div>
-
-                <div className="flex justify-center mt-4">
+        return (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6 relative">
+                    {/* Close Button */}
                     <button
-                        onClick={closeModal}
-                        className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                        className="absolute top-2 right-2 text-gray-600 hover:text-red-600"
+                        onClick={closeModalDelete}
                     >
-                        Close
+                        <FaTimes size={20} />
                     </button>
+
+                    {/* Modal Content */}
+                    <div className="text-center">
+                        <h2 className="text-xl font-bold text-gray-800">
+                            Are you sure you want to delete this product?
+                        </h2>
+                        <p className="text-gray-500 mt-2">This action cannot be undone.</p>
+
+                        {/* Buttons */}
+                        <div className="flex justify-center gap-4 mt-4">
+                            <button
+                                onClick={closeModalDelete}
+                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => deleteProduct(selectedProduct)}
+                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    );
+        );
+    };
+
+    // Modal Component
+    const ProductModal = () => {
+        const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+        // Function to go to the next image
+        const nextImage = () => {
+            if (currentImageIndex < selectedProduct.image.length - 1) {
+                setCurrentImageIndex(currentImageIndex + 1);
+            }
+        };
+
+        // Function to go to the previous image
+        const prevImage = () => {
+            if (currentImageIndex > 0) {
+                setCurrentImageIndex(currentImageIndex - 1);
+            }
+        };
+
+        return (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative overflow-hidden">
+                    {/* Close Button */}
+                    <button
+                        className="absolute top-2 right-2 text-gray-600 hover:text-red-600"
+                        onClick={closeModal}
+                    >
+                        <FaTimes size={22} />
+                    </button>
+
+                    {/* Scrollable Content */}
+                    <div className="max-h-[80vh] overflow-y-auto p-2" style={{
+                        scrollbarWidth: "thin"
+                    }}>
+                        {/* Image Carousel */}
+                        <div className="relative">
+                            <img
+                                src={selectedProduct.image[currentImageIndex]}
+                                alt={selectedProduct.name}
+                                className="w-full h-64 object-cover rounded-md"
+                            />
+
+                            {/* Left Button */}
+                            {currentImageIndex > 0 && (
+                                <button
+                                    className="absolute top-1/2 left-2 bg-black/50 text-white p-2 rounded-full transform -translate-y-1/2"
+                                    onClick={prevImage}
+                                >
+                                    <FaChevronLeft size={20} />
+                                </button>
+                            )}
+
+                            {/* Right Button */}
+                            {currentImageIndex < selectedProduct.image.length - 1 && (
+                                <button
+                                    className="absolute top-1/2 right-2 bg-black/50 text-white p-2 rounded-full transform -translate-y-1/2"
+                                    onClick={nextImage}
+                                >
+                                    <FaChevronRight size={20} />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Product Details */}
+                        <h2 className="text-2xl font-bold mt-4">{selectedProduct.name}</h2>
+                        <p className="text-gray-500">{selectedProduct.category}</p>
+
+                        {/* Pricing Section */}
+                        <div className="flex items-center gap-4 mt-3">
+                            <span className="text-2xl font-bold text-blue-600">
+                                ₹{selectedProduct.new_price ?? selectedProduct.price}
+                            </span>
+                            {selectedProduct.discount_percentage > 0 && (
+                                <span className="text-gray-500 line-through">
+                                    ₹{selectedProduct.price}
+                                </span>
+                            )}
+                        </div>
+
+                        <p className="mt-2 text-gray-600">Warranty: {selectedProduct.warranty_years} years</p>
+                        <p className="mt-2 text-gray-600">Stock: {selectedProduct.stock} units available</p>
+
+                        {/* Highlights */}
+                        <div className="mt-4">
+                            <h3 className="text-lg font-semibold">Highlights</h3>
+                            <ul className="list-disc list-inside text-gray-600">
+                                {selectedProduct?.highlights?.map((highlight, index) => (
+                                    <li key={index}>{highlight}</li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* Specifications */}
+                        <div className="mt-4">
+                            <h3 className="text-lg font-semibold">Specifications</h3>
+                            <ul className="list-disc list-inside text-gray-600">
+                                {selectedProduct?.specificationSchema?.map((spec, index) => (
+                                    <li key={index}>
+                                        <strong>{spec.title}:</strong> {spec.key} - {spec.value}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* Description */}
+                        <div className="mt-4">
+                            <h3 className="text-lg font-semibold">Description</h3>
+                            <p className="text-gray-600">{selectedProduct.description}</p>
+                        </div>
+                    </div>
+
+                    {/* Close Button */}
+                    <div className="flex justify-center mt-4">
+                        <button
+                            onClick={closeModal}
+                            className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     // List View Item Component
     const ListItem = ({ product }) => (
@@ -514,8 +544,8 @@ const AllProducts = () => {
                             }}
                         >
                             <option value="all">All Categories</option>
-                            {[...new Set(products.map(p => p.category))].map(category => (
-                                <option key={category} value={category}>{category}</option>
+                            {[...new Set(products.map(p => p.category))].map((category, index) => (
+                                <option key={index} value={category}>{category}</option>
                             ))}
                         </select>
 
@@ -554,7 +584,7 @@ const AllProducts = () => {
                     </div>
 
                     {selectedProducts.length > 0 && (
-                        <div className="bg-yellow-100 p-4 rounded-md flex items-center justify-between">
+                        <div className="bg-yellow-100 p-4 rounded-md flex flex-col gap-4 md:flex-row items-center justify-between">
                             <span>{selectedProducts.length} selected</span>
                             <button
                                 onClick={handleBulkDelete}
@@ -621,6 +651,12 @@ const AllProducts = () => {
             </div>
             {/* Product Details Modal */}
             {isModalOpen && <ProductModal />}
+            {/* Product delete modal */}
+            {isDeleteModalOpen && <DeleteConfirmationModal />}
+            {/* LoadingSpinner */}
+            {loading && <LoadingSpinner />}
+            {/* Edit Popup */}
+            {editPopUp && <EditProduct selectedProduct={selectedProduct} onOpen={openEditModal} onClose={closeEditModal} />}
         </div>
     );
 };

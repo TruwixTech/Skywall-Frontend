@@ -5,22 +5,48 @@ import { FaRegUser } from "react-icons/fa6";
 import { IoIosSearch } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { TiShoppingCart } from "react-icons/ti";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FaChevronDown } from "react-icons/fa6";
+import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
 
 
 function Header() {
   const [dropdown, setDropDown] = useState(false);
   const [infoDropdown, setInfoDropdown] = useState(false); // State for "Information" 
   const [infoDropdown2, setInfoDropdown2] = useState(false); // State for "Information" 
+  const [user, setUser] = useState({})
+  const [logoutPopup, setLogoutPopup] = useState(false)
+  const [userDropDown, setUserDropDown] = useState(false)
 
-
+  const navigate = useNavigate()
   const location = useLocation()
 
   const dropdownRef = useRef(null);
   const infoDropdownRef = useRef(null);
   const infoDropdownRef2 = useRef(null);
+  const userDropdownRef = useRef(null)
+  const token = localStorage.getItem("token")
 
+  useEffect(() => {
+    if (token) {
+      const decoded = jwtDecode(token)
+      setUser(decoded)
+    }
+  }, [token])
+
+  function handleLogout() {
+    localStorage.removeItem("token")
+    window.location.reload()
+    navigate('/')
+    setLogoutPopup(false)
+  }
+
+  const handleClickOutside = (event) => {
+    if (event.target.id === "logout-modal") {
+      setLogoutPopup(false)
+    }
+  };
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -33,6 +59,9 @@ function Header() {
       }
       if (infoDropdownRef2.current && !infoDropdownRef2.current.contains(event.target)) {
         setInfoDropdown2(false);
+      }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+        setUserDropDown(false);
       }
     }
 
@@ -111,7 +140,21 @@ function Header() {
         {/* Icons */}
         <div className="w-auto h-auto flex gap-3 items-center relative sm:gap-5 xl:gap-8">
           <IoIosSearch size={20} className="text-black cursor-pointer sm:size-6" />
-          <NavLink to='/signin'><FaRegUser size={20} className="text-black cursor-pointer sm:size-6 md:hover:scale-110 duration-300 ease-in-out" /></NavLink>
+          {
+            user && user.userId
+              ? (
+                <div className="relative" ref={userDropdownRef}>
+                  <FaRegUser size={20} onClick={() => setUserDropDown(!userDropDown)} className="text-black cursor-pointer sm:size-6 md:hover:scale-110 duration-300 ease-in-out" />
+                  {userDropDown && (
+                    <div className="absolute top-10 -left-20 w-52 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-10">
+                      <NavLink to='/' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Profile</NavLink>
+                      <button onClick={() => setLogoutPopup(true)} className="cursor-pointer px-4 py-2 transition-colors duration-300 hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Logout</button>
+                    </div>
+                  )}
+                </div>
+              )
+              : <NavLink to='/signin'><FaRegUser size={20} className="text-black cursor-pointer sm:size-6 md:hover:scale-110 duration-300 ease-in-out" /></NavLink>
+          }
           <TiShoppingCart size={25} className="hidden md:block text-black cursor-pointer" />
 
           {dropdown ? (
@@ -180,7 +223,7 @@ function Header() {
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  onClick={() => {setInfoDropdown2(false);setDropDown(false);}} // Close on click
+                  onClick={() => { setInfoDropdown2(false); setDropDown(false); }} // Close on click
                   className={({ isActive }) =>
                     `cursor-pointer px-4 py-2 transition-colors duration-300 ${isActive
                       ? "text-black underline underline-offset-4"
@@ -195,6 +238,37 @@ function Header() {
           )}
         </div>
       </div>
+
+      {/* Logout Popup */}
+      {
+        logoutPopup && (
+          <div
+            id="logout-modal"
+            className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50"
+            onClick={handleClickOutside}
+          >
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center relative">
+              <h2 className="text-xl font-bold text-gray-900">Are you sure?</h2>
+              <p className="text-gray-600 mt-2">Do you want to logout?</p>
+
+              <div className="flex justify-center gap-4 mt-6">
+                <button
+                  onClick={()=> setLogoutPopup(false)}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
     </>
   );
 }
