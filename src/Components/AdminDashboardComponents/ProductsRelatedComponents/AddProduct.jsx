@@ -1,6 +1,8 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { IoClose } from "react-icons/io5";
+import { toast } from 'react-toastify';
+import LoadingSpinner from '../../../utils/LoadingSpinner';
 
 const backend = import.meta.env.VITE_BACKEND
 
@@ -12,13 +14,14 @@ const AddProduct = () => {
         new_price: '',
         stock: '',
         warranty_years: '',
-        highlights: [''],
+        highlights: [],
         specifications: [{ title: "", key: "", value: "" }],
         images: [],
         description: '',
         category: ''
     });
     const [previewImages, setPreviewImages] = useState([]);
+    const [loading, setLoading] = useState(false)
 
     // Remove Image
     const removeImage = (index) => {
@@ -79,8 +82,8 @@ const AddProduct = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // console.log(formData);
         try {
+            setLoading(true)
             const formDataToSend = new FormData();
             formDataToSend.append("name", formData.name);
             formDataToSend.append("price", formData.price);
@@ -89,21 +92,48 @@ const AddProduct = () => {
             formDataToSend.append("stock", formData.stock);
             formDataToSend.append("warranty_years", formData.warranty_years);
             formDataToSend.append("highlights", JSON.stringify(formData.highlights));
-            formDataToSend.append("specificationSchema", JSON.stringify(formData.specifications));
+
+            // ✅ Filter out empty specifications before sending
+            const filteredSpecifications = formData.specifications.filter(
+                spec => spec.title.trim() !== "" && spec.key.trim() !== "" && spec.value.trim() !== ""
+            );
+            formDataToSend.append("specificationSchema", JSON.stringify(filteredSpecifications));
+
             formDataToSend.append("description", formData.description);
             formDataToSend.append("category", formData.category);
-            formDataToSend.append("img", JSON.stringify(formData.images));
+            formData.images.forEach((file) => {
+                formDataToSend.append("img", file);
+            });
+
 
             const response = await axios.post(`${backend}/product/add-product`, formDataToSend, {
                 headers: {
-                    "Content-Type": "multipart/form-data"
+                    "Content-Type": "multipart/form-data",
+                    Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
                 }
             });
 
-            console.log(response.data);
-
+            if (response.data.status === "SUCCESS") {
+                toast.success("Product added successfully!");
+                setLoading(false)
+                setFormData({
+                    name: "",
+                    price: "",
+                    discount_percentage: "",
+                    new_price: "",
+                    stock: "",
+                    warranty_years: "",
+                    highlights: [],
+                    specifications: [{ title: "", key: "", value: "" }],
+                    images: [],
+                    description: '',
+                    category: ''
+                });
+                setPreviewImages([]);
+            }
         } catch (error) {
             console.error(error);
+            setLoading(false)
         }
     };
 
@@ -336,6 +366,9 @@ const AddProduct = () => {
                     Add Product
                 </button>
             </form>
+            {
+                loading && <LoadingSpinner />
+            }
         </div>
     );
 };

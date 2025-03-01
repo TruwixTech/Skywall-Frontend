@@ -13,7 +13,7 @@ const Footer = () => {
     <footer className="w-full h-auto flex flex-col bg-gray-200">
       <a
         href="https://wa.me/+919871723469"
-        class="whatsapp-float"
+        className="whatsapp-float"
         target="_blank"
       >
         <img
