@@ -27,6 +27,8 @@ import AllProducts from './Components/AdminDashboardComponents/ProductsRelatedCo
 import AllOrders from './Components/AdminDashboardComponents/OrdersRelatedComponents/AllOrders.jsx'
 import 'react-toastify/dist/ReactToastify.css';
 import DiscountCoupon from './Components/AdminDashboardComponents/DiscountCoupan/DiscountCoupon.jsx'
+import InventoryManagement from './Components/AdminDashboardComponents/InventoryManagement/Inventory.jsx'
+import MyCart from './Pages/MyCart.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -39,6 +41,7 @@ const router = createBrowserRouter(
         <Route path='/contact' element={<Contact />} />
         <Route path='/signin' element={<SignIn />} />
         <Route path='/signup' element={<SignUp />} />
+        <Route path='/cart' element={<MyCart />} />
         <Route path='/televisions' element={<Television />} />
         <Route path="/television/:id" element={<TelevisionSinglePage />} />
         <Route path="/news-media" element={<News />} />
@@ -54,6 +57,7 @@ const router = createBrowserRouter(
           <Route path='/admin-dashboard/allproduct' element={<AllProducts />} />
           <Route path='/admin-dashboard/orders' element={<AllOrders />} />
           <Route path='/admin-dashboard/coupon' element={<DiscountCoupon />} />
+          <Route path='/admin-dashboard/inventory' element={<InventoryManagement />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFound />} />

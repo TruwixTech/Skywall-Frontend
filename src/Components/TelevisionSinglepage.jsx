@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ChevronRight,
   Star,
@@ -11,6 +11,9 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useParams, Link } from "react-router-dom";
+import axios from "axios";
+
+const backend = import.meta.env.VITE_BACKEND;
 
 // This would be replaced with real data in your application
 const getTelevisionById = (id) => {
@@ -131,6 +134,7 @@ const TelevisionSinglePage = () => {
   const television = getTelevisionById(id || "1");
 
   const [quantity, setQuantity] = useState(1);
+  const [singleProduct, setSingleProduct] = useState({})
   const [selectedImage, setSelectedImage] = useState(0);
   const [expandedSpecs, setExpandedSpecs] = useState("Display");
 
@@ -160,16 +164,31 @@ const TelevisionSinglePage = () => {
           <Star
             key={star}
             size={16}
-            className={`${
-              star <= rating
-                ? "text-yellow-400 fill-yellow-400"
-                : "text-gray-300"
-            }`}
+            className={`${star <= rating
+              ? "text-yellow-400 fill-yellow-400"
+              : "text-gray-300"
+              }`}
           />
         ))}
       </div>
     );
   };
+
+
+  async function getSingleProductDetails(id) {
+    try {
+      const response = await axios.get(`${backend}/product/${id}`)
+      if (response.data.status === "Success") {
+        setSingleProduct(response.data.data.product)
+      }
+    } catch (error) {
+      console.log("Error while getting single product details", error)
+    }
+  }
+
+  useEffect(() => {
+    getSingleProductDetails(id)
+  }, [id])
 
   return (
     <div className="min-h-screen">
@@ -188,7 +207,7 @@ const TelevisionSinglePage = () => {
             </Link>
             <ChevronRight size={16} className="mx-2 text-gray-400" />
             <span className="text-gray-900 truncate max-w-xs">
-              {television.name}
+              {singleProduct?.name}
             </span>
           </nav>
         </div>
@@ -214,11 +233,10 @@ const TelevisionSinglePage = () => {
                 {television.images.map((img, index) => (
                   <div
                     key={index}
-                    className={`border rounded cursor-pointer h-16 sm:h-20 flex items-center justify-center bg-gray-100 ${
-                      selectedImage === index
-                        ? "border-blue-500 ring-2 ring-blue-200"
-                        : ""
-                    }`}
+                    className={`border rounded cursor-pointer h-16 sm:h-20 flex items-center justify-center bg-gray-100 ${selectedImage === index
+                      ? "border-blue-500 ring-2 ring-blue-200"
+                      : ""
+                      }`}
                     onClick={() => setSelectedImage(index)}
                   >
                     <img
@@ -235,7 +253,7 @@ const TelevisionSinglePage = () => {
             <div className="col-span-1 lg:col-span-2 space-y-6">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {television.name}
+                  {singleProduct?.name}
                 </h1>
                 <p className="text-gray-500 mt-1">{television.company}™ TV</p>
 
@@ -252,13 +270,13 @@ const TelevisionSinglePage = () => {
               <div className="pt-2 border-t">
                 <div className="flex items-baseline space-x-2">
                   <span className="text-3xl font-bold text-gray-900">
-                    ₹{television.discountedPrice.toLocaleString()}
+                    ₹{singleProduct?.new_price}
                   </span>
                   <span className="text-lg text-gray-500 line-through">
-                    ₹{television.realPrice.toLocaleString()}
+                    ₹{singleProduct?.price}
                   </span>
                   <span className="text-green-600 font-semibold text-sm bg-green-50 px-2 py-1 rounded">
-                    {television.discount}% off
+                    {singleProduct?.discount_percentage}% off
                   </span>
                 </div>
                 <p className="text-sm text-gray-500 mt-1">
@@ -268,7 +286,7 @@ const TelevisionSinglePage = () => {
 
               {/* Stock Status */}
               <div className="flex items-center space-x-2">
-                {television.inStock ? (
+                {singleProduct?.stock > 0 ? (
                   <>
                     <span className="flex items-center text-green-600">
                       <Check size={16} className="mr-1" />
@@ -285,7 +303,7 @@ const TelevisionSinglePage = () => {
               <div className="space-y-2 border-t pt-4">
                 <h3 className="font-medium text-gray-900">Highlights</h3>
                 <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
-                  {television.highlights.map((highlight, index) => (
+                  {singleProduct?.highlights?.map((highlight, index) => (
                     <li key={index}>{highlight}</li>
                   ))}
                 </ul>
@@ -328,7 +346,7 @@ const TelevisionSinglePage = () => {
                     <ShoppingCart size={18} className="mr-2" />
                     Add to Cart
                   </button>
-                  
+
                 </div>
               </div>
 
@@ -383,7 +401,7 @@ const TelevisionSinglePage = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Description
             </h2>
-            <p className="text-gray-700">{television.description}</p>
+            <p className="text-gray-700">{singleProduct?.description}</p>
           </div>
 
           {/* Specifications */}
@@ -406,11 +424,10 @@ const TelevisionSinglePage = () => {
                     </span>
                     <ChevronDown
                       size={20}
-                      className={`text-gray-500 transition-transform ${
-                        expandedSpecs === spec.category
-                          ? "transform rotate-180"
-                          : ""
-                      }`}
+                      className={`text-gray-500 transition-transform ${expandedSpecs === spec.category
+                        ? "transform rotate-180"
+                        : ""
+                        }`}
                     />
                   </button>
 
@@ -477,12 +494,12 @@ const TelevisionSinglePage = () => {
                               star === 5
                                 ? "60%"
                                 : star === 4
-                                ? "30%"
-                                : star === 3
-                                ? "7%"
-                                : star === 2
-                                ? "2%"
-                                : "1%",
+                                  ? "30%"
+                                  : star === 3
+                                    ? "7%"
+                                    : star === 2
+                                      ? "2%"
+                                      : "1%",
                           }}
                         ></div>
                       </div>
@@ -490,12 +507,12 @@ const TelevisionSinglePage = () => {
                         {star === 5
                           ? "60%"
                           : star === 4
-                          ? "30%"
-                          : star === 3
-                          ? "7%"
-                          : star === 2
-                          ? "2%"
-                          : "1%"}
+                            ? "30%"
+                            : star === 3
+                              ? "7%"
+                              : star === 2
+                                ? "2%"
+                                : "1%"}
                       </div>
                     </div>
                   ))}
