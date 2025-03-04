@@ -130,6 +130,7 @@ const AllProducts = () => {
     };
 
     async function deleteProduct(id) {
+        toast.dismiss()
         try {
             setLoading(true);
             const response = await axios.post(`${backend}/product/${id}/remove`, {}, {
@@ -404,7 +405,12 @@ const AllProducts = () => {
                             )}
                         </div>
 
-                        <p className="mt-2 text-gray-600">Warranty: {selectedProduct.warranty_years} years</p>
+                        <p className="mt-2 text-gray-600">
+                            Warranty:{" "}
+                            {selectedProduct.warranty_months >= 12
+                                ? `${(selectedProduct.warranty_months / 12).toFixed(1)} years`
+                                : `${selectedProduct.warranty_months} months`}
+                        </p>
                         <p className="mt-2 text-gray-600">Stock: {selectedProduct.stock} units available</p>
 
                         {/* Highlights */}
@@ -656,7 +662,7 @@ const AllProducts = () => {
             {/* LoadingSpinner */}
             {loading && <LoadingSpinner />}
             {/* Edit Popup */}
-            {editPopUp && <EditProduct selectedProduct={selectedProduct} onOpen={openEditModal} onClose={closeEditModal} />}
+            {editPopUp && <EditProduct selectedProduct={selectedProduct} onOpen={openEditModal} onClose={closeEditModal} fetchAllProducts={fetchAllProducts} />}
         </div>
     );
 };

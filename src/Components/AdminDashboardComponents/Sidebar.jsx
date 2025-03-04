@@ -25,6 +25,7 @@ const Sidebar = () => {
                     <Link to="/admin-dashboard/allproduct" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">All Products</Link>
                     <Link to="/admin-dashboard/orders" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">Orders</Link>
                     <Link to="/admin-dashboard/coupon" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">Discount Coupon</Link>
+                    <Link to="/admin-dashboard/inventory" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">Inventory Management</Link>
                 </nav>
             </div>
 
