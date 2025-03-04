@@ -1,4 +1,8 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+
+const backend = import.meta.env.VITE_BACKEND
+
 const recentOrders = [
   { id: '#1245', customer: 'John Doe', date: '2024-02-15', status: 'Completed', amount: 299 },
   { id: '#1246', customer: 'Jane Smith', date: '2024-02-14', status: 'Pending', amount: 599 },
@@ -21,40 +25,61 @@ const StatCard = ({ title, value, trend, icon, color }) => (
 );
 
 function AdminDashboard() {
+  const [dashboardData, setDashboardData] = useState({})
+
+  async function getDashboardData() {
+    try {
+      const response = await axios.get(`${backend}/admin/dashboard`, {
+        headers: {
+          Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+        }
+      })
+      if (response.data.status === "Success") {
+        setDashboardData(response.data.data.dashboard_data)
+      }
+    } catch (error) {
+      console.log("Error while getting Dashboard Data", error)
+    }
+  }
+
+  useEffect(() => {
+    getDashboardData()
+  }, [])
+
   return (
     <div className="min-h-screen w-full bg-gray-100 pt-5 lg:pt-8">
       <div className="flex w-full">
         {/* Main Content */}
         <div className="flex-1 p-8 w-full">
           <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard Overview</h1>
-          
+
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatCard
-              title="Total Revenue"
-              value="₹45,231"
-              trend="↑ 20.1% from last month"
-              icon="💰"
+              title="Total User"
+              value={dashboardData?.user_count}
+              // trend="↑ 20.1% from last month"
+              icon="👤"
               color="bg-green-500"
             />
             <StatCard
               title="Total Orders"
-              value="2,345"
-              trend="↑ 15.2% from last month"
+              value={dashboardData?.order_count}
+              // trend="↑ 15.2% from last month"
               icon="📦"
               color="bg-blue-500"
             />
             <StatCard
-              title="Active Customers"
-              value="1,234"
-              trend="↓ 5.1% from last month"
-              icon="👤"
+              title="Total Stock"
+              value={dashboardData?.total_stock}
+              // trend="↓ 5.1% from last month"
+              icon="📈"
               color="bg-purple-500"
             />
             <StatCard
-              title="Avg. Order Value"
-              value="₹123"
-              trend="↑ 8.3% from last month"
+              title="Total Products"
+              value={`₹ ${dashboardData?.product_count}`}
+              // trend="↑ 8.3% from last month"
               icon="📊"
               color="bg-orange-500"
             />
@@ -80,11 +105,10 @@ function AdminDashboard() {
                       <td className='px-5'>{order.customer}</td>
                       <td className='px-5'>{order.date}</td>
                       <td className='px-5'>
-                        <span className={`px-2 py-1 rounded-full text-sm ${
-                          order.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                        <span className={`px-2 py-1 rounded-full text-sm ${order.status === 'Completed' ? 'bg-green-100 text-green-800' :
                           order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-blue-100 text-blue-800'
-                        }`}>
+                            'bg-blue-100 text-blue-800'
+                          }`}>
                           {order.status}
                         </span>
                       </td>

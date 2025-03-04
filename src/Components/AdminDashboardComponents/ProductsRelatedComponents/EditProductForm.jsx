@@ -6,7 +6,7 @@ import LoadingSpinner from "../../../utils/LoadingSpinner";
 
 const backend = import.meta.env.VITE_BACKEND;
 
-const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
+const EditProduct = ({ selectedProduct, onOpen, onClose, fetchAllProducts }) => {
     const [formData, setFormData] = useState({
         name: "",
         price: "",
@@ -15,10 +15,12 @@ const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
         stock: "",
         warranty_years: "",
         highlights: [],
-        specifications: [],
+        specificationSchema: [],
         description: "",
         category: "",
+        warranty_pricing: {}, // Initialize as an empty array
     });
+    const [tempWarranty, setTempWarranty] = useState({ month: "", price: "" });
 
     const [existingImages, setExistingImages] = useState([]);
     const [newImages, setNewImages] = useState([]);
@@ -35,9 +37,10 @@ const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
                 stock: selectedProduct.stock,
                 warranty_years: selectedProduct.warranty_years,
                 highlights: selectedProduct.highlights || [],
-                specifications: selectedProduct.specificationSchema || [],
+                specificationSchema: selectedProduct.specificationSchema || [],
                 description: selectedProduct.description,
                 category: selectedProduct.category,
+                warranty_pricing: selectedProduct.warranty_pricing || {},
             });
 
             setExistingImages(selectedProduct.image || []);
@@ -69,6 +72,44 @@ const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
         }
     };
 
+    // Save warranty pricing only when "Save" button is clicked
+    const saveWarrantyOption = () => {
+        setFormData((prev) => {
+            const updatedWarrantyPricing = { ...prev.warranty_pricing };
+            const { month, price } = tempWarranty;
+
+            // Validate month is a positive integer
+            const numericMonth = parseInt(month, 10);
+            if (!month || isNaN(numericMonth) || numericMonth <= 0) {
+                alert("Please enter a valid month.");
+                return prev;
+            }
+
+            // Check if month already exists
+            if (updatedWarrantyPricing[month]) {
+                alert("This month already exists!");
+                return prev;
+            }
+
+            // Store the new warranty pricing
+            updatedWarrantyPricing[month] = price || "";
+
+            return { ...prev, warranty_pricing: updatedWarrantyPricing };
+        });
+
+        // Clear temporary input
+        setTempWarranty({ month: "", price: "" });
+    };
+
+    // Remove warranty option
+    const removeWarrantyOption = (month) => {
+        setFormData((prev) => {
+            const updatedWarrantyPricing = { ...prev.warranty_pricing };
+            delete updatedWarrantyPricing[month];
+            return { ...prev, warranty_pricing: updatedWarrantyPricing };
+        });
+    };
+
     const handleHighlightChange = (index, e) => {
         const newHighlights = [...formData.highlights];
         newHighlights[index] = e.target.value;
@@ -77,15 +118,15 @@ const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
 
     const handleSpecChange = (index, e) => {
         const { name, value } = e.target;
-        const newSpecs = [...formData.specifications];
+        const newSpecs = [...formData.specificationSchema];
         newSpecs[index][name] = value;
-        setFormData(prev => ({ ...prev, specifications: newSpecs }));
+        setFormData(prev => ({ ...prev, specificationSchema: newSpecs }));
     };
 
     const addSpecification = () => {
         setFormData(prev => ({
             ...prev,
-            specifications: [...prev.specifications, { title: "", key: "", value: "" }]
+            specificationSchema: [...prev.specificationSchema, { title: "", key: "", value: "" }]
         }));
     };
 
@@ -97,7 +138,7 @@ const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
 
             // Append basic fields
             Object.entries(formData).forEach(([key, value]) => {
-                if (key === 'highlights' || key === 'specifications') {
+                if (key === 'highlights' || key === 'specificationSchema' || key === 'warranty_pricing') {
                     formDataToSend.append(key, JSON.stringify(value));
                 } else if (value !== null) {
                     formDataToSend.append(key, value);
@@ -108,28 +149,28 @@ const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
             formDataToSend.append("existingImages", JSON.stringify(existingImages));
             newImages.forEach(file => formDataToSend.append("img", file));
 
-            console.log(formData)
-            // const response = await axios.put(
-            //     `${backend}/product/${selectedProduct._id}/update`,
-            //     formDataToSend,
-            //     {
-            //         headers: {
-            //             "Content-Type": "multipart/form-data",
-            //             Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
-            //         },
-            //     }
-            // );
-
-            // if (response.data.status === "SUCCESS") {
-            //     toast.success("Product updated successfully!");
-            //     onClose();
-            // }
+            const response = await axios.post(
+                `${backend}/product/${selectedProduct._id}/update/v2`,
+                formDataToSend,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
+                    },
+                }
+            );
+            if (response.data.status === "Success") {
+                toast.success("Product updated successfully!");
+                onClose();
+                fetchAllProducts()
+            }
         } catch (error) {
             toast.error(error.response?.data?.message || "Error updating product");
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         onOpen && (
@@ -173,6 +214,7 @@ const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
                                 <input
                                     type="number"
                                     name="price"
+                                    onWheel={(e) => e.target.blur()}
                                     value={formData.price}
                                     onChange={handleInputChange}
                                     className="w-full p-2 border rounded-md"
@@ -183,6 +225,7 @@ const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
                                 <input
                                     type="number"
                                     name="discount_percentage"
+                                    onWheel={(e) => e.target.blur()}
                                     value={formData.discount_percentage}
                                     onChange={handleInputChange}
                                     className="w-full p-2 border rounded-md"
@@ -193,6 +236,7 @@ const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
                                 <input
                                     type="number"
                                     name="stock"
+                                    onWheel={(e) => e.target.blur()}
                                     value={formData.stock}
                                     onChange={handleInputChange}
                                     className="w-full p-2 border rounded-md"
@@ -229,6 +273,72 @@ const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
                                 ))}
                             </div>
                         </div>
+
+                        <div>
+                            <label className="block mb-1 font-medium">Warranty Pricing</label>
+
+                            {Object.entries(formData.warranty_pricing || {}).map(([month, price]) => (
+                                <div key={month} className="flex gap-2 mb-2">
+                                    <input
+                                        type="number"
+                                        onWheel={(e) => e.target.blur()}
+                                        value={month}
+                                        disabled
+                                        className="p-2 border rounded-md w-1/2 bg-gray-100"
+                                    />
+                                    <input
+                                        type="number"
+                                        value={price}
+                                        onWheel={(e) => e.target.blur()}
+                                        disabled
+                                        className="p-2 border rounded-md w-1/2 bg-gray-100"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeWarrantyOption(month)}
+                                        className="bg-red-500 text-white px-3 rounded-md"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+
+                            {/* Inputs for new warranty pricing */}
+                            <div className="flex gap-2 mb-2">
+                                <input
+                                    type="number"
+                                    onWheel={(e) => e.target.blur()}
+                                    value={tempWarranty.month}
+                                    onChange={(e) => setTempWarranty({ ...tempWarranty, month: e.target.value })}
+                                    className="p-2 border rounded-md w-1/2"
+                                    placeholder="Enter Months"
+                                />
+                                <input
+                                    type="number"
+                                    onWheel={(e) => e.target.blur()}
+                                    value={tempWarranty.price}
+                                    onChange={(e) => setTempWarranty({ ...tempWarranty, price: e.target.value })}
+                                    className="p-2 border rounded-md w-1/2"
+                                    placeholder="Enter Price (₹)"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={saveWarrantyOption}
+                                    className="bg-blue-500 text-white px-3 rounded-md"
+                                >
+                                    Save
+                                </button>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setTempWarranty({ month: "", price: "" })}
+                                className="bg-green-500 text-white px-4 py-2 rounded-md mt-2"
+                            >
+                                Add Warranty Option
+                            </button>
+                        </div>
+
 
                         {/* Highlights Section */}
                         <div>
@@ -268,7 +378,7 @@ const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
                         {/* Specifications Section */}
                         <div className="mb-4">
                             <label className="block mb-2 font-medium">Specifications</label>
-                            {formData.specifications.map((spec, index) => (
+                            {formData.specificationSchema.map((spec, index) => (
                                 <div key={index} className="flex flex-col sm:flex-row gap-2 mb-3">
                                     <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2">
                                         <input
@@ -300,7 +410,7 @@ const EditProduct = ({ selectedProduct, onOpen, onClose }) => {
                                         type="button"
                                         onClick={() => setFormData(prev => ({
                                             ...prev,
-                                            specifications: prev.specifications.filter((_, i) => i !== index)
+                                            specificationSchema: prev.specificationSchema.filter((_, i) => i !== index)
                                         }))}
                                         className="bg-red-500 text-white px-3 py-2 rounded-md h-fit hover:bg-red-600 transition-colors sm:w-24"
                                     >

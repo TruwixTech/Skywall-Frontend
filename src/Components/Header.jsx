@@ -146,7 +146,7 @@ function Header() {
                 <div className="relative" ref={userDropdownRef}>
                   <FaRegUser size={20} onClick={() => setUserDropDown(!userDropDown)} className="text-black cursor-pointer sm:size-6 md:hover:scale-110 duration-300 ease-in-out" />
                   {userDropDown && (
-                    <div className="absolute top-10 -left-20 w-52 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-10">
+                    <div className="absolute top-10 -left-[120px] xl:-left-20 w-52 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-10">
                       <NavLink to='/' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Profile</NavLink>
                       <button onClick={() => setLogoutPopup(true)} className="cursor-pointer px-4 py-2 transition-colors duration-300 hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Logout</button>
                     </div>
@@ -155,7 +155,7 @@ function Header() {
               )
               : <NavLink to='/signin'><FaRegUser size={20} className="text-black cursor-pointer sm:size-6 md:hover:scale-110 duration-300 ease-in-out" /></NavLink>
           }
-          <TiShoppingCart size={25} className="hidden md:block text-black cursor-pointer" />
+          <NavLink to='/cart'><TiShoppingCart size={25} className="text-black cursor-pointer" /></NavLink>
 
           {dropdown ? (
             <IoClose

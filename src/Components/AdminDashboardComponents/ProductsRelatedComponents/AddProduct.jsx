@@ -11,14 +11,14 @@ const AddProduct = () => {
         name: '',
         price: '',
         discount_percentage: '',
-        new_price: '',
         stock: '',
-        warranty_years: '',
+        warranty_months: '',
         highlights: [],
         specifications: [{ title: "", key: "", value: "" }],
         images: [],
         description: '',
-        category: ''
+        category: '',
+        warranty_pricing: [{ month: "", price: "" }],
     });
     const [previewImages, setPreviewImages] = useState([]);
     const [loading, setLoading] = useState(false)
@@ -80,6 +80,29 @@ const AddProduct = () => {
         setFormData(prev => ({ ...prev, [fieldName]: updatedArray }));
     };
 
+    const handleWarrantyChange = (index, event) => {
+        const { name, value } = event.target;
+        const updatedWarranty = [...formData.warranty_pricing];
+        updatedWarranty[index][name] = name === "price" ? Number(value) : value;
+
+        setFormData({ ...formData, warranty_pricing: updatedWarranty });
+    };
+
+
+    const addWarrantyField = () => {
+        setFormData({
+            ...formData,
+            warranty_pricing: [...formData.warranty_pricing, { month: "", price: "" }]
+        });
+    };
+
+    const removeWarrantyField = (index) => {
+        const updatedWarranty = [...formData.warranty_pricing];
+        updatedWarranty.splice(index, 1);
+        setFormData({ ...formData, warranty_pricing: updatedWarranty });
+    };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -88,12 +111,16 @@ const AddProduct = () => {
             formDataToSend.append("name", formData.name);
             formDataToSend.append("price", formData.price);
             formDataToSend.append("discount_percentage", formData.discount_percentage);
-            formDataToSend.append("new_price", formData.new_price);
             formDataToSend.append("stock", formData.stock);
-            formDataToSend.append("warranty_years", formData.warranty_years);
+            formDataToSend.append("warranty_months", formData.warranty_months);
             formDataToSend.append("highlights", JSON.stringify(formData.highlights));
+            const formattedWarrantyPricing = formData.warranty_pricing.reduce((acc, item) => {
+                acc[item.month] = Number(item.price); // Convert price to a number
+                return acc;
+            }, {});
 
-            // ✅ Filter out empty specifications before sending
+            formDataToSend.append("warranty_pricing", JSON.stringify(formattedWarrantyPricing));
+
             const filteredSpecifications = formData.specifications.filter(
                 spec => spec.title.trim() !== "" && spec.key.trim() !== "" && spec.value.trim() !== ""
             );
@@ -120,14 +147,14 @@ const AddProduct = () => {
                     name: "",
                     price: "",
                     discount_percentage: "",
-                    new_price: "",
                     stock: "",
-                    warranty_years: "",
+                    warranty_months: "",
                     highlights: [],
                     specifications: [{ title: "", key: "", value: "" }],
                     images: [],
                     description: '',
-                    category: ''
+                    category: '',
+                    warranty_pricing: [{ month: "", price: "" }],
                 });
                 setPreviewImages([]);
             }
@@ -170,7 +197,7 @@ const AddProduct = () => {
                 </div>
 
                 {/* Pricing Section */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div>
                         <label className="block text-sm font-medium mb-2">Price (₹)</label>
                         <input
@@ -196,19 +223,6 @@ const AddProduct = () => {
                             className="w-full p-2 border rounded-md"
                         />
                     </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-2">New Price (₹)</label>
-                        <input
-                            type="number"
-                            name="new_price"
-                            placeholder='New Price'
-                            onWheel={(e) => e.target.blur()}
-                            value={formData.new_price}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded-md"
-                        />
-                    </div>
                 </div>
 
                 {/* Stock & Warranty */}
@@ -227,13 +241,13 @@ const AddProduct = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-2">Warranty (Years)</label>
+                        <label className="block text-sm font-medium mb-2">Warranty (in Months)</label>
                         <input
                             type="number"
-                            name="warranty_years"
+                            name="warranty_months"
                             placeholder='Warranty'
                             onWheel={(e) => e.target.blur()}
-                            value={formData.warranty_years}
+                            value={formData.warranty_months}
                             onChange={handleInputChange}
                             className="w-full p-2 border rounded-md"
                         />
@@ -324,6 +338,61 @@ const AddProduct = () => {
                         Add Specification
                     </button>
                 </div>
+
+                {/* Warranty */}
+                <div className="mb-8">
+                    <label className="block text-sm font-medium mb-2">Warranty Pricing</label>
+
+                    {formData.warranty_pricing.map((warranty, index) => (
+                        <div key={index} className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2 items-center">
+
+                            {/* Warranty Duration (Months) */}
+                            <input
+                                type="number"
+                                name="month"
+                                placeholder="Months"
+                                onWheel={(e) => e.target.blur()}
+                                value={warranty.month}
+                                onChange={(e) => handleWarrantyChange(index, e)}
+                                className="w-full p-2 border rounded-md"
+                            />
+
+                            {/* Warranty Price */}
+                            <input
+                                type="number"
+                                name="price"
+                                placeholder="Price (₹)"
+                                value={warranty.price}
+                                onWheel={(e) => e.target.blur()}
+                                onChange={(e) => handleWarrantyChange(index, e)}
+                                className="w-full p-2 border rounded-md"
+                            />
+
+                            {/* Remove Button */}
+                            <div className="flex gap-2">
+                                {index > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeWarrantyField(index)}
+                                        className="bg-red-500 text-white p-3 rounded-md"
+                                    >
+                                        <IoClose size={16} />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* Add Warranty Button */}
+                    <button
+                        type="button"
+                        onClick={addWarrantyField}
+                        className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2"
+                    >
+                        Add Warranty
+                    </button>
+                </div>
+
 
                 {/* Images Upload */}
                 <div className="mb-6 flex flex-col gap-2">

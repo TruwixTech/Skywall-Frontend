@@ -1,20 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { IoAdd, IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";
+import axios from "axios";
+
+const backend = import.meta.env.VITE_BACKEND
 
 const DiscountCoupon = () => {
   // Fake Coupons Data
-  const [coupons, setCoupons] = useState([
-    { id: 1, code: "SAVE10", discount: 10, expiry: "2025-03-15", status: "Active" },
-    { id: 2, code: "WELCOME20", discount: 20, expiry: "2025-04-01", status: "Active" },
-    { id: 3, code: "FESTIVE30", discount: 30, expiry: "2024-02-28", status: "Expired" },
-  ]);
+  const [coupons, setCoupons] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
   const [newCoupon, setNewCoupon] = useState({
     code: "",
-    discount: "",
-    expiry: "",
+    discountPercentage: "",
+    expiryDate: "",
   });
 
   // Handle Input Change
@@ -23,34 +22,79 @@ const DiscountCoupon = () => {
     setNewCoupon({ ...newCoupon, [name]: value });
   };
 
+  function convertUTCtoIST2(utcDateString) {
+    const utcDate = new Date(utcDateString); // Parse UTC date
+    return utcDate.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }); // Convert to IST
+  }
+
+  function convertUTCtoIST(utcDateString) {
+    const utcDate = new Date(utcDateString); // Parse UTC date
+    if (isNaN(utcDate)) return null; // Handle invalid dates
+
+    // Convert UTC time to IST (UTC+5:30)
+    const istOffset = 5.5 * 60 * 60 * 1000; // IST is UTC +5:30 in milliseconds
+    const istDate = new Date(utcDate.getTime() + istOffset);
+    return istDate; // Return a Date object
+  }
+
+
+  async function getCoupons() {
+    try {
+      const response = await axios.post(`${backend}/coupon/list`, {
+        pageNum: 1,
+        pageSize: 20,
+        filters: {}
+      }, {
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
+        }
+      })
+      if (response.data.status === "Success") {
+        setCoupons(response.data.data.couponList)
+      }
+    } catch (error) {
+      console.error("Error fetching coupons:", error);
+    }
+  }
+
   // Handle Coupon Submission
-  const handleCreateCoupon = (e) => {
-    e.preventDefault();
+  const handleCreateCoupon = async (e) => {
+    try {
+      e.preventDefault();
 
-    if (!newCoupon.code || !newCoupon.discount || !newCoupon.expiry) {
-      toast.error("Please fill all fields!");
-      return;
+      if (!newCoupon.code || !newCoupon.discountPercentage || !newCoupon.expiryDate) {
+        toast.error("Please fill all fields!");
+        return;
+      }
+
+      const today = new Date().toISOString().split("T")[0];
+      if (newCoupon.expiryDate < today) {
+        toast.error("Expiry date cannot be in the past!");
+        return;
+      }
+
+      const response = await axios.post(`${backend}/coupon/create-coupon`, newCoupon, {
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
+        }
+      });
+
+      if (response.data.status === "Success") {
+        toast.success("Coupon Created Successfully!");
+        getCoupons();
+        setShowModal(false);
+        setNewCoupon({ code: "", discountPercentage: "", expiryDate: "" });
+      }
+
+    } catch (error) {
+      console.error("Error creating coupon:", error);
+      toast.error(error?.response?.data?.data?.message || "Failed to create coupon. Please try again.");
     }
-
-    const today = new Date().toISOString().split("T")[0];
-    if (newCoupon.expiry < today) {
-      toast.error("Expiry date cannot be in the past!");
-      return;
-    }
-
-    const newCouponData = {
-      id: coupons.length + 1,
-      code: newCoupon.code.toUpperCase(),
-      discount: parseInt(newCoupon.discount),
-      expiry: newCoupon.expiry,
-      status: "Active",
-    };
-
-    setCoupons([...coupons, newCouponData]);
-    toast.success("Coupon Created Successfully!");
-    setShowModal(false);
-    setNewCoupon({ code: "", discount: "", expiry: "" });
   };
+
+  useEffect(() => {
+    getCoupons()
+  }, [])
 
   return (
     <div className="px-5 w-full py-14">
@@ -78,15 +122,17 @@ const DiscountCoupon = () => {
           </thead>
           <tbody>
             {coupons
-              .filter((coupon) => coupon.status !== "Expired")
+              .filter((coupon) => {
+                const nowIST = new Date(convertUTCtoIST(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })))
+                const expiryIST = new Date(convertUTCtoIST(coupon.expiryDate));
+                return nowIST <= expiryIST;
+              })
               .map((coupon) => (
-                <tr key={coupon.id} className="border-b text-gray-600">
+                <tr key={coupon._id} className="border-b text-gray-600">
                   <td className="p-3 border font-semibold">{coupon.code}</td>
-                  <td className="p-3 border">{coupon.discount}%</td>
-                  <td className="p-3 border">{coupon.expiry}</td>
-                  <td className={`p-3 border font-semibold ${coupon.status === "Active" ? "text-green-600" : "text-red-600"}`}>
-                    {coupon.status}
-                  </td>
+                  <td className="p-3 border">{coupon.discountPercentage}%</td>
+                  <td className="p-3 border">{convertUTCtoIST2(coupon.expiryDate)}</td>
+                  <td className="p-3 border font-semibold text-green-600">Active</td>
                 </tr>
               ))}
           </tbody>
@@ -120,8 +166,8 @@ const DiscountCoupon = () => {
                 <label className="block text-sm font-medium text-gray-700">Discount (%)</label>
                 <input
                   type="number"
-                  name="discount"
-                  value={newCoupon.discount}
+                  name="discountPercentage"
+                  value={newCoupon.discountPercentage}
                   onChange={handleChange}
                   className="w-full p-2 border rounded-md"
                   placeholder="Enter discount percentage"
@@ -131,9 +177,9 @@ const DiscountCoupon = () => {
               <div className="flex flex-col gap-2">
                 <label className="block text-sm font-medium text-gray-700">Expiry Date</label>
                 <input
-                  type="date"
-                  name="expiry"
-                  value={newCoupon.expiry}
+                  type="datetime-local"
+                  name="expiryDate"
+                  value={newCoupon.expiryDate}
                   onChange={handleChange}
                   className="w-full p-2 border rounded-md"
                   min={new Date().toISOString().split("T")[0]} // Restricts past dates
