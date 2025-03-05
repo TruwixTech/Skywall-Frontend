@@ -392,6 +392,7 @@ const AllProducts = () => {
                         {/* Product Details */}
                         <h2 className="text-2xl font-bold mt-4">{selectedProduct.name}</h2>
                         <p className="text-gray-500">{selectedProduct.category}</p>
+                        <p className="text-gray-500">{selectedProduct.companyName}</p>
 
                         {/* Pricing Section */}
                         <div className="flex items-center gap-4 mt-3">
@@ -428,12 +429,20 @@ const AllProducts = () => {
                             <h3 className="text-lg font-semibold">Specifications</h3>
                             <ul className="list-disc list-inside text-gray-600">
                                 {selectedProduct?.specificationSchema?.map((spec, index) => (
-                                    <li key={index}>
-                                        <strong>{spec.title}:</strong> {spec.key} - {spec.value}
+                                    <li key={index} className="mb-2">
+                                        <strong className="text-black">{spec.title}:</strong>
+                                        <ul className="list-none ml-4">
+                                            {spec.data.map((item, idx) => (
+                                                <li key={idx} className="text-gray-700">
+                                                    {item.key}: {item.value}
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </li>
                                 ))}
                             </ul>
                         </div>
+
 
                         {/* Description */}
                         <div className="mt-4">

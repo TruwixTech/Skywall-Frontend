@@ -78,7 +78,7 @@ function AdminDashboard() {
             />
             <StatCard
               title="Total Products"
-              value={`₹ ${dashboardData?.product_count}`}
+              value={dashboardData?.product_count}
               // trend="↑ 8.3% from last month"
               icon="📊"
               color="bg-orange-500"
