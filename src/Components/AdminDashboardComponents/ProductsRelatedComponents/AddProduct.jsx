@@ -14,7 +14,8 @@ const AddProduct = () => {
         stock: '',
         warranty_months: '',
         highlights: [],
-        specifications: [{ title: "", key: "", value: "" }],
+        companyName: '',
+        specifications: [{ title: "", data: [{ key: "", value: "" }] }],
         images: [],
         description: '',
         category: '',
@@ -61,7 +62,14 @@ const AddProduct = () => {
     const handleSpecChange = (index, e) => {
         const { name, value } = e.target;
         const updatedSpecs = [...formData.specifications];
-        updatedSpecs[index][name] = value; // Ensure the correct field is updated
+        updatedSpecs[index][name] = value; // Update the title field
+        setFormData((prev) => ({ ...prev, specifications: updatedSpecs }));
+    };
+
+    const handleSpecDataChange = (specIndex, dataIndex, e) => {
+        const { name, value } = e.target;
+        const updatedSpecs = [...formData.specifications];
+        updatedSpecs[specIndex].data[dataIndex][name] = value; // Update key or value field
         setFormData((prev) => ({ ...prev, specifications: updatedSpecs }));
     };
 
@@ -70,15 +78,46 @@ const AddProduct = () => {
             ...prev,
             [fieldName]: [
                 ...prev[fieldName],
-                fieldName === "specifications" ? { title: "", key: "", value: "" } : "",
+                fieldName === "specifications" ? { title: "", data: [{ key: "", value: "" }] } : "",
             ],
         }));
     };
 
-    const removeField = (fieldName, index) => {
-        const updatedArray = formData[fieldName].filter((_, i) => i !== index);
-        setFormData(prev => ({ ...prev, [fieldName]: updatedArray }));
+    const addSpecDataField = (specIndex) => {
+        setFormData((prev) => {
+            return {
+                ...prev,
+                specifications: prev.specifications.map((spec, index) =>
+                    index === specIndex
+                        ? { ...spec, data: [...spec.data, { key: "", value: "" }] }
+                        : spec
+                )
+            };
+        });
     };
+
+
+    const removeField = (fieldName, index) => {
+        setFormData((prev) => ({
+            ...prev,
+            [fieldName]: prev[fieldName].filter((_, i) => i !== index),
+        }));
+    };
+
+    const removeSpecDataField = (specIndex, dataIndex) => {
+        setFormData((prev) => {
+            return {
+                ...prev,
+                specifications: prev.specifications.map((spec, index) =>
+                    index === specIndex
+                        ? { ...spec, data: spec.data.filter((_, i) => i !== dataIndex) }
+                        : spec
+                )
+            };
+        });
+    };
+
+
 
     const handleWarrantyChange = (index, event) => {
         const { name, value } = event.target;
@@ -121,12 +160,19 @@ const AddProduct = () => {
 
             formDataToSend.append("warranty_pricing", JSON.stringify(formattedWarrantyPricing));
 
-            const filteredSpecifications = formData.specifications.filter(
-                spec => spec.title.trim() !== "" && spec.key.trim() !== "" && spec.value.trim() !== ""
-            );
+            const filteredSpecifications = formData.specifications
+                .filter(spec => spec.title.trim() !== "") // Ensure title is not empty
+                .map(spec => ({
+                    title: spec.title.trim(),
+                    data: spec.data.filter(item => item.key.trim() !== "" && item.value.trim() !== "") // Filter valid key-value pairs
+                }))
+                .filter(spec => spec.data.length > 0); // Remove empty specifications (if no valid key-value pairs)
+
             formDataToSend.append("specificationSchema", JSON.stringify(filteredSpecifications));
 
+
             formDataToSend.append("description", formData.description);
+            formDataToSend.append("companyName", formData.companyName);
             formDataToSend.append("category", formData.category);
             formData.images.forEach((file) => {
                 formDataToSend.append("img", file);
@@ -148,9 +194,10 @@ const AddProduct = () => {
                     price: "",
                     discount_percentage: "",
                     stock: "",
+                    companyName: '',
                     warranty_months: "",
                     highlights: [],
-                    specifications: [{ title: "", key: "", value: "" }],
+                    specifications: [{ title: "", data: [{ key: "", value: "" }] }],
                     images: [],
                     description: '',
                     category: '',
@@ -254,8 +301,22 @@ const AddProduct = () => {
                     </div>
                 </div>
 
+                {/* Company Name */}
+
+                <div>
+                    <label className="block text-sm font-medium mb-2">Company Name</label>
+                    <input
+                        type="text"
+                        name="companyName"
+                        placeholder='Company Name'
+                        value={formData.companyName}
+                        onChange={handleInputChange}
+                        className="w-full p-2 border rounded-md"
+                    />
+                </div>
+
                 {/* Highlights */}
-                <div className="mb-8">
+                <div className="my-8">
                     <label className="block text-sm font-medium mb-2">Product Highlights</label>
                     {formData.highlights.map((highlight, index) => (
                         <div key={index} className="flex gap-2 mb-2">
@@ -290,43 +351,66 @@ const AddProduct = () => {
                 {/* Specifications */}
                 <div className="mb-8">
                     <label className="block text-sm font-medium mb-2">Specifications</label>
-                    {formData.specifications.map((spec, index) => (
-                        <div key={index} className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2 items-center">
+                    {formData.specifications.map((spec, specIndex) => (
+                        <div key={specIndex} className="border p-4 mb-4 rounded-md">
                             <input
                                 type="text"
                                 name="title"
-                                placeholder="Title"
+                                placeholder="Specification Title"
                                 value={spec.title}
-                                onChange={(e) => handleSpecChange(index, e)}
-                                className="w-full p-2 border rounded-md"
+                                onChange={(e) => handleSpecChange(specIndex, e)}
+                                className="w-full p-2 border rounded-md mb-2"
                             />
-                            <input
-                                type="text"
-                                name="key"
-                                placeholder="Key"
-                                value={spec.key}
-                                onChange={(e) => handleSpecChange(index, e)}
-                                className="w-full p-2 border rounded-md"
-                            />
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    name="value"
-                                    placeholder="Value"
-                                    value={spec.value}
-                                    onChange={(e) => handleSpecChange(index, e)}
-                                    className="w-full p-2 border rounded-md"
-                                />
-                                {index > 0 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeField("specifications", index)}
-                                        className="bg-red-500 text-white px-3 rounded-md"
-                                    >
-                                        <IoClose size={16} />
-                                    </button>
-                                )}
-                            </div>
+
+                            {spec.data.map((item, dataIndex) => (
+                                <div key={dataIndex} className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2 items-center">
+                                    <input
+                                        type="text"
+                                        name="key"
+                                        placeholder="Key"
+                                        value={item.key}
+                                        onChange={(e) => handleSpecDataChange(specIndex, dataIndex, e)}
+                                        className="w-full p-2 border rounded-md"
+                                    />
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            name="value"
+                                            placeholder="Value"
+                                            value={item.value}
+                                            onChange={(e) => handleSpecDataChange(specIndex, dataIndex, e)}
+                                            className="w-full p-2 border rounded-md"
+                                        />
+                                        {dataIndex > 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removeSpecDataField(specIndex, dataIndex)}
+                                                className="bg-red-500 text-white px-3 rounded-md"
+                                            >
+                                                <IoClose size={16} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+
+                            <button
+                                type="button"
+                                onClick={() => addSpecDataField(specIndex)}
+                                className="bg-green-500 text-white px-3 py-1 rounded-md mt-2"
+                            >
+                                Add Data
+                            </button>
+
+                            {specIndex > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => removeField("specifications", specIndex)}
+                                    className="bg-red-500 text-white px-3 py-1 rounded-md mt-2 ml-2"
+                                >
+                                    Remove Specification
+                                </button>
+                            )}
                         </div>
                     ))}
 
@@ -338,6 +422,7 @@ const AddProduct = () => {
                         Add Specification
                     </button>
                 </div>
+
 
                 {/* Warranty */}
                 <div className="mb-8">

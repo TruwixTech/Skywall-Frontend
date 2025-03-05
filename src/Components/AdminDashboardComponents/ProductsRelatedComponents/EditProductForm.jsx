@@ -19,6 +19,7 @@ const EditProduct = ({ selectedProduct, onOpen, onClose, fetchAllProducts }) => 
         description: "",
         category: "",
         warranty_pricing: {}, // Initialize as an empty array
+        companyName: '',
     });
     const [tempWarranty, setTempWarranty] = useState({ month: "", price: "" });
 
@@ -41,6 +42,7 @@ const EditProduct = ({ selectedProduct, onOpen, onClose, fetchAllProducts }) => 
                 description: selectedProduct.description,
                 category: selectedProduct.category,
                 warranty_pricing: selectedProduct.warranty_pricing || {},
+                companyName: selectedProduct.companyName
             });
 
             setExistingImages(selectedProduct.image || []);
@@ -116,19 +118,69 @@ const EditProduct = ({ selectedProduct, onOpen, onClose, fetchAllProducts }) => 
         setFormData(prev => ({ ...prev, highlights: newHighlights }));
     };
 
+    // Handle change in specification title
     const handleSpecChange = (index, e) => {
-        const { name, value } = e.target;
-        const newSpecs = [...formData.specificationSchema];
-        newSpecs[index][name] = value;
-        setFormData(prev => ({ ...prev, specificationSchema: newSpecs }));
+        const { value } = e.target;
+        const updatedSpecs = [...formData.specificationSchema];
+        updatedSpecs[index] = { ...updatedSpecs[index], title: value };
+        setFormData(prev => ({ ...prev, specificationSchema: updatedSpecs }));
     };
 
+    // Handle change in key-value pairs
+    const handleSpecDataChange = (specIndex, dataIndex, e) => {
+        const { name, value } = e.target;
+        const updatedSpecs = [...formData.specificationSchema];
+        updatedSpecs[specIndex].data[dataIndex][name] = value;
+        setFormData(prev => ({ ...prev, specificationSchema: updatedSpecs }));
+    };
+
+    // Add new specification
     const addSpecification = () => {
         setFormData(prev => ({
             ...prev,
-            specificationSchema: [...prev.specificationSchema, { title: "", key: "", value: "" }]
+            specificationSchema: [...prev.specificationSchema, { title: "", data: [] }]
         }));
     };
+
+    // Add key-value pair to a specification
+    const addSpecDataField = (specIndex) => {
+        setFormData(prev => {
+
+            const updatedSpecs = [...prev.specificationSchema];
+            const updatedData = [...updatedSpecs[specIndex].data];
+
+            updatedData.push({ key: "", value: "" });
+            updatedSpecs[specIndex] = { ...updatedSpecs[specIndex], data: updatedData };
+
+
+            return { ...prev, specificationSchema: updatedSpecs };
+        });
+    };
+
+
+    // Remove key-value pair from a specification
+    const removeSpecDataField = (specIndex, dataIndex) => {
+        setFormData(prev => {
+            const updatedSpecs = [...prev.specificationSchema]; // Copy specificationSchema
+            const updatedData = [...updatedSpecs[specIndex].data]; // Copy data array
+
+            updatedData.splice(dataIndex, 1); // Remove only one item
+
+            updatedSpecs[specIndex] = { ...updatedSpecs[specIndex], data: updatedData }; // Update specification
+
+            return { ...prev, specificationSchema: updatedSpecs };
+        });
+    };
+
+
+    // Remove entire specification
+    const removeSpecification = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            specificationSchema: prev.specificationSchema.filter((_, i) => i !== index)
+        }));
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -183,16 +235,30 @@ const EditProduct = ({ selectedProduct, onOpen, onClose, fetchAllProducts }) => 
                     <h1 className="text-2xl font-bold mb-6 text-center">Edit Product</h1>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Product Name */}
-                        <div>
-                            <label className="block mb-1 font-medium">Product Name</label>
-                            <input
-                                type="text"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                className="w-full p-2 border rounded-md"
-                            />
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* Product Name */}
+                            <div>
+                                <label className="block mb-1 font-medium">Product Name</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleInputChange}
+                                    className="w-full p-2 border rounded-md"
+                                />
+                            </div>
+                            {/* Company Name */}
+                            <div>
+                                <label className="block mb-1 font-medium">Company Name</label>
+                                <input
+                                    type="text"
+                                    name="companyName"
+                                    value={formData.companyName}
+                                    onChange={handleInputChange}
+                                    className="w-full p-2 border rounded-md"
+                                />
+                            </div>
                         </div>
 
                         {/* Category */}
@@ -378,46 +444,70 @@ const EditProduct = ({ selectedProduct, onOpen, onClose, fetchAllProducts }) => 
                         {/* Specifications Section */}
                         <div className="mb-4">
                             <label className="block mb-2 font-medium">Specifications</label>
-                            {formData.specificationSchema.map((spec, index) => (
-                                <div key={index} className="flex flex-col sm:flex-row gap-2 mb-3">
-                                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                        <input
-                                            type="text"
-                                            name="title"
-                                            value={spec.title}
-                                            onChange={(e) => handleSpecChange(index, e)}
-                                            placeholder="Title"
-                                            className="p-2 border rounded-md w-full"
-                                        />
-                                        <input
-                                            type="text"
-                                            name="key"
-                                            value={spec.key}
-                                            onChange={(e) => handleSpecChange(index, e)}
-                                            placeholder="Key"
-                                            className="p-2 border rounded-md w-full"
-                                        />
-                                        <input
-                                            type="text"
-                                            name="value"
-                                            value={spec.value}
-                                            onChange={(e) => handleSpecChange(index, e)}
-                                            placeholder="Value"
-                                            className="p-2 border rounded-md w-full"
-                                        />
-                                    </div>
+
+                            {formData.specificationSchema.map((spec, specIndex) => (
+                                <div key={specIndex} className="border p-3 mb-4 rounded-md">
+                                    {/* Title Input */}
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        value={spec.title}
+                                        onChange={(e) => handleSpecChange(specIndex, e)}
+                                        placeholder="Title"
+                                        className="p-2 border rounded-md w-full mb-2"
+                                    />
+
+                                    {/* Key-Value Pairs */}
+                                    {spec.data.map((item, dataIndex) => (
+                                        <div key={dataIndex} className="flex gap-2 mb-2">
+                                            <input
+                                                type="text"
+                                                name="key"
+                                                value={item.key}
+                                                onChange={(e) => handleSpecDataChange(specIndex, dataIndex, e)}
+                                                placeholder="Key"
+                                                className="p-2 border rounded-md w-full"
+                                            />
+                                            <input
+                                                type="text"
+                                                name="value"
+                                                value={item.value}
+                                                onChange={(e) => handleSpecDataChange(specIndex, dataIndex, e)}
+                                                placeholder="Value"
+                                                className="p-2 border rounded-md w-full"
+                                            />
+                                            {/* Remove Key-Value Pair */}
+                                            <button
+                                                type="button"
+                                                onClick={() => removeSpecDataField(specIndex, dataIndex)}
+                                                className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 transition-colors"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))}
+
+                                    {/* Add Key-Value Pair */}
                                     <button
                                         type="button"
-                                        onClick={() => setFormData(prev => ({
-                                            ...prev,
-                                            specificationSchema: prev.specificationSchema.filter((_, i) => i !== index)
-                                        }))}
-                                        className="bg-red-500 text-white px-3 py-2 rounded-md h-fit hover:bg-red-600 transition-colors sm:w-24"
+                                        onClick={() => addSpecDataField(specIndex)}
+                                        className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2 hover:bg-blue-600 transition-colors"
                                     >
-                                        Remove
+                                        Add Data
+                                    </button>
+
+                                    {/* Remove Entire Specification */}
+                                    <button
+                                        type="button"
+                                        onClick={() => removeSpecification(specIndex)}
+                                        className="bg-red-500 text-white px-4 py-2 rounded-md mt-2 ml-2 hover:bg-red-600 transition-colors"
+                                    >
+                                        Remove Specification
                                     </button>
                                 </div>
                             ))}
+
+                            {/* Add Specification */}
                             <button
                                 type="button"
                                 onClick={addSpecification}
@@ -426,6 +516,7 @@ const EditProduct = ({ selectedProduct, onOpen, onClose, fetchAllProducts }) => 
                                 Add Specification
                             </button>
                         </div>
+
 
                         {/* Submit Button */}
                         <button
