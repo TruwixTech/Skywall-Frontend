@@ -113,50 +113,59 @@ function Television() {
         </div>
 
         {/* Products Grid */}
-        <div className="w-full h-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 cursor-pointer">
-          {sortedTelevisions.map((tv, index) => (
-            <Link to={`/television/${tv._id}`} key={tv._id}>
-              <div className="group w-full p-4 rounded-lg bg-white relative duration-300 ease-in-out transition-all overflow-hidden">
-                <span
-                  className={`absolute z-20 top-2 left-2 text-white text-sm px-3 py-1 rounded-full ${tv.stock > 0 ? "bg-green-600" : "bg-red-600"
-                    }`}
-                >
-                  {tv.stock > 0 ? "In Stock" : "Out of Stock"}
-                </span>
+        <div className="w-full h-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {
+            sortedTelevisions.length > 0
+              ? sortedTelevisions.map((tv, index) => (
+                <Link to={`/television/${tv._id}`} key={tv._id}>
+                  <div className="group w-full p-4 rounded-lg bg-white relative duration-300 ease-in-out transition-all overflow-hidden cursor-pointer">
+                    <span
+                      className={`absolute z-20 top-2 left-2 text-white text-sm px-3 py-1 rounded-full ${tv.stock > 0 ? "bg-green-600" : "bg-red-600"
+                        }`}
+                    >
+                      {tv.stock > 0 ? "In Stock" : "Out of Stock"}
+                    </span>
 
-                {/* Product Images */}
-                <div className="relative w-full h-60 rounded-md overflow-hidden">
-                  <img
-                    src={tv.image[0]}
-                    alt={tv.name}
-                    className={`${tv.image.length > 1 ? "group-hover:opacity-0" : ""} absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-100`}
-                  />
-                  {tv.image.length > 1 && (
-                    <img
-                      src={tv.image[1]}
-                      alt={tv.name}
-                      className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100"
-                    />
-                  )}
-                </div>
+                    {/* Product Images */}
+                    <div className="relative w-full h-60 rounded-md overflow-hidden">
+                      <img
+                        src={tv.image[0]}
+                        alt={tv.name}
+                        className={`${tv.image.length > 1 ? "group-hover:opacity-0" : ""} absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-100`}
+                      />
+                      {tv.image.length > 1 && (
+                        <img
+                          src={tv.image[1]}
+                          alt={tv.name}
+                          className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100"
+                        />
+                      )}
+                    </div>
 
-                {/* Product Name */}
-                <h3 className="text-gray-800 font-semibold mt-3 transition-all duration-300 ease-in-out group-hover:underline">
-                  {tv.name}
-                </h3>
+                    {/* Product Name */}
+                    <h3 className="text-gray-800 font-semibold mt-3 transition-all duration-300 ease-in-out group-hover:underline">
+                      {tv.name}
+                    </h3>
+                    {/* TV Brand */}
+                    <p className="text-gray-500 text-sm uppercase mt-1">
+                      {tv.companyName}™ TV
+                    </p>
 
-                {/* Product Price */}
-                <div className="mt-2">
-                  <span className="text-gray-400 line-through text-sm">
-                    Rs. {tv.price.toLocaleString()}
-                  </span>
-                  <span className="text-black text-lg ml-2">
-                    Rs. {tv.new_price.toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
+                    {/* Product Price */}
+                    <div className="mt-2">
+                      <span className="text-gray-400 line-through text-sm">
+                        Rs. {tv.price.toLocaleString()}
+                      </span>
+                      <span className="text-black text-lg ml-2">
+                        Rs. {tv.new_price.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))
+              : <div className="w-full h-80 flex justify-center items-center col-span-4 text-xl font-semibold">No Products Found of this Criteria</div>
+          }
+          { }
         </div>
 
         {/* Pagination */}
