@@ -10,8 +10,11 @@ import {
   Check,
   ChevronDown,
 } from "lucide-react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
+
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -136,7 +139,9 @@ const TelevisionSinglePage = () => {
   const [quantity, setQuantity] = useState(1);
   const [singleProduct, setSingleProduct] = useState({})
   const [selectedImage, setSelectedImage] = useState(0);
-  const [expandedSpecs, setExpandedSpecs] = useState("Display");
+  const [expandedSpecs, setExpandedSpecs] = useState("");
+  const [images, setImages] = useState([])
+  const navigate = useNavigate()
 
   // Handle quantity changes
   const decreaseQuantity = () => {
@@ -144,6 +149,11 @@ const TelevisionSinglePage = () => {
   };
 
   const increaseQuantity = () => {
+    toast.dismiss()
+    if (quantity === singleProduct?.stock) {
+      toast.error("Product is out of stock.");
+      return
+    }
     setQuantity(quantity + 1);
   };
 
@@ -174,12 +184,47 @@ const TelevisionSinglePage = () => {
     );
   };
 
+  async function addToCart() {
+    toast.dismiss()
+    const token = JSON.parse(localStorage.getItem('token'))
+    if (!token) {
+      toast.error("Please login to add product")
+      navigate('/signin')
+      return
+    }
+    const decodedToken = jwtDecode(token)
+    try {
+      const response = await axios.post(`${backend}/cart/new`, {
+        cart: {
+          user: decodedToken?.userId,
+          items: [
+            {
+              product: singleProduct?._id,
+              quantity: quantity
+            }
+          ]
+        }
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      if(response.data.status === "Success") {
+        toast.success("Product added to cart successfully!")
+        setQuantity(1)
+      }
+    } catch (error) {
+      console.log("Error while adding product to cart", error)
+    }
+  }
 
   async function getSingleProductDetails(id) {
     try {
       const response = await axios.get(`${backend}/product/${id}`)
       if (response.data.status === "Success") {
+        setExpandedSpecs(response.data.data.product?.specificationSchema[0]?.title)
         setSingleProduct(response.data.data.product)
+        setImages(response.data.data.product?.image)
       }
     } catch (error) {
       console.log("Error while getting single product details", error)
@@ -222,31 +267,35 @@ const TelevisionSinglePage = () => {
               {/* Main Image */}
               <div className="border rounded-lg overflow-hidden h-64 sm:h-80 flex items-center justify-center bg-gray-100">
                 <img
-                  src={television.images[selectedImage]}
-                  alt={television.name}
-                  className="w-full h-full object-contain"
+                  src={images[selectedImage]}
+                  alt='television Image'
+                  className="w-full h-full object-cover"
                 />
               </div>
 
               {/* Image Thumbnails */}
-              <div className="grid grid-cols-4 gap-2">
-                {television.images.map((img, index) => (
-                  <div
-                    key={index}
-                    className={`border rounded cursor-pointer h-16 sm:h-20 flex items-center justify-center bg-gray-100 ${selectedImage === index
-                      ? "border-blue-500 ring-2 ring-blue-200"
-                      : ""
-                      }`}
-                    onClick={() => setSelectedImage(index)}
-                  >
-                    <img
-                      src={img}
-                      alt={`${television.name} - view ${index + 1}`}
-                      className="w-full h-full object-contain p-1"
-                    />
+              {
+                images.length > 1 && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {images?.map((img, index) => (
+                      <div
+                        key={index}
+                        className={`border rounded cursor-pointer h-16 sm:h-20 flex items-center justify-center bg-gray-100 ${selectedImage === index
+                          ? "border-blue-500 ring-2 ring-blue-200"
+                          : ""
+                          }`}
+                        onClick={() => setSelectedImage(index)}
+                      >
+                        <img
+                          src={img}
+                          alt='television Images'
+                          className="w-full h-full object-cover p-1"
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                )
+              }
             </div>
 
             {/* Product Info */}
@@ -255,7 +304,7 @@ const TelevisionSinglePage = () => {
                 <h1 className="text-2xl font-bold text-gray-900">
                   {singleProduct?.name}
                 </h1>
-                <p className="text-gray-500 mt-1">{television.company}™ TV</p>
+                <p className="text-gray-500 mt-1">{singleProduct?.companyName}™ TV</p>
 
                 {/* Ratings */}
                 <div className="mt-2 flex items-center space-x-2">
@@ -342,7 +391,7 @@ const TelevisionSinglePage = () => {
 
                 {/* Buttons */}
                 <div className="flex flex-1 space-x-2">
-                  <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md flex items-center justify-center">
+                  <button onClick={addToCart} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md flex items-center justify-center">
                     <ShoppingCart size={18} className="mr-2" />
                     Add to Cart
                   </button>
@@ -368,7 +417,12 @@ const TelevisionSinglePage = () => {
                     <Check size={16} />
                   </div>
                   <div>
-                    <p className="font-medium">1 Year Warranty</p>
+                    <p className="font-medium">
+                      {singleProduct?.warranty_months >= 12
+                        ? `${(singleProduct?.warranty_months / 12).toFixed(0)} Years`
+                        : `${singleProduct?.warranty_months} months`}
+                      {" "}Warranty
+                    </p>
                     <p className="text-gray-500">
                       Standard manufacturer warranty
                     </p>
@@ -410,38 +464,38 @@ const TelevisionSinglePage = () => {
               Specifications
             </h2>
             <div className="space-y-4">
-              {television.specifications.map((spec) => (
+              {singleProduct?.specificationSchema?.map((spec) => (
                 <div
-                  key={spec.category}
+                  key={spec.title}
                   className="border rounded-md overflow-hidden"
                 >
                   <button
                     className="w-full flex justify-between items-center p-4 bg-gray-50 text-left"
-                    onClick={() => toggleSpecSection(spec.category)}
+                    onClick={() => toggleSpecSection(spec.title)}
                   >
                     <span className="font-medium text-gray-900">
-                      {spec.category}
+                      {spec.title}
                     </span>
                     <ChevronDown
                       size={20}
-                      className={`text-gray-500 transition-transform ${expandedSpecs === spec.category
+                      className={`text-gray-500 transition-transform ${expandedSpecs === spec.title
                         ? "transform rotate-180"
                         : ""
                         }`}
                     />
                   </button>
 
-                  {expandedSpecs === spec.category && (
+                  {expandedSpecs === spec.title && (
                     <div className="p-4 bg-white">
                       <table className="w-full">
                         <tbody>
-                          {spec.details.map((detail, index) => (
+                          {spec?.data?.map((detail, index) => (
                             <tr
                               key={index}
                               className={index !== 0 ? "border-t" : ""}
                             >
                               <td className="py-2 text-sm text-gray-500 pr-4">
-                                {detail.name}
+                                {detail.key}
                               </td>
                               <td className="py-2 text-sm text-gray-900">
                                 {detail.value}
