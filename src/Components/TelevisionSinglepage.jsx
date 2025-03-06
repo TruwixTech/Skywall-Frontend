@@ -141,6 +141,8 @@ const TelevisionSinglePage = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [expandedSpecs, setExpandedSpecs] = useState("");
   const [images, setImages] = useState([])
+  const [showWarrantyPopup, setShowWarrantyPopup] = useState(false)
+  const [selectedWarranty, setSelectedWarranty] = useState(null);
   const navigate = useNavigate()
 
   // Handle quantity changes
@@ -200,7 +202,8 @@ const TelevisionSinglePage = () => {
           items: [
             {
               product: singleProduct?._id,
-              quantity: quantity
+              quantity: quantity,
+              warranty_months: selectedWarranty
             }
           ]
         }
@@ -209,8 +212,10 @@ const TelevisionSinglePage = () => {
           'Authorization': `Bearer ${token}`
         }
       })
-      if(response.data.status === "Success") {
+      if (response.data.status === "Success") {
         toast.success("Product added to cart successfully!")
+        setShowWarrantyPopup(false)
+        setSelectedWarranty(null)
         setQuantity(1)
       }
     } catch (error) {
@@ -234,6 +239,16 @@ const TelevisionSinglePage = () => {
   useEffect(() => {
     getSingleProductDetails(id)
   }, [id])
+
+  const formatWarrantyPeriod = (months) => {
+    if (months < 12) return `${months} month${months > 1 ? "s" : ""}`;
+
+    const years = Math.floor(months / 12);
+    const remainingMonths = months % 12;
+    return remainingMonths === 0
+      ? `${years} year${years > 1 ? "s" : ""}`
+      : `${years}.${Math.round((remainingMonths / 12) * 10)} years`;
+  };
 
   return (
     <div className="min-h-screen">
@@ -391,7 +406,7 @@ const TelevisionSinglePage = () => {
 
                 {/* Buttons */}
                 <div className="flex flex-1 space-x-2">
-                  <button onClick={addToCart} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md flex items-center justify-center">
+                  <button onClick={() => setShowWarrantyPopup(true)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md flex items-center justify-center">
                     <ShoppingCart size={18} className="mr-2" />
                     Add to Cart
                   </button>
@@ -598,6 +613,64 @@ const TelevisionSinglePage = () => {
           </div>
         </div>
       </div>
+
+      {
+        showWarrantyPopup && singleProduct?.warranty_pricing && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50 animate-fade-in">
+            <div className="bg-white p-8 rounded-xl shadow-2xl w-96 transform transition-all duration-300 animate-scale-in max-h-screen overflow-y-scroll" style={{
+              scrollbarWidth: "none",
+            }}>
+              <div className="flex items-start mb-6">
+                <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800">Extend Your Protection</h2>
+                  <p className="text-gray-500 mt-1">Secure your investment with extended coverage</p>
+                </div>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                {Object.entries(singleProduct?.warranty_pricing).map(([months, price]) => (
+                  <label key={months} className="flex items-center p-4 border-2 border-gray-200 rounded-xl hover:border-green-500 transition-all cursor-pointer has-[:checked]:border-green-500 has-[:checked]:bg-green-50">
+                    <input type="radio" name="warranty" className="form-radio h-5 w-5 text-green-500" checked={selectedWarranty === months} onChange={() => setSelectedWarranty(months)} />
+                    <div className="ml-4">
+                      <span className="block font-semibold text-gray-800">
+                        {formatWarrantyPeriod(parseInt(months))}
+                      </span>
+                      <span className="block text-gray-500"> ₹{price}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              <div className="flex justify-between space-x-4">
+                <button
+                  onClick={() => {
+                    setShowWarrantyPopup(false),
+                      setSelectedWarranty(null),
+                      setQuantity(1)
+                  }}
+                  className="flex-1 px-6 py-3 text-gray-600 font-medium rounded-lg hover:bg-gray-50 transition-colors border-2 border-gray-200"
+                >
+                  No Thanks
+                </button>
+                <button
+                  onClick={addToCart}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium rounded-lg hover:opacity-90 transition-opacity shadow-lg"
+                >
+                  Add Protection
+                </button>
+              </div>
+
+              <p className="text-center text-sm text-gray-400 mt-4">
+                30-day money back guarantee
+              </p>
+            </div>
+          </div>
+        )
+      }
     </div>
   );
 };
