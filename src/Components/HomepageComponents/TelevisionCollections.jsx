@@ -8,9 +8,11 @@ const backend = import.meta.env.VITE_BACKEND;
 
 function TelevisionCollections() {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   async function fetchAllProducts() {
     try {
+      setLoading(true);
       const response = await axios.post(`${backend}/product/list`, {
         pageNum: 1,
         pageSize: 12,
@@ -19,9 +21,11 @@ function TelevisionCollections() {
 
       if (response.data.status === "Success") {
         setProducts(response.data.data.productList);
+        setLoading(false);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
+      setLoading(false);
     }
   }
 
@@ -127,52 +131,58 @@ function TelevisionCollections() {
       <h1 className="font-semibold text-center text-lg sm:text-xl md:text-2xl lg:text-3xl">
         Televisions Collections
       </h1>
-      <div className="w-full h-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 cursor-pointer ">
-        {products.map((television, index) => (
-          <Link to={`/television/${television._id}`} key={television._id}
-            className="group w-full p-4 rounded-lg bg-white relative duration-300 ease-in-out transition-all overflow-hidden"
-          >
-            {/* Sale Badge */}
-            <span className="absolute z-20 top-2 left-2 bg-blue-600 text-white text-sm px-6 py-1 rounded-full">
-              Sale
-            </span>
+      {
+        loading
+          ? <div className="w-full h-80 flex justify-center items-center">
+            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          : <div className="w-full h-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 cursor-pointer ">
+            {products.map((television, index) => (
+              <Link to={`/television/${television._id}`} key={television._id}
+                className="group w-full p-4 rounded-lg bg-white relative duration-300 ease-in-out transition-all overflow-hidden"
+              >
+                {/* Sale Badge */}
+                <span className="absolute z-20 top-2 left-2 bg-blue-600 text-white text-sm px-6 py-1 rounded-full">
+                  Sale
+                </span>
 
-            {/* TV Images (With Fade Transition) */}
-            <div className="relative w-full h-60 rounded-md overflow-hidden">
-              <img
-                src={television?.image[0]}
-                alt="image"
-                className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-100 group-hover:opacity-0"
-              />
-              <img
-                src={television?.image[1]}
-                alt="hover image"
-                className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100"
-              />
-            </div>
+                {/* TV Images (With Fade Transition) */}
+                <div className="relative w-full h-60 rounded-md overflow-hidden">
+                  <img
+                    src={television?.image[0]}
+                    alt="image"
+                    className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-100 group-hover:opacity-0"
+                  />
+                  <img
+                    src={television?.image[1]}
+                    alt="hover image"
+                    className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100"
+                  />
+                </div>
 
-            {/* TV Name */}
-            <h3 className="text-gray-800 font-semibold mt-3 transition-all duration-300 ease-in-out group-hover:underline group-hover:underline-offset-4">
-              {television?.name}
-            </h3>
+                {/* TV Name */}
+                <h3 className="text-gray-800 font-semibold mt-3 transition-all duration-300 ease-in-out group-hover:underline group-hover:underline-offset-4">
+                  {television?.name}
+                </h3>
 
-            {/* TV Brand */}
-            <p className="text-gray-500 text-sm uppercase mt-1">
-              {television?.companyName}™ TV
-            </p>
+                {/* TV Brand */}
+                <p className="text-gray-500 text-sm uppercase mt-1">
+                  {television?.companyName}™ TV
+                </p>
 
-            {/* Price Section */}
-            <div className="mt-2">
-              <span className="text-gray-400 line-through text-sm">
-                Rs. {television?.price}
-              </span>
-              <span className="text-black text-lg ml-2">
-                Rs. {television?.new_price}
-              </span>
-            </div>
-          </Link>
-        ))}
-      </div>
+                {/* Price Section */}
+                <div className="mt-2">
+                  <span className="text-gray-400 line-through text-sm">
+                    Rs. {television?.price}
+                  </span>
+                  <span className="text-black text-lg ml-2">
+                    Rs. {television?.new_price}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+      }
     </div>
   );
 }
