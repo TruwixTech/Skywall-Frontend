@@ -139,7 +139,7 @@ function Header() {
 
         {/* Icons */}
         <div className="w-auto h-auto flex gap-3 items-center relative sm:gap-5 xl:gap-8">
-          <IoIosSearch size={20} className="text-black cursor-pointer sm:size-6" />
+          <IoIosSearch onClick={() => setSearchDropDown(!searchDropDown)} size={20} className="text-black cursor-pointer sm:size-6" />
           {
             user && user.userId
               ? (
@@ -147,7 +147,20 @@ function Header() {
                   <FaRegUser size={20} onClick={() => setUserDropDown(!userDropDown)} className="text-black cursor-pointer sm:size-6 md:hover:scale-110 duration-300 ease-in-out" />
                   {userDropDown && (
                     <div className="absolute top-10 -left-[120px] xl:-left-20 w-52 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-10">
-                      <NavLink to='/' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Profile</NavLink>
+                      {
+                        user.role === 'admin' && (
+                          <NavLink to='/' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Profile</NavLink>
+                        )
+                      }
+                      {
+                        user.role === 'user' && (
+                          <>
+                            <NavLink onClick={() => setUserDropDown(!userDropDown)} to='/user-profile' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Profile</NavLink>
+                            <NavLink onClick={() => setUserDropDown(!userDropDown)} to='/myorders' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">My Orders</NavLink>
+                            <NavLink onClick={() => setUserDropDown(!userDropDown)} to='/raise-complaint' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Raise Complaint</NavLink>
+                          </>
+                        )
+                      }
                       <button onClick={() => setLogoutPopup(true)} className="cursor-pointer px-4 py-2 transition-colors duration-300 hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Logout</button>
                     </div>
                   )}
@@ -253,7 +266,7 @@ function Header() {
 
               <div className="flex justify-center gap-4 mt-6">
                 <button
-                  onClick={()=> setLogoutPopup(false)}
+                  onClick={() => setLogoutPopup(false)}
                   className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition"
                 >
                   Cancel

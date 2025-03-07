@@ -135,7 +135,7 @@ const getTelevisionById = (id) => {
 const TelevisionSinglePage = () => {
   const { id } = useParams(); // Would come from react-router
   const television = getTelevisionById(id || "1");
-
+  const [loading, setLoading] = useState(false)
   const [quantity, setQuantity] = useState(1);
   const [singleProduct, setSingleProduct] = useState({})
   const [selectedImage, setSelectedImage] = useState(0);
@@ -225,13 +225,16 @@ const TelevisionSinglePage = () => {
 
   async function getSingleProductDetails(id) {
     try {
+      setLoading(true)
       const response = await axios.get(`${backend}/product/${id}`)
       if (response.data.status === "Success") {
         setExpandedSpecs(response.data.data.product?.specificationSchema[0]?.title)
         setSingleProduct(response.data.data.product)
         setImages(response.data.data.product?.image)
+        setLoading(false)
       }
     } catch (error) {
+      setLoading(false)
       console.log("Error while getting single product details", error)
     }
   }
@@ -281,96 +284,121 @@ const TelevisionSinglePage = () => {
             <div className="col-span-1 space-y-4">
               {/* Main Image */}
               <div className="border rounded-lg overflow-hidden h-64 sm:h-80 flex items-center justify-center bg-gray-100">
-                <img
-                  src={images[selectedImage]}
-                  alt='television Image'
-                  className="w-full h-full object-cover"
-                />
+                {loading ? (
+                  <div className="w-full h-full bg-gray-300 animate-pulse" />
+                ) : (
+                  <img
+                    src={images[selectedImage]}
+                    alt='television Image'
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
 
               {/* Image Thumbnails */}
-              {
-                images.length > 1 && (
-                  <div className="grid grid-cols-4 gap-2">
-                    {images?.map((img, index) => (
-                      <div
-                        key={index}
-                        className={`border rounded cursor-pointer h-16 sm:h-20 flex items-center justify-center bg-gray-100 ${selectedImage === index
-                          ? "border-blue-500 ring-2 ring-blue-200"
-                          : ""
-                          }`}
-                        onClick={() => setSelectedImage(index)}
-                      >
-                        <img
-                          src={img}
-                          alt='television Images'
-                          className="w-full h-full object-cover p-1"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )
-              }
+              {images.length > 1 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {images.map((img, index) => (
+                    <div
+                      key={index}
+                      className={`border rounded cursor-pointer h-16 sm:h-20 flex items-center justify-center bg-gray-100 ${selectedImage === index ? "border-blue-500 ring-2 ring-blue-200" : ""}`}
+                      onClick={() => setSelectedImage(index)}
+                    >
+                      {loading ? (
+                        <div className="w-full h-full bg-gray-300 animate-pulse" />
+                      ) : (
+                        <img src={img} alt='television Images' className="w-full h-full object-cover p-1" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Product Info */}
             <div className="col-span-1 lg:col-span-2 space-y-6">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {singleProduct?.name}
-                </h1>
-                <p className="text-gray-500 mt-1">{singleProduct?.companyName}™ TV</p>
+                {loading ? (
+                  <div className="h-6 w-48 bg-gray-300 animate-pulse rounded" />
+                ) : (
+                  <h1 className="text-2xl font-bold text-gray-900">{singleProduct?.name}</h1>
+                )}
+                {loading ? (
+                  <div className="h-4 w-32 bg-gray-300 animate-pulse rounded mt-1" />
+                ) : (
+                  <p className="text-gray-500 mt-1">{singleProduct?.companyName}™ TV</p>
+                )}
 
                 {/* Ratings */}
                 <div className="mt-2 flex items-center space-x-2">
-                  {renderStars(television.rating)}
-                  <span className="text-sm text-gray-700">
-                    {television.rating} ({television.reviewCount} reviews)
-                  </span>
+                  {loading ? (
+                    <div className="h-5 w-24 bg-gray-300 animate-pulse rounded" />
+                  ) : (
+                    <>
+                      {renderStars(television?.rating)}
+                      <span className="text-sm text-gray-700">
+                        {television?.rating} ({television?.reviewCount} reviews)
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
 
               {/* Price */}
               <div className="pt-2 border-t">
                 <div className="flex items-baseline space-x-2">
-                  <span className="text-3xl font-bold text-gray-900">
-                    ₹{singleProduct?.new_price}
-                  </span>
-                  <span className="text-lg text-gray-500 line-through">
-                    ₹{singleProduct?.price}
-                  </span>
-                  <span className="text-green-600 font-semibold text-sm bg-green-50 px-2 py-1 rounded">
-                    {singleProduct?.discount_percentage}% off
-                  </span>
+                  {loading ? (
+                    <div className="h-8 w-32 bg-gray-300 animate-pulse rounded" />
+                  ) : (
+                    <div className="flex items-baseline space-x-2">
+                      <span className="text-3xl font-bold text-gray-900">₹{singleProduct?.new_price}</span>
+                      <span className="text-lg text-gray-500 line-through">₹{singleProduct?.price}</span>
+                      <span className="text-green-600 font-semibold text-sm bg-green-50 px-2 py-1 rounded">{singleProduct?.discount_percentage}% off</span>
+                    </div>
+                  )}
                 </div>
-                <p className="text-sm text-gray-500 mt-1">
-                  Inclusive of all taxes
-                </p>
+                {loading ? (
+                  <div className="h-4 w-48 bg-gray-300 animate-pulse rounded mt-1" />
+                ) : (
+                  <p className="text-sm text-gray-500 mt-1">Inclusive of all taxes</p>
+                )}
               </div>
 
               {/* Stock Status */}
               <div className="flex items-center space-x-2">
-                {singleProduct?.stock > 0 ? (
-                  <>
-                    <span className="flex items-center text-green-600">
-                      <Check size={16} className="mr-1" />
-                      In Stock
-                    </span>
-                    <span className="text-sm text-gray-500">Ready to ship</span>
-                  </>
+                {loading ? (
+                  <div className="h-5 w-24 bg-gray-300 animate-pulse rounded" />
                 ) : (
-                  <span className="text-red-600">Out of Stock</span>
+                  singleProduct?.stock > 0 ? (
+                    <>
+                      <span className="flex items-center text-green-600">
+                        <Check size={16} className="mr-1" />
+                        In Stock
+                      </span>
+                      <span className="text-sm text-gray-500">Ready to ship</span>
+                    </>
+                  ) : (
+                    <span className="text-red-600">Out of Stock</span>
+                  )
                 )}
               </div>
 
               {/* Highlights */}
               <div className="space-y-2 border-t pt-4">
                 <h3 className="font-medium text-gray-900">Highlights</h3>
-                <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
-                  {singleProduct?.highlights?.map((highlight, index) => (
-                    <li key={index}>{highlight}</li>
-                  ))}
-                </ul>
+                {loading ? (
+                  <div className="space-y-2">
+                    <div className="h-4 w-1/3 bg-gray-300 animate-pulse rounded" />
+                    <div className="h-4 w-1/2 bg-gray-300 animate-pulse rounded" />
+                    <div className="h-4 w-1/3 bg-gray-300 animate-pulse rounded" />
+                  </div>
+                ) : (
+                  <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
+                    {singleProduct?.highlights?.map((highlight, index) => (
+                      <li key={index}>{highlight}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
               {/* Quantity and Add to Cart */}
@@ -406,11 +434,14 @@ const TelevisionSinglePage = () => {
 
                 {/* Buttons */}
                 <div className="flex flex-1 space-x-2">
-                  <button onClick={() => setShowWarrantyPopup(true)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md flex items-center justify-center">
-                    <ShoppingCart size={18} className="mr-2" />
-                    Add to Cart
-                  </button>
-
+                  {loading ? (
+                    <div className="h-12 w-full bg-gray-300 animate-pulse rounded" />
+                  ) : (
+                    <button onClick={() => setShowWarrantyPopup(true)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md flex items-center justify-center">
+                      <ShoppingCart size={18} className="mr-2" />
+                      Add to Cart
+                    </button>
+                  )}
                 </div>
               </div>
 
