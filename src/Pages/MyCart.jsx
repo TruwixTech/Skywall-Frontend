@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { FiTrash2 } from "react-icons/fi";
@@ -12,6 +12,7 @@ function MyCart() {
     const [cartItems, setCartItems] = useState([])
     const [loading, setLoading] = useState(false)
     const [shippingCost] = useState(99); // Fixed shipping cost or calculate dynamically
+    const navigate = useNavigate()
 
     // Add these calculation functions
     const calculateSubtotal = () => {
@@ -51,6 +52,12 @@ function MyCart() {
         }
     }
 
+    async function handleCheckout() {
+        toast.dismiss();
+        toast.info("Proceeding to checkout...")
+        navigate('/checkout', { state: { from: "cart" } });
+    }
+
     async function fetchAllProducts() {
         try {
             setLoading(true)
@@ -77,6 +84,7 @@ function MyCart() {
 
     async function removeFromCart(id) {
         try {
+            setLoading(true)
             toast.dismiss()
             const response = await axios.post(`${backend}/cart/${cartItems[0]?._id}/remove-single-product`, {
                 productId: id
@@ -88,8 +96,10 @@ function MyCart() {
             if (response.data.status === "Success") {
                 getCartItems()
                 toast.success("Product removed from cart successfully!")
+                setLoading(false)
             }
         } catch (error) {
+            setLoading(false)
             console.log("Error while removing from cart", error)
         }
     }
@@ -109,173 +119,164 @@ function MyCart() {
 
             <div className='lg:w-[70%] w-full  px-4  pt-8 min-h-screen mx-auto pb-10 md:pb-20'>
                 {
-                    token
-                        ? cartItems[0]?.items?.length > 0
-                            ? <div className="space-y-4 md:space-y-6">
-                                {cartItems[0]?.items?.map((item, index) => {
-                                    const warrantyPrice = item.product.warranty_pricing[item.warranty_months] || 0;
-
-                                    return (
-                                        <div key={item._id} className="group relative flex flex-col md:flex-row gap-4 md:gap-6 px-4 py-5 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
-                                            {/* Product Image */}
-                                            <div className="flex-shrink-0 mx-auto md:mx-0">
-                                                <img
-                                                    src={item.product.image[0]}
-                                                    alt={item.product.name}
-                                                    className="w-44 h-44 md:w-24 md:h-24 object-contain rounded-lg border border-gray-200"
-                                                />
-                                            </div>
-
-                                            {/* Product Details */}
-                                            <div className="flex-grow">
-                                                <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1">
-                                                    <h3 className="text-lg font-semibold text-gray-800 truncate">
-                                                        {item.product.name}
-                                                    </h3>
-                                                    <span className="text-sm text-gray-500 md:text-right md:pt-4">
-                                                        Qty: {item.quantity}
-                                                    </span>
-                                                </div>
-
-                                                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                                                    <span className="text-sm font-medium text-gray-600">
-                                                        {item.product.companyName}
-                                                    </span>
-                                                    <span className="text-xs text-gray-400 hidden md:inline">•</span>
-                                                    <span className="text-sm text-gray-500 md:ml-2">
-                                                        {item.product.category}
-                                                    </span>
-                                                </div>
-
-                                                {/* Warranty Badge */}
-                                                <div className="mt-3 flex md:inline-flex items-center justify-center md:justify-start gap-2 px-3 py-1 bg-blue-50 rounded-full w-full md:w-auto">
-                                                    <span className="text-sm font-medium text-blue-700 text-center md:text-left break-words">
-                                                        {formatWarrantyPeriod(item.warranty_months + item.product.warranty_months)} Warranty
-                                                    </span>
-                                                    {
-                                                        item.warranty_months > 0 && (
-                                                            <span className="text-xs text-blue-500 hidden md:inline">
-                                                                (+ ₹ {warrantyPrice?.toFixed(2)})
-                                                            </span>
-                                                        )
-                                                    }
-                                                </div>
-
-                                                {/* Price Breakdown */}
-                                                <div className="mt-4 grid grid-cols-2 md:grid-cols-2 gap-2 text-sm md:text-base">
-                                                    <div className="text-gray-500">Unit Price:</div>
-                                                    <div className="text-right font-medium text-gray-700">
-                                                        ₹{item.product.new_price?.toFixed(2)}
+                    loading
+                        ? <div className="w-full h-80 flex justify-center items-center">
+                            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                        : <>
+                            {token
+                                ? cartItems[0]?.items?.length > 0
+                                    ? <div className="space-y-4 md:space-y-6">
+                                        {cartItems[0]?.items?.map((item, index) => {
+                                            const warrantyPrice = item.product.warranty_pricing[item.warranty_months] || 0;
+                                            return (
+                                                <div key={item._id} className="group relative flex flex-col md:flex-row gap-4 md:gap-6 px-4 py-5 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+                                                    {/* Product Image */}
+                                                    <div className="flex-shrink-0 mx-auto md:mx-0">
+                                                        <img
+                                                            src={item.product.image[0]}
+                                                            alt={item.product.name}
+                                                            className="w-44 h-44 md:w-24 md:h-24 object-contain rounded-lg border border-gray-200"
+                                                        />
                                                     </div>
-
-                                                    {
-                                                        item.warranty_months > 0 && (
-                                                            <>
-                                                                <div className="text-gray-500">Warranty:</div>
-                                                                <div className="text-right font-medium text-gray-700">
-                                                                    ₹{warrantyPrice?.toFixed(2)}
-                                                                </div>
-                                                            </>
-                                                        )
-                                                    }
-
-                                                    {/* Mobile-only total */}
-                                                    <div className="col-span-2 pt-2 border-t border-gray-100">
-                                                        <div className="flex justify-between font-semibold">
-                                                            <span>Total:</span>
-                                                            <span>
-                                                                ₹{(item.product.new_price * item.quantity + warrantyPrice)?.toFixed(2)}
+                                                    {/* Product Details */}
+                                                    <div className="flex-grow">
+                                                        <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1">
+                                                            <h3 className="text-lg font-semibold text-gray-800 truncate">
+                                                                {item.product.name}
+                                                            </h3>
+                                                            <span className="text-sm text-gray-500 md:text-right md:pt-4">
+                                                                Qty: {item.quantity}
                                                             </span>
                                                         </div>
+                                                        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                                                            <span className="text-sm font-medium text-gray-600">
+                                                                {item.product.companyName}
+                                                            </span>
+                                                            <span className="text-xs text-gray-400 hidden md:inline">•</span>
+                                                            <span className="text-sm text-gray-500 md:ml-2">
+                                                                {item.product.category}
+                                                            </span>
+                                                        </div>
+                                                        {/* Warranty Badge */}
+                                                        <div className="mt-3 flex md:inline-flex items-center justify-center md:justify-start gap-2 px-3 py-1 bg-blue-50 rounded-full w-full md:w-auto">
+                                                            <span className="text-sm font-medium text-blue-700 text-center md:text-left break-words">
+                                                                {formatWarrantyPeriod(item.warranty_months + item.product.warranty_months)} Warranty
+                                                            </span>
+                                                            {
+                                                                item.warranty_months > 0 && (
+                                                                    <span className="text-xs text-blue-500 hidden md:inline">
+                                                                        (+ ₹ {warrantyPrice?.toFixed(2)})
+                                                                    </span>
+                                                                )
+                                                            }
+                                                        </div>
+                                                        {/* Price Breakdown */}
+                                                        <div className="mt-4 grid grid-cols-2 md:grid-cols-2 gap-2 text-sm md:text-base">
+                                                            <div className="text-gray-500">Unit Price:</div>
+                                                            <div className="text-right font-medium text-gray-700">
+                                                                ₹{item.product.new_price?.toFixed(2)}
+                                                            </div>
+                                                            {
+                                                                item.warranty_months > 0 && (
+                                                                    <>
+                                                                        <div className="text-gray-500">Warranty:</div>
+                                                                        <div className="text-right font-medium text-gray-700">
+                                                                            ₹{warrantyPrice?.toFixed(2)}
+                                                                        </div>
+                                                                    </>
+                                                                )
+                                                            }
+                                                            {/* Mobile-only total */}
+                                                            <div className="col-span-2 pt-2 border-t border-gray-100">
+                                                                <div className="flex justify-between font-semibold">
+                                                                    <span>Total:</span>
+                                                                    <span>
+                                                                        ₹{(item.product.new_price * item.quantity + warrantyPrice)?.toFixed(2)}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
+                                                    {/* Delete Button */}
+                                                    <button
+                                                        onClick={() => removeFromCart(item.product._id)}
+                                                        className="absolute top-2 right-2 p-2 rounded-full text-gray-500 hover:text-red-600 cursor-pointer hover:bg-gray-100 transition"
+                                                    >
+                                                        <FiTrash2 className="w-5 h-5 text-red-500" />
+                                                    </button>
+                                                    {/* Vertical Separator */}
+                                                    {index !== cartItems.length - 1 && (
+                                                        <div className="absolute bottom-0 left-4 right-4 md:left-0 md:right-0 h-px bg-gray-100" />
+                                                    )}
                                                 </div>
+                                            )
+                                        }
+                                        )}
+                                    </div>
+                                    : <div className="flex flex-col items-center justify-center text-center py-20">
+                                        <img
+                                            src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png"
+                                            alt="Empty Cart"
+                                            className="w-32 h-32 mb-6 opacity-70"
+                                        />
+                                        <h1 className="text-2xl md:text-4xl font-semibold text-gray-800">
+                                            Your cart is empty
+                                        </h1>
+                                        <p className="text-gray-500 mt-2">
+                                            Looks like you haven’t added anything to your cart yet.
+                                        </p>
+                                        <Link to="/televisions"
+                                            className="mt-6 px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition"
+                                        >
+                                            Start Shopping
+                                        </Link>
+                                    </div>
+                                : <div className='flex flex-col items-center justify-center text-center '>
+                                    <h1 className="w-full px-5 py-10 flex justify-center items-center  text-2xl md:text-4xl  h-52"> Your cart is empty</h1>
+                                    <Link to="/televisions" className='bg-black text-white px-12 py-4 text-lg md:hover:bg-slate-900 duration-300 ease-in-out transition-all'>Continue Shopping</Link>
+                                    <span className='text-2xl md:pt-16  py-2'>Have an account?</span>
+                                    <p>  <Link to="/Signin" className='text-xl underline'>Log  in</Link><span className='text-xl text-gray-500'> to check out faster</span></p>
+                                </div>
+                            }
+                            {token && cartItems[0]?.items?.length > 0 && (
+                                <div className="mt-8 p-6 bg-white rounded-xl shadow-sm border border-gray-100 sticky bottom-0 md:static">
+                                    <div className="w-full ml-auto space-y-4">
+                                        <h2 className="text-2xl font-semibold text-gray-800 border-b pb-4">Order Summary</h2>
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between">
+                                                <span className="text-gray-600">Subtotal:</span>
+                                                <span className="font-medium">₹{calculateSubtotal().toFixed(2)}</span>
                                             </div>
-
-                                            {/* Delete Button */}
-                                            <button
-                                                onClick={() => removeFromCart(item.product._id)}
-                                                className="absolute top-2 right-2 p-2 rounded-full text-gray-500 hover:text-red-600 cursor-pointer hover:bg-gray-100 transition"
-                                            >
-                                                <FiTrash2 className="w-5 h-5 text-red-500" />
-                                            </button>
-
-                                            {/* Vertical Separator */}
-                                            {index !== cartItems.length - 1 && (
-                                                <div className="absolute bottom-0 left-4 right-4 md:left-0 md:right-0 h-px bg-gray-100" />
-                                            )}
+                                            <div className="flex justify-between">
+                                                <span className="text-gray-600">Shipping:</span>
+                                                <span className="font-medium">
+                                                    {calculateSubtotal() > 5000 ? 'FREE' : `₹${shippingCost.toFixed(2)}`}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between border-t pt-3">
+                                                <span className="text-lg font-semibold text-gray-800">Total:</span>
+                                                <span className="text-lg font-semibold text-green-600">
+                                                    ₹{(calculateSubtotal() + (calculateSubtotal() > 5000 ? 0 : shippingCost)).toFixed(2)}
+                                                </span>
+                                            </div>
                                         </div>
-                                    )
-                                }
-                                )}
-                            </div>
-                            : <div className="flex flex-col items-center justify-center text-center py-20">
-                                <img
-                                    src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png"
-                                    alt="Empty Cart"
-                                    className="w-32 h-32 mb-6 opacity-70"
-                                />
-                                <h1 className="text-2xl md:text-4xl font-semibold text-gray-800">
-                                    Your cart is empty
-                                </h1>
-                                <p className="text-gray-500 mt-2">
-                                    Looks like you haven’t added anything to your cart yet.
-                                </p>
-                                <Link to="/televisions"
-                                    className="mt-6 px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition"
-                                >
-                                    Start Shopping
-                                </Link>
-                            </div>
-                        : <div className='flex flex-col items-center justify-center text-center '>
-                            <h1 className="w-full px-5 py-10 flex justify-center items-center  text-2xl md:text-4xl  h-52"> Your cart is empty</h1>
-                            <Link to="/televisions" className='bg-black text-white px-12 py-4 text-lg md:hover:bg-slate-900 duration-300 ease-in-out transition-all'>Continue Shopping</Link>
-                            <span className='text-2xl md:pt-16  py-2'>Have an account?</span>
-                            <p>  <Link to="/Signin" className='text-xl underline'>Log  in</Link><span className='text-xl text-gray-500'> to check out faster</span></p>
-                        </div>
+                                        <div className="pt-6 space-y-4">
+                                            <button
+                                                className="w-full py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition"
+                                                onClick={handleCheckout}
+                                            >
+                                                Proceed to Checkout
+                                            </button>
+                                            <div className="text-center text-sm text-gray-500">
+                                                or <Link to="/televisions" className="text-green-600 hover:underline">Continue Shopping</Link>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                 }
-
-                {token && cartItems[0]?.items?.length > 0 && (
-                    <div className="mt-8 p-6 bg-white rounded-xl shadow-sm border border-gray-100 sticky bottom-0 md:static">
-                        <div className="w-full ml-auto space-y-4">
-                            <h2 className="text-2xl font-semibold text-gray-800 border-b pb-4">Order Summary</h2>
-
-                            <div className="space-y-3">
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Subtotal:</span>
-                                    <span className="font-medium">₹{calculateSubtotal().toFixed(2)}</span>
-                                </div>
-
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Shipping:</span>
-                                    <span className="font-medium">
-                                        {calculateSubtotal() > 5000 ? 'FREE' : `₹${shippingCost.toFixed(2)}`}
-                                    </span>
-                                </div>
-
-                                <div className="flex justify-between border-t pt-3">
-                                    <span className="text-lg font-semibold text-gray-800">Total:</span>
-                                    <span className="text-lg font-semibold text-green-600">
-                                        ₹{(calculateSubtotal() + (calculateSubtotal() > 5000 ? 0 : shippingCost)).toFixed(2)}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="pt-6 space-y-4">
-                                <button
-                                    className="w-full py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition"
-                                    onClick={() => toast.info("Proceeding to checkout...")}
-                                >
-                                    Proceed to Checkout
-                                </button>
-
-                                <div className="text-center text-sm text-gray-500">
-                                    or <Link to="/televisions" className="text-green-600 hover:underline">Continue Shopping</Link>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
                 <h1 className='text-2xl md:text-3xl  py-12 text-gray-800 '>Featured collection</h1>
 
                 {
