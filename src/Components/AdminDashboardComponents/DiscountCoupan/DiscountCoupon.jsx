@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { IoAdd, IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";
 import axios from "axios";
+import LoadingSpinner from "../../../utils/LoadingSpinner";
 
 const backend = import.meta.env.VITE_BACKEND
 
 const DiscountCoupon = () => {
   // Fake Coupons Data
   const [coupons, setCoupons] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [newCoupon, setNewCoupon] = useState({
@@ -40,6 +42,7 @@ const DiscountCoupon = () => {
 
   async function getCoupons() {
     try {
+      setLoading(true)
       const response = await axios.post(`${backend}/coupon/list`, {
         pageNum: 1,
         pageSize: 20,
@@ -51,9 +54,11 @@ const DiscountCoupon = () => {
       })
       if (response.data.status === "Success") {
         setCoupons(response.data.data.couponList)
+        setLoading(false)
       }
     } catch (error) {
       console.error("Error fetching coupons:", error);
+      setLoading(false)
     }
   }
 
@@ -97,7 +102,10 @@ const DiscountCoupon = () => {
   }, [])
 
   return (
-    <div className="px-5 w-full py-14">
+    <div className="px-5 w-full py-14 bg-gradient-to-b from-gray-50 to-blue-50">
+      {
+        loading && <LoadingSpinner />
+      }
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold lg:text-4xl">Coupons</h1>
         <button

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import LoadingSpinner from '../../utils/LoadingSpinner';
 
 const backend = import.meta.env.VITE_BACKEND
 
@@ -26,9 +27,11 @@ const StatCard = ({ title, value, trend, icon, color }) => (
 
 function AdminDashboard() {
   const [dashboardData, setDashboardData] = useState({})
+  const [loading, setLoading] = useState(false)
 
   async function getDashboardData() {
     try {
+      setLoading(true)
       const response = await axios.get(`${backend}/admin/dashboard`, {
         headers: {
           Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
@@ -36,8 +39,10 @@ function AdminDashboard() {
       })
       if (response.data.status === "Success") {
         setDashboardData(response.data.data.dashboard_data)
+        setLoading(false)
       }
     } catch (error) {
+      setLoading(false)
       console.log("Error while getting Dashboard Data", error)
     }
   }
@@ -47,7 +52,10 @@ function AdminDashboard() {
   }, [])
 
   return (
-    <div className="min-h-screen w-full bg-gray-100 pt-5 lg:pt-8">
+    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-blue-50 pt-5 lg:pt-8">
+      {
+        loading && <LoadingSpinner />
+      }
       <div className="flex w-full">
         {/* Main Content */}
         <div className="flex-1 p-8 w-full">
