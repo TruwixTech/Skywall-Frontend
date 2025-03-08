@@ -277,9 +277,9 @@ const TelevisionSinglePage = () => {
       </div>
 
       {/* Product Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-8">
         <div className="bg-white">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:p-6">
             {/* Product Images */}
             <div className="col-span-1 space-y-4">
               {/* Main Image */}
@@ -569,7 +569,7 @@ const TelevisionSinglePage = () => {
             </div>
 
             {/* Review Summary */}
-            <div className="flex items-start space-x-8 mb-8 pb-6 border-b">
+            <div className="flex flex-col items-center md:flex-row md:items-start space-x-8 mb-8 pb-6 border-b">
               <div className="text-center">
                 <div className="text-4xl font-bold text-gray-900">
                   {television.rating}
@@ -580,7 +580,7 @@ const TelevisionSinglePage = () => {
                 </div>
               </div>
 
-              <div className="flex-1 max-w-md">
+              <div className="flex-1 md:w-auto w-full max-w-md">
                 {/* Rating bars - would be dynamically generated in a real app */}
                 <div className="space-y-2">
                   {[5, 4, 3, 2, 1].map((star) => (
