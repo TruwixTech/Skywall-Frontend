@@ -1,67 +1,80 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-
+import axios from 'axios';
+import LoadingSpinner from '../../utils/LoadingSpinner';
+ 
 // Mock status colors - replace with your actual enum imports
-const PENDING = 'PENDING';
-const COMPLETED = 'COMPLETED';
-const CANCELLED = 'CANCELLED';
-
+const PENDING = 'Pending';
+const COMPLETED = 'Completed';
+const CANCELLED = 'Cancelled';
+ 
+const backend = import.meta.env.VITE_BACKEND;
+ 
 const statusStyles = {
   [PENDING]: 'bg-yellow-100 text-yellow-800',
   [COMPLETED]: 'bg-green-100 text-green-800',
   [CANCELLED]: 'bg-red-100 text-red-800',
 };
-
+ 
 function MyOrders() {
   const navigate = useNavigate()
-
-  // Mock data - replace with actual data from your API
-  const orders = [
-    {
-      _id: '6505a7b1c47b487d69e87e6d',
-      products: [
-        {
-          product_id: { name: 'Wireless Headphones' },
-          quantity: 2,
-          warranty_expiry_date: '2025-10-15'
-        },
-        {
-          product_id: { name: 'Smartwatch' },
-          quantity: 1,
-          warranty_expiry_date: '2024-12-01'
+  const [loading, setLoading] = useState(false)
+  const [orders, setOrders] = useState([])
+ 
+ 
+  async function fetchOrders(id) {
+    try {
+      setLoading(true)
+      const response = await axios.post(`${backend}/order/list`, {
+        pageNum: 1,
+        pageSize: 20,
+        filters: {
+          user_id: id
         }
-      ],
-      totalPrice: 359.98,
-      shippingAddress: '123 Main St, New York, NY',
-      expectedDelivery: '2023-10-20',
-      status: COMPLETED,
-      created_at: '2023-09-15'
-    },
-    // Add more mock orders as needed
-  ];
-
+      }, {
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
+        }
+      })
+      if (response.data.status === "Success") {
+        setOrders(response.data.data.orderList)
+        setLoading(false)
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  }
+ 
+  function convertUTCtoIST2(utcDateString) {
+    const utcDate = new Date(utcDateString); // Parse UTC date
+    return utcDate.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }); // Convert to IST
+  }
+ 
   useEffect(() => {
     const token = JSON.parse(localStorage.getItem('token'))
     if (token) {
       const decodedToken = jwtDecode(token)
       if (!decodedToken.userId) {
         navigate('/signin')
+      } else {
+        fetchOrders(decodedToken.userId)
       }
     }
     else {
       navigate('/signin')
     }
   }, [])
-
-
-
+ 
+ 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="mx-auto max-w-7xl">
         <h1 className="mb-6 text-2xl font-bold text-gray-900 md:text-3xl">My Orders</h1>
-
+        {
+          loading && <LoadingSpinner />
+        }
         {orders.length === 0 ? (
           <div className="text-center text-gray-500">No orders found</div>
         ) : (
@@ -74,7 +87,7 @@ function MyOrders() {
                 {/* Order Header */}
                 <div className="mb-4 flex items-center justify-between">
                   <div className="truncate text-sm font-medium text-gray-500">
-                    Order # {order._id.substring(0, 8)}
+                    Order # {order._id}
                   </div>
                   <span
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${statusStyles[order.status]}`}
@@ -82,7 +95,7 @@ function MyOrders() {
                     {order.status}
                   </span>
                 </div>
-
+ 
                 {/* Products List */}
                 <div className="mb-4 border-b border-t border-gray-200">
                   {order.products.map((product, index) => (
@@ -96,10 +109,13 @@ function MyOrders() {
                         </div>
                         <div className="text-sm text-gray-500">
                           Qty: {product.quantity}
-                          {product.warranty_expiry_date && (
+                          {product.total_warranty && (
                             <span>
                               {' • Warranty: '}
-                              {format(new Date(product.warranty_expiry_date), 'MMM dd, yyyy')}
+                              {product.total_warranty >= 12
+                                ? `${(product.total_warranty / 12).toFixed(0)} Years`
+                                : `${product.total_warranty} Months`}
+                              {/* {format(new Date(product.warranty_expiry_date), 'MMM dd, yyyy')} */}
                             </span>
                           )}
                         </div>
@@ -107,7 +123,7 @@ function MyOrders() {
                     </div>
                   ))}
                 </div>
-
+ 
                 {/* Order Details */}
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between font-medium">
@@ -118,11 +134,13 @@ function MyOrders() {
                     <div>Shipping to: {order.shippingAddress}</div>
                     <div>
                       Expected Delivery:{' '}
-                      {format(new Date(order.expectedDelivery), 'MMM dd, yyyy')}
+                      {order.expectedDelivery || 'N/A'}
+                      {/* {format(new Date(order.expectedDelivery), 'MMM dd, yyyy')} */}
                     </div>
                     <div>
                       Order Date:{' '}
-                      {format(new Date(order.created_at), 'MMM dd, yyyy')}
+                      {convertUTCtoIST2(order.created_at)}
+                      {/* {format(new Date(order.created_at), 'MMM dd, yyyy')} */}
                     </div>
                   </div>
                 </div>
@@ -134,5 +152,5 @@ function MyOrders() {
     </div>
   );
 }
-
+ 
 export default MyOrders;

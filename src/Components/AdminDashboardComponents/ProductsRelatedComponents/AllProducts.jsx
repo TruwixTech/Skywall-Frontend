@@ -521,7 +521,7 @@ const AllProducts = () => {
     );
 
     return (
-        <div className="min-h-screen w-full bg-gray-50 p-8 pt-14">
+        <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-blue-50 p-8 pt-14">
             <div className="max-w-7xl mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                     <h1 className="text-3xl font-bold text-gray-800">Product Management</h1>
