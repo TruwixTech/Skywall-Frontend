@@ -60,7 +60,10 @@ function CheckoutPage() {
     async function handleSubmit() {
         setLoading(true);
         try {
-            if (!validateForm()) return
+            if (!validateForm()) {
+                setLoading(false)
+                return
+            }
             const response = await axios.post(`${backend}/payment/new`, { amount: total.toFixed(0) });
             const data = response.data.data.payment
 
@@ -73,7 +76,7 @@ function CheckoutPage() {
                         orderId: response.razorpay_order_id,
                         paymentId: response.razorpay_payment_id,
                         signature: response.razorpay_signature,
-                        amount: total,
+                        amount: total.toFixed(0),
                         name: formData.name,
                         email: formData.email,
                         address: formData.address,
