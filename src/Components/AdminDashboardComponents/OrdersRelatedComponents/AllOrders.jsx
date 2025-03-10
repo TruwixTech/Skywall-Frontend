@@ -93,7 +93,7 @@ const AllOrders = () => {
     return (
         <div className="px-4 sm:px-6 lg:px-8 w-full py-8 bg-gradient-to-b from-gray-50 to-blue-50 min-h-screen">
             {/* Header Section */}
-            <div className="max-w-7xl mx-auto pt-6">
+            <div className="max-w-8xl mx-auto pt-6">
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
                     <div className="mb-4 sm:mb-0">
@@ -135,8 +135,8 @@ const AllOrders = () => {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    {['Order Details', 'Product', 'Qty', 'Total', 'Status', 'Order Date'].map((header) => (
-                                        <th key={header} className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {['Order Details', 'Product', 'Qty', 'Warranty Extended', 'Total Warranty', 'Total', 'Status', 'Order Date'].map((header) => (
+                                        <th key={header} className="px-4 sm:px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
                                             {header}
                                         </th>
                                     ))}
@@ -160,7 +160,7 @@ const AllOrders = () => {
                                                 <tr key={product._id} className=" transition-colors">
                                                     {/* Order Details */}
                                                     {index === 0 && (
-                                                        <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4 align-top">
+                                                        <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4 align-center">
                                                             <div className="text-sm font-medium text-gray-900">{order.name}</div>
                                                             <div className="text-sm text-gray-500">{order.email}</div>
                                                         </td>
@@ -178,9 +178,9 @@ const AllOrders = () => {
                                                                 <div className="text-sm font-medium text-gray-900">
                                                                     {product.product_id?.name}
                                                                 </div>
-                                                                <div className="text-xs sm:text-sm text-gray-500 mt-1">
+                                                                {/* <div className="text-xs sm:text-sm text-gray-500 mt-1">
                                                                     SKU: {product.product_id?.sku}
-                                                                </div>
+                                                                </div> */}
                                                             </div>
                                                         </div>
                                                     </td>
@@ -188,6 +188,18 @@ const AllOrders = () => {
                                                     {/* Quantity */}
                                                     <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 font-medium">
                                                         {product.quantity}
+                                                    </td>
+
+                                                    {/* Extended Warranty */}
+                                                    <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 text-center font-medium">
+                                                        {product.extended_warranty > 0 ? 'Yes' : 'No'}
+                                                    </td>
+
+                                                    {/* Total Warranty */}
+                                                    <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 text-center font-medium">
+                                                        {product.total_warranty >= 12
+                                                            ? `${(product.total_warranty / 12).toFixed(1)} Years`
+                                                            : `${product.total_warranty} Months`}
                                                     </td>
 
                                                     {/* Order-level Data */}

@@ -13,7 +13,9 @@ function MyCart() {
     const [loading, setLoading] = useState(false)
     const [shippingCost] = useState(99); // Fixed shipping cost or calculate dynamically
     const navigate = useNavigate()
- 
+    const [couponCode, setCouponCode] = useState('');
+    const [discount, setDiscount] = useState(0);
+    const [couponApplied, setCouponApplied] = useState(false);
     // Add these calculation functions
     const calculateSubtotal = () => {
         return cartItems[0]?.items?.reduce((total, item) => {
@@ -51,7 +53,7 @@ function MyCart() {
     async function handleCheckout() {
         toast.dismiss();
         toast.info("Proceeding to checkout...")
-        navigate('/checkout', { state: { from: "cart", items: cartItems, subtotal: parseInt(calculateSubtotal().toFixed(2)), shipping: shippingCost } });
+        navigate('/checkout', { state: { from: "cart", items: cartItems, subtotal: (calculateSubtotal()) - (calculateSubtotal() * (discount / 100)), shipping: shippingCost } });
     }
  
     async function fetchAllProducts() {
@@ -72,7 +74,33 @@ function MyCart() {
             setLoading(false)
         }
     }
- 
+
+    async function validateCoupon() {
+        try {
+            toast.dismiss()
+            if (!couponCode) {
+                toast.error("Please enter a coupon code")
+                return
+            }
+            const response = await axios.post(`${backend}/coupon/validate-coupon`, {
+                code: couponCode
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            if (response.data.status === "Success") {
+                setDiscount(response.data.data.coupon.discountPercentage)
+                setCouponApplied(true)
+                toast.success("Coupon validated successfully!")
+            }
+        } catch (error) {
+            console.log("Error while validating coupon", error)
+            toast.error(error?.response?.data?.data?.message)
+        }
+    }
+
+
     useEffect(() => {
         fetchAllProducts();
         getCartItems()
@@ -250,10 +278,37 @@ function MyCart() {
                                                     {`₹${shippingCost}`}
                                                 </span>
                                             </div>
+                                            {/* Discount Coupon Section */}
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Enter discount coupon"
+                                                    className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                    value={couponCode}
+                                                    disabled={couponApplied}
+                                                    onChange={(e) => setCouponCode(e.target.value)}
+                                                />
+                                                <button
+                                                    className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                                    onClick={validateCoupon}
+                                                >
+                                                    Apply
+                                                </button>
+                                            </div>
+                                            {/* Display Discount if applied */}
+                                            {discount > 0 && (
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-600">Discount:</span>
+                                                    <span className="font-medium text-green-600">
+                                                        {discount} %
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {/* Total Section */}
                                             <div className="flex justify-between border-t pt-3">
                                                 <span className="text-lg font-semibold text-gray-800">Total:</span>
                                                 <span className="text-lg font-semibold text-green-600">
-                                                    ₹{(calculateSubtotal() + shippingCost).toFixed(2)}
+                                                    ₹{((((calculateSubtotal()) - ((calculateSubtotal()) * (discount / 100)))) + shippingCost).toFixed(2) }
                                                 </span>
                                             </div>
                                         </div>

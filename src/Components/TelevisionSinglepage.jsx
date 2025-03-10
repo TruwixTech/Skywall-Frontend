@@ -14,127 +14,14 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
+import { convertUTCtoIST2 } from "../utils/TimeConverter";
 
 
 const backend = import.meta.env.VITE_BACKEND;
 
-// This would be replaced with real data in your application
-const getTelevisionById = (id) => {
-  // Sample data for demo purposes
-  return {
-    id,
-    name: "SkyWall 80 cm (32 inches) Full HD Smart Android LED TV 32SWRR Pro (Frameless Edition) (Dolby Audio)",
-    company: "SkyWall",
-    realPrice: 19125,
-    discountedPrice: 7999,
-    discount: 58,
-    inStock: true,
-    rating: 4.5,
-    reviewCount: 217,
-    description:
-      "Experience stunning visuals with SkyWall's 32-inch Full HD Smart Android LED TV. This frameless edition features Dolby Audio for an immersive sound experience, making it perfect for your living room or bedroom.",
-    images: [
-      "/api/placeholder/500/400", // These would be replaced with actual image paths
-      "/api/placeholder/500/400",
-      "/api/placeholder/500/400",
-      "/api/placeholder/500/400",
-    ],
-    highlights: [
-      "Resolution: 1920 x 1080 Full HD",
-      "Display: A+ Grade Panel with 178° wide viewing angle",
-      "Sound: 20W Output with Dolby Audio",
-      "Smart Features: Android TV with built-in Chromecast",
-      "Connectivity: 2 HDMI, 2 USB, Wi-Fi",
-    ],
-    specifications: [
-      {
-        category: "Display",
-        details: [
-          { name: "Screen Size", value: "80 cm (32 inches)" },
-          { name: "Resolution", value: "Full HD (1920 x 1080)" },
-          { name: "Panel Type", value: "LED" },
-          { name: "Refresh Rate", value: "60 Hz" },
-          { name: "Viewing Angle", value: "178°" },
-        ],
-      },
-      {
-        category: "Sound",
-        details: [
-          { name: "Sound Output", value: "20 Watts" },
-          { name: "Speaker Type", value: "Box Speakers" },
-          { name: "Sound Technology", value: "Dolby Audio" },
-        ],
-      },
-      {
-        category: "Smart Features",
-        details: [
-          { name: "Operating System", value: "Android TV 11" },
-          { name: "App Store", value: "Google Play Store" },
-          { name: "Voice Assistant", value: "Google Assistant" },
-          { name: "Built-in Chromecast", value: "Yes" },
-        ],
-      },
-      {
-        category: "Connectivity",
-        details: [
-          { name: "HDMI Ports", value: "2" },
-          { name: "USB Ports", value: "2" },
-          { name: "Bluetooth", value: "Version 5.0" },
-          { name: "Wi-Fi", value: "2.4 GHz" },
-        ],
-      },
-      {
-        category: "Power",
-        details: [
-          { name: "Power Consumption", value: "60 Watts" },
-          { name: "Power Supply", value: "AC 100-240V 50/60Hz" },
-        ],
-      },
-      {
-        category: "General",
-        details: [
-          { name: "Model", value: "32SWRR Pro" },
-          { name: "Warranty", value: "1 Year Standard Warranty" },
-          {
-            name: "Box Contents",
-            value:
-              "LED TV, Remote, Batteries, Power Cord, User Manual, Wall Mount",
-          },
-        ],
-      },
-    ],
-    reviews: [
-      {
-        name: "Amit Kumar",
-        rating: 5,
-        date: "15 Jan 2025",
-        title: "Excellent TV for the price",
-        comment:
-          "The picture quality is amazing at this price point. The smart features work smoothly and the setup was very easy. Sound quality is good but I connected external speakers for a better experience.",
-      },
-      {
-        name: "Priya Singh",
-        rating: 4,
-        date: "2 Feb 2025",
-        title: "Great value for money",
-        comment:
-          "This TV exceeded my expectations. The frameless design looks premium and the Android interface is quite responsive. Only downside is the remote which feels a bit cheap.",
-      },
-      {
-        name: "Rajesh Sharma",
-        rating: 5,
-        date: "20 Jan 2025",
-        title: "Perfect for small rooms",
-        comment:
-          "Bought this for my parents' bedroom and they love it. The picture clarity is excellent and the sound is good enough for a small room. Very happy with this purchase.",
-      },
-    ],
-  };
-};
 
 const TelevisionSinglePage = () => {
   const { id } = useParams(); // Would come from react-router
-  const television = getTelevisionById(id || "1");
   const [loading, setLoading] = useState(false)
   const [quantity, setQuantity] = useState(1);
   const [singleProduct, setSingleProduct] = useState({})
@@ -143,6 +30,17 @@ const TelevisionSinglePage = () => {
   const [images, setImages] = useState([])
   const [showWarrantyPopup, setShowWarrantyPopup] = useState(false)
   const [selectedWarranty, setSelectedWarranty] = useState(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [newReview, setNewReview] = useState({
+    rating: 0,
+    title: '',
+    comment: ''
+  });
+  const [productReviews, setProductReviews] = useState([])
+  const [ratingDistribution, setRatingDistribution] = useState({})
+  const [averageRating, setAverageRating] = useState(0);
+  const [ratingPage, setRatingPage] = useState(1);
   const navigate = useNavigate()
 
   // Handle quantity changes
@@ -186,6 +84,34 @@ const TelevisionSinglePage = () => {
     );
   };
 
+  const calculateRatingDistribution = (reviews) => {
+    const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    let totalRatingSum = 0;
+
+    // Count occurrences of each rating
+    reviews.forEach((review) => {
+      if (review.rating >= 1 && review.rating <= 5) {
+        ratingCounts[review.rating]++;
+        totalRatingSum += review.rating;
+      }
+    });
+
+    const totalReviews = reviews.length;
+    const ratingPercentages = {};
+
+    // Convert counts to percentages
+    Object.keys(ratingCounts).forEach((key) => {
+      ratingPercentages[key] = totalReviews > 0 ? (ratingCounts[key] / totalReviews) * 100 : 0;
+    });
+
+    const avgRating = totalReviews > 0 ? (totalRatingSum / totalReviews).toFixed(1) : 0;
+
+    setAverageRating(avgRating)
+
+    return ratingPercentages;
+  };
+
+
   async function addToCart() {
     toast.dismiss()
     const token = JSON.parse(localStorage.getItem('token'))
@@ -223,6 +149,65 @@ const TelevisionSinglePage = () => {
     }
   }
 
+
+  async function fetchSingleProductReviews(id) {
+    try {
+      const response = await axios.post(`${backend}/review/list`, {
+        pageNum: ratingPage,
+        pageSize: 20,
+        filters: {
+          product: id
+        }
+      })
+      if (response.data.status === "Success") {
+        setProductReviews(response.data.data.reviewList)
+        const ratingPercentages = calculateRatingDistribution(response.data.data.reviewList);
+        setRatingDistribution(ratingPercentages)
+      }
+    } catch (error) {
+      console.log("Error while fetching single product reviews", error)
+    }
+  }
+
+  async function submitReview(e) {
+    try {
+      e.preventDefault()
+      const token = JSON.parse(localStorage.getItem('token'))
+      if (!token) {
+        toast.error("Please login to submit review")
+        navigate('/signin')
+        return
+      }
+      const decodedToken = jwtDecode(token)
+      const response = await axios.post(`${backend}/review/new`, {
+        review: {
+          user: decodedToken?.userId,
+          product: singleProduct?._id,
+          rating: newReview.rating,
+          title: newReview.title,
+          comment: newReview.comment
+        }
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      if (response.data.status === "Success") {
+        setShowReviewForm(false)
+        toast.success("Review submitted successfully!")
+        setNewReview({
+          rating: 0,
+          title: '',
+          comment: ''
+        })
+        setHoveredRating(0)
+        getSingleProductDetails(id)
+      }
+    } catch (error) {
+      console.log("Error while submitting review", error)
+    }
+  }
+
   async function getSingleProductDetails(id) {
     try {
       setLoading(true)
@@ -232,6 +217,7 @@ const TelevisionSinglePage = () => {
         setSingleProduct(response.data.data.product)
         setImages(response.data.data.product?.image)
         setLoading(false)
+        fetchSingleProductReviews(response.data.data.product._id)
       }
     } catch (error) {
       setLoading(false)
@@ -241,7 +227,7 @@ const TelevisionSinglePage = () => {
 
   useEffect(() => {
     getSingleProductDetails(id)
-  }, [id])
+  }, [id, ratingPage])
 
   const formatWarrantyPeriod = (months) => {
     if (months < 12) return `${months} month${months > 1 ? "s" : ""}`;
@@ -335,9 +321,9 @@ const TelevisionSinglePage = () => {
                     <div className="h-5 w-24 bg-gray-300 animate-pulse rounded" />
                   ) : (
                     <>
-                      {renderStars(television?.rating)}
+                      {renderStars(averageRating)}
                       <span className="text-sm text-gray-700">
-                        {television?.rating} ({television?.reviewCount} reviews)
+                        {averageRating} ({productReviews.length} reviews)
                       </span>
                     </>
                   )}
@@ -563,20 +549,97 @@ const TelevisionSinglePage = () => {
               <h2 className="text-xl font-semibold text-gray-900">
                 Customer Reviews
               </h2>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                Write a Review
+              <button
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                onClick={() => setShowReviewForm(!showReviewForm)}
+              >
+                {showReviewForm ? 'Cancel Review' : 'Write a Review'}
               </button>
             </div>
+
+            {/* Review Form */}
+            {showReviewForm && (
+              <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                <form onSubmit={submitReview} >
+                  <div className="space-y-4">
+                    {/* Star Rating */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">
+                        Your Rating
+                      </label>
+                      <div className="flex space-x-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            type="button"
+                            key={star}
+                            onClick={() => setNewReview({ ...newReview, rating: star })}
+                            onMouseEnter={() => setHoveredRating(star)}
+                            onMouseLeave={() => setHoveredRating(0)}
+                            className="p-1"
+                          >
+                            <svg
+                              className={`w-8 h-8 ${star <= (hoveredRating || newReview.rating) ? 'text-yellow-400' : 'text-gray-300'
+                                }`}
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Review Title */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Review Title
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Review Title"
+                        className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        value={newReview.title}
+                        onChange={(e) => setNewReview({ ...newReview, title: e.target.value })}
+                      />
+                    </div>
+
+                    {/* Review Comment */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Your Review
+                      </label>
+                      <textarea
+                        required
+                        rows="4"
+                        placeholder="Write your review here..."
+                        className="w-full px-3 py-2 border rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        value={newReview.comment}
+                        onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                      ></textarea>
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    >
+                      Submit Review
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
 
             {/* Review Summary */}
             <div className="flex flex-col items-center md:flex-row md:items-start space-x-8 mb-8 pb-6 border-b">
               <div className="text-center">
                 <div className="text-4xl font-bold text-gray-900">
-                  {television.rating}
+                  {averageRating}
                 </div>
-                <div className="mt-1">{renderStars(television.rating)}</div>
+                <div className="mt-1">{renderStars(averageRating)}</div>
                 <div className="text-sm text-gray-500 mt-1">
-                  Based on {television.reviewCount} reviews
+                  Based on {productReviews.length} reviews
                 </div>
               </div>
 
@@ -590,29 +653,12 @@ const TelevisionSinglePage = () => {
                         <div
                           className="h-full bg-yellow-400"
                           style={{
-                            width:
-                              star === 5
-                                ? "60%"
-                                : star === 4
-                                  ? "30%"
-                                  : star === 3
-                                    ? "7%"
-                                    : star === 2
-                                      ? "2%"
-                                      : "1%",
+                            width: `${ratingDistribution[star] || 0}%`,
                           }}
                         ></div>
                       </div>
                       <div className="w-8 text-right text-gray-500">
-                        {star === 5
-                          ? "60%"
-                          : star === 4
-                            ? "30%"
-                            : star === 3
-                              ? "7%"
-                              : star === 2
-                                ? "2%"
-                                : "1%"}
+                        {ratingDistribution[star]?.toFixed(1) || 0}%
                       </div>
                     </div>
                   ))}
@@ -622,24 +668,34 @@ const TelevisionSinglePage = () => {
 
             {/* Review List */}
             <div className="space-y-6">
-              {television.reviews.map((review, index) => (
+              {
+                productReviews.length > 0 
+               ? productReviews.map((review, index) => (
                 <div key={index} className={index !== 0 ? "pt-6 border-t" : ""}>
                   <div className="flex justify-between">
-                    <span className="font-medium">{review.name}</span>
-                    <span className="text-sm text-gray-500">{review.date}</span>
+                    <span className="font-medium">{review.user.name}</span>
+                    <span className="text-sm text-gray-500">{convertUTCtoIST2(review.createdAt)}</span>
                   </div>
                   <div className="mt-1">{renderStars(review.rating)}</div>
                   <h4 className="font-medium mt-2">{review.title}</h4>
                   <p className="text-gray-700 mt-1">{review.comment}</p>
                 </div>
-              ))}
+              ))
+              : <div className="w-full h-20 flex justify-center items-center">
+                <span className="font-semibold text-lg lg:text-xl">No reviews found</span>
+              </div>
+            }
 
               {/* Show more button */}
-              <div className="text-center pt-4">
-                <button className="px-4 py-2 border rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
-                  Load More Reviews
-                </button>
-              </div>
+              {
+                productReviews.length > 20 && (
+                  <div className="text-center pt-4">
+                    <button onClick={() => setRatingPage(ratingPage + 1)} className="px-4 py-2 border rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                      Load More Reviews
+                    </button>
+                  </div>
+                )
+              }
             </div>
           </div>
         </div>
