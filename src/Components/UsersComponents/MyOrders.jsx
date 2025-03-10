@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import LoadingSpinner from '../../utils/LoadingSpinner';
+import { convertUTCtoIST2 } from '../../utils/TimeConverter';
+
 
 // Mock status colors - replace with your actual enum imports
 const PENDING = 'Pending';
@@ -45,11 +47,6 @@ function MyOrders() {
     } catch (error) {
       console.error("Error fetching orders:", error);
     }
-  }
-
-  function convertUTCtoIST2(utcDateString) {
-    const utcDate = new Date(utcDateString); // Parse UTC date
-    return utcDate.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }); // Convert to IST
   }
 
   useEffect(() => {
@@ -113,7 +110,7 @@ function MyOrders() {
                             <span>
                               {' • Warranty: '}
                               {product.total_warranty >= 12
-                                ? `${(product.total_warranty / 12).toFixed(0)} Years`
+                                ? `${(product.total_warranty / 12).toFixed(1)} Years`
                                 : `${product.total_warranty} Months`}
                               {/* {format(new Date(product.warranty_expiry_date), 'MMM dd, yyyy')} */}
                             </span>
