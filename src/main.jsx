@@ -29,6 +29,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import DiscountCoupon from './Components/AdminDashboardComponents/DiscountCoupan/DiscountCoupon.jsx'
 import InventoryManagement from './Components/AdminDashboardComponents/InventoryManagement/Inventory.jsx'
 import MyCart from './Pages/MyCart.jsx'
+import MyOrders from './Components/UsersComponents/MyOrders.jsx'
+import UserProfile from './Components/UsersComponents/UserProfile.jsx'
+import RaiseComplaint from './Components/UsersComponents/RaiseComplaint.jsx'
+import CheckoutPage from './Pages/CheckoutPage.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -36,6 +40,10 @@ const router = createBrowserRouter(
       <Route path="/" element={<App />}>
         <Route path='/' element={<Homepage />} />
         <Route path='/about' element={<Aboutus />} />
+        <Route path='/raise-complaint' element={<RaiseComplaint />} />
+        <Route path='/user-profile' element={<UserProfile />} />
+        <Route path='/myorders' element={<MyOrders />} />
+        <Route path='/checkout' element={<CheckoutPage />} />
         <Route path='/unboxing-policy' element={<UnboxingPolicy />} />
         <Route path='/disclaimer' element={<Disclaimer />} />
         <Route path='/contact' element={<Contact />} />
