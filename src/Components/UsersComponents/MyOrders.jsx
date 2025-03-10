@@ -4,26 +4,26 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import LoadingSpinner from '../../utils/LoadingSpinner';
-
+ 
 // Mock status colors - replace with your actual enum imports
 const PENDING = 'Pending';
 const COMPLETED = 'Completed';
 const CANCELLED = 'Cancelled';
-
+ 
 const backend = import.meta.env.VITE_BACKEND;
-
+ 
 const statusStyles = {
   [PENDING]: 'bg-yellow-100 text-yellow-800',
   [COMPLETED]: 'bg-green-100 text-green-800',
   [CANCELLED]: 'bg-red-100 text-red-800',
 };
-
+ 
 function MyOrders() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [orders, setOrders] = useState([])
-
-
+ 
+ 
   async function fetchOrders(id) {
     try {
       setLoading(true)
@@ -46,12 +46,12 @@ function MyOrders() {
       console.error("Error fetching orders:", error);
     }
   }
-
+ 
   function convertUTCtoIST2(utcDateString) {
     const utcDate = new Date(utcDateString); // Parse UTC date
     return utcDate.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }); // Convert to IST
   }
-
+ 
   useEffect(() => {
     const token = JSON.parse(localStorage.getItem('token'))
     if (token) {
@@ -66,8 +66,8 @@ function MyOrders() {
       navigate('/signin')
     }
   }, [])
-
-
+ 
+ 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="mx-auto max-w-7xl">
@@ -95,7 +95,7 @@ function MyOrders() {
                     {order.status}
                   </span>
                 </div>
-
+ 
                 {/* Products List */}
                 <div className="mb-4 border-b border-t border-gray-200">
                   {order.products.map((product, index) => (
@@ -123,7 +123,7 @@ function MyOrders() {
                     </div>
                   ))}
                 </div>
-
+ 
                 {/* Order Details */}
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between font-medium">
@@ -152,5 +152,5 @@ function MyOrders() {
     </div>
   );
 }
-
+ 
 export default MyOrders;
