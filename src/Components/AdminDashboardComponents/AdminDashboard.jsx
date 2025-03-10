@@ -1,14 +1,10 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import LoadingSpinner from '../../utils/LoadingSpinner';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaClock, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
-const backend = import.meta.env.VITE_BACKEND
-
-const recentOrders = [
-  { id: '#1245', customer: 'John Doe', date: '2024-02-15', status: 'Completed', amount: 299 },
-  { id: '#1246', customer: 'Jane Smith', date: '2024-02-14', status: 'Pending', amount: 599 },
-  { id: '#1247', customer: 'Mike Johnson', date: '2024-02-13', status: 'Processing', amount: 199 },
-];
+const backend = import.meta.env.VITE_BACKEND;
 
 const StatCard = ({ title, value, trend, icon, color }) => (
   <div className={`p-6 rounded-lg shadow-sm ${color} text-white`}>
@@ -26,72 +22,126 @@ const StatCard = ({ title, value, trend, icon, color }) => (
 );
 
 function AdminDashboard() {
-  const [dashboardData, setDashboardData] = useState({})
-  const [loading, setLoading] = useState(false)
+  const [dashboardData, setDashboardData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const itemsPerPage = 10;
 
+  // Fetch dashboard data
   async function getDashboardData() {
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await axios.get(`${backend}/admin/dashboard`, {
         headers: {
           Authorization: `Bearer ${JSON.parse(localStorage.getItem("token"))}`,
         }
-      })
+      });
       if (response.data.status === "Success") {
-        setDashboardData(response.data.data.dashboard_data)
-        setLoading(false)
+        setDashboardData(response.data.data.dashboard_data);
       }
     } catch (error) {
-      setLoading(false)
-      console.log("Error while getting Dashboard Data", error)
+      console.log("Error while getting Dashboard Data", error);
+    } finally {
+      setLoading(false);
     }
   }
 
+  // Fetch orders with pagination
+  async function fetchOrders() {
+    try {
+      setLoading(true);
+      const response = await axios.post(`${backend}/order/list`, {
+        pageNum: currentPage,
+        pageSize: itemsPerPage,
+        filters: {},
+      }, {
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
+        }
+      });
+
+      if (response.data.status === "Success") {
+        setOrders(response.data.data.orderList);
+        setTotalOrders(response.data.data.orderCount);
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Handle pagination
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-IN', options);
+  };
+
+  // Get status badge
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      PENDING: { color: 'bg-amber-100 text-amber-800', icon: <FaClock className="w-4 h-4 mr-1" /> },
+      COMPLETED: { color: 'bg-emerald-100 text-emerald-800', icon: <FaCheckCircle className="w-4 h-4 mr-1" /> },
+      CANCELLED: { color: 'bg-rose-100 text-rose-800', icon: <FaTimesCircle className="w-4 h-4 mr-1" /> }
+    };
+
+    return (
+      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusConfig[status]?.color}`}>
+        {statusConfig[status]?.icon}
+        {status}
+      </span>
+    );
+  };
+
   useEffect(() => {
-    getDashboardData()
-  }, [])
+    getDashboardData();
+    fetchOrders();
+  }, [currentPage]);
+
+  const totalPages = Math.ceil(totalOrders / itemsPerPage);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-blue-50 pt-5 lg:pt-8">
-      {
-        loading && <LoadingSpinner />
-      }
+      {loading && <LoadingSpinner />}
       <div className="flex w-full">
-        {/* Main Content */}
         <div className="flex-1 p-8 w-full">
           <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard Overview</h1>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatCard
-              title="Total User"
+              title="Total Users"
               value={dashboardData?.user_count}
-              // trend="↑ 20.1% from last month"
               icon="👤"
               color="bg-green-500"
             />
             <StatCard
               title="Total Orders"
               value={dashboardData?.order_count}
-              // trend="↑ 15.2% from last month"
               icon="📦"
               color="bg-blue-500"
             />
             <StatCard
               title="Total Stock"
               value={dashboardData?.total_stock}
-              // trend="↓ 5.1% from last month"
               icon="📈"
               color="bg-purple-500"
             />
             <StatCard
               title="Total Products"
               value={dashboardData?.product_count}
-              // trend="↑ 8.3% from last month"
               icon="📊"
               color="bg-orange-500"
             />
           </div>
+
           {/* Recent Orders */}
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <h3 className="text-lg font-semibold mb-4">Recent Orders</h3>
@@ -107,24 +157,43 @@ function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentOrders.map((order) => (
-                    <tr key={order.id} className="border-b last:border-b-0">
-                      <td className="py-4 px-5">{order.id}</td>
-                      <td className='px-5'>{order.customer}</td>
-                      <td className='px-5'>{order.date}</td>
-                      <td className='px-5'>
-                        <span className={`px-2 py-1 rounded-full text-sm ${order.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                          order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-blue-100 text-blue-800'
-                          }`}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className='px-5'>${order.amount}</td>
+                  {orders.map((order) => (
+                    <tr key={order._id} className="border-b last:border-b-0">
+                      <td className="py-4 px-5">#{order._id.slice(-6).toUpperCase()}</td>
+                      <td className="px-5">{order.name || order.email}</td>
+                      <td className="px-5">{formatDate(order.created_at)}</td>
+                      <td className="px-5">{getStatusBadge(order.status)}</td>
+                      <td className="px-5">₹{order.totalPrice?.toLocaleString('en-IN')}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex justify-between items-center mt-6">
+              <div className="text-sm text-gray-600">
+                Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, totalOrders)} of {totalOrders} orders
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <FaChevronLeft />
+                </button>
+                <span className="px-4 py-1.5 text-sm text-gray-700 font-medium">
+                  Page {currentPage}
+                </span>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1.5 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <FaChevronRight />
+                </button>
+              </div>
             </div>
           </div>
         </div>

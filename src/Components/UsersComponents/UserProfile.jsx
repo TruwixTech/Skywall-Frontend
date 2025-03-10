@@ -68,7 +68,7 @@ function UserProfile() {
         }
 
         // Address Validation: Cannot be empty
-        if (!user.address.trim()) {
+        if (!user.address) {
             errors.address = "Address cannot be empty.";
         }
 
