@@ -11,7 +11,7 @@ const AllOrders = () => {
     const [sort, setSort] = useState('NEWEST');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalOrders, setTotalOrders] = useState(0);
-    const itemsPerPage = 5;
+    const itemsPerPage = 20;
 
     async function fetchOrders() {
         try {
