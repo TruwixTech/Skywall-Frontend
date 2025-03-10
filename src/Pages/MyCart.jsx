@@ -22,10 +22,6 @@ function MyCart() {
         }, 0) || 0;
     };
 
-    const calculateTotal = () => {
-        return calculateSubtotal() + shippingCost;
-    };
-
     const token = JSON.parse(localStorage.getItem('token'))
 
     async function getCartItems() {
@@ -55,7 +51,7 @@ function MyCart() {
     async function handleCheckout() {
         toast.dismiss();
         toast.info("Proceeding to checkout...")
-        navigate('/checkout', { state: { from: "cart" } });
+        navigate('/checkout', { state: { from: "cart", items: cartItems, subtotal: parseInt(calculateSubtotal().toFixed(2)), shipping: shippingCost } });
     }
 
     async function fetchAllProducts() {
@@ -251,13 +247,13 @@ function MyCart() {
                                             <div className="flex justify-between">
                                                 <span className="text-gray-600">Shipping:</span>
                                                 <span className="font-medium">
-                                                    {calculateSubtotal() > 5000 ? 'FREE' : `₹${shippingCost.toFixed(2)}`}
+                                                    {`₹${shippingCost}`}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between border-t pt-3">
                                                 <span className="text-lg font-semibold text-gray-800">Total:</span>
                                                 <span className="text-lg font-semibold text-green-600">
-                                                    ₹{(calculateSubtotal() + (calculateSubtotal() > 5000 ? 0 : shippingCost)).toFixed(2)}
+                                                    ₹{(calculateSubtotal() + shippingCost).toFixed(2)}
                                                 </span>
                                             </div>
                                         </div>
