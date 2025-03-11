@@ -107,7 +107,7 @@ function Section1() {
     }
   };
   return (
-    <div className="w-full min-h-screen flex  flex-col ">
+    <div className="w-full h-auto flex  flex-col ">
       <div className="flex justify-center">
         <h1 className="w-full px-5 md:px-10 lg:px-20 xl:px-32 py-10 bg-gray-200 justify-center md:justify-start flex text-2xl md:text-4xl">
           Contact Us

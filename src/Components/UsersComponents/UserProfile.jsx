@@ -35,41 +35,56 @@ function UserProfile() {
 
     // Toggle edit mode
     const handleEditClick = () => {
+        if (!isEditing) {
+            setIsEditing(true);
+            return;
+        }
+
+        // When trying to save, validate first
         const errors = validateForm();
         if (Object.keys(errors).length > 0) {
-            Object.values(errors).forEach((error) => toast.error(error, "error"));
-            setLoading(false)
-            return
+            Object.values(errors).forEach(error => toast.error(error));
+            return;
         }
-        setIsEditing(!isEditing);
-        if (isEditing) {
-            // Save changes when exiting edit mode
-            editProfile();
-        }
+
+        // If validations pass, proceed to save
+        editProfile();
     };
 
     const validateForm = () => {
         let errors = {};
-        toast.dismiss()
+        toast.dismiss();
 
-        // Name Validation: Only letters and spaces allowed
-        if (!/^[A-Za-z\s]+$/.test(user.name.trim())) {
-            errors.name = "Name should contain only letters.";
+        // Trim all values before validation
+        const trimmedName = user.name?.trim();
+        const trimmedEmail = user.email?.trim();
+        const trimmedPhone = user.phone?.toString().trim();
+        const trimmedAddress = user.address?.trim();
+
+        // Name Validation
+        if (!trimmedName) {
+            errors.name = "Name is required";
+        } else if (!/^[A-Za-z\s]+$/.test(trimmedName)) {
+            errors.name = "Name should contain only letters";
         }
 
-        // Email Validation: Basic email regex
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email.trim())) {
-            errors.email = "Invalid email format.";
+        // Email Validation
+        if (!trimmedEmail) {
+            errors.email = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+            errors.email = "Invalid email format";
         }
 
-        // Phone Number Validation: Exactly 10 digits
-        if (!/^\d{10}$/.test(user?.phone?.toString().trim())) {
-            errors.phone = "Phone number must be exactly 10 digits.";
+        // Phone Validation
+        if (!trimmedPhone) {
+            errors.phone = "Phone is required";
+        } else if (!/^\d{10}$/.test(trimmedPhone)) {
+            errors.phone = "Phone must be 10 digits";
         }
 
-        // Address Validation: Cannot be empty
-        if (!user.address) {
-            errors.address = "Address cannot be empty.";
+        // Address Validation
+        if (!trimmedAddress) {
+            errors.address = "Address is required";
         }
 
         return errors;
@@ -159,7 +174,7 @@ function UserProfile() {
     }, [])
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
+        <div className="h-auto bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
             <div className="mx-auto max-w-4xl">
                 {/* Profile Card */}
                 {
