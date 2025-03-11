@@ -24,6 +24,9 @@ function SignUp() {
         if (!name.trim()) {
             toast.error("Name is required.");
             return false;
+        } else if (!/^[A-Za-z\s]+$/.test(name.trim())) {
+            toast.error("Name should only contain letters");
+            return false;
         }
 
         if (!phone.trim()) {
