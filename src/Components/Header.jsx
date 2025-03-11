@@ -77,7 +77,7 @@ function Header() {
           <img src={Logo} alt="logo" className="w-full h-full" />
         </NavLink>
 
-        <div className="w-auto h-auto gap-5 items-center hidden md:flex lg:gap-8 xl:gap-12">
+        <div className="w-auto h-auto gap-5 items-center hidden lg:flex lg:gap-8 xl:gap-12">
           {[
             { name: "Home", path: "/" },
             { name: "Televisions", path: "/televisions" },
@@ -139,7 +139,7 @@ function Header() {
 
         {/* Icons */}
         <div className="w-auto h-auto flex gap-3 items-center relative sm:gap-5 xl:gap-8">
-          <IoIosSearch onClick={() => setSearchDropDown(!searchDropDown)} size={20} className="text-black cursor-pointer sm:size-6" />
+          <IoIosSearch size={20} className="text-black cursor-pointer sm:size-6" />
           {
             user && user.userId
               ? (
@@ -153,7 +153,7 @@ function Header() {
                         )
                       }
                       {
-                        user.role === 'user' && (
+                        user.role === 'User' || user.role === 'user' && (
                           <>
                             <NavLink onClick={() => setUserDropDown(!userDropDown)} to='/user-profile' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Profile</NavLink>
                             <NavLink onClick={() => setUserDropDown(!userDropDown)} to='/myorders' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">My Orders</NavLink>
@@ -174,13 +174,13 @@ function Header() {
             <IoClose
               onClick={() => setDropDown(!dropdown)}
               size={25}
-              className="text-black cursor-pointer sm:size-8 md:hidden"
+              className="text-black cursor-pointer sm:size-8 lg:hidden"
             />
           ) : (
             <HiBars3
               onClick={() => setDropDown(!dropdown)}
               size={25}
-              className="text-black cursor-pointer sm:size-8 md:hidden"
+              className="text-black cursor-pointer sm:size-8 lg:hidden"
             />
           )}
         </div>
@@ -188,7 +188,7 @@ function Header() {
       {/* Dropdown Menu */}
       <div
         ref={dropdownRef}
-        className={`absolute top-[64px] sm:top-20 border border-gray-200 right-2 z-20 w-60 bg-white shadow-xl py-3 flex flex-col gap-2 transition-all duration-300 transform md:hidden ${dropdown
+        className={`absolute top-[64px] sm:top-20 border border-gray-200 right-2 z-20 w-60 bg-white shadow-xl py-3 flex flex-col gap-2 transition-all duration-300 transform lg:hidden ${dropdown
           ? "opacity-100 scale-100 translate-y-0"
           : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
           }`}
