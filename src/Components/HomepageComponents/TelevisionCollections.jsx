@@ -147,17 +147,20 @@ function TelevisionCollections() {
                 </span>
 
                 {/* TV Images (With Fade Transition) */}
+                {/* Product Images */}
                 <div className="relative w-full h-60 rounded-md overflow-hidden">
                   <img
-                    src={television?.image[0]}
-                    alt="image"
-                    className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-100 group-hover:opacity-0"
+                    src={television.image[0]}
+                    alt={television.name}
+                    className={`${television.image.length > 1 ? "group-hover:opacity-0" : ""} absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-100`}
                   />
-                  <img
-                    src={television?.image[1]}
-                    alt="hover image"
-                    className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100"
-                  />
+                  {television.image.length > 1 && (
+                    <img
+                      src={television.image[1]}
+                      alt={television.name}
+                      className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100"
+                    />
+                  )}
                 </div>
 
                 {/* TV Name */}

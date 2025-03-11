@@ -103,10 +103,17 @@ function CheckoutPage() {
                         }).catch((error) => {
                             console.log(error);
                         })
-                }
+                },
+                modal: {
+                    ondismiss: function () {
+                        setLoading(false)
+                        toast.error("Payment Failed")
+                    },
+                },
             })
             paymentObject.open()
         } catch (error) {
+            setLoading(false)
             console.log("error while order placement", error);
         }
     }
