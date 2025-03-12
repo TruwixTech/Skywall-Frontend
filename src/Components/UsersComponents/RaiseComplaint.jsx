@@ -2,41 +2,27 @@ import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import LoadingSpinner from '../../utils/LoadingSpinner';
+import axios from 'axios';
+import { convertUTCtoIST2 } from '../../utils/TimeConverter';
+
+
+const backend = import.meta.env.VITE_BACKEND;
 
 function RaiseComplaint() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         phone: '',
-        issueType: '',
+        issue_type: '',
         description: '',
+        userId: '',
+        customIssueType: ''
     });
-
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
 
-    const [complaints, setComplaints] = useState([
-        {
-            id: 1,
-            issueType: 'Technical',
-            description: 'Unable to log in to my account.',
-            status: 'Resolved',
-            date: '2023-10-01',
-        },
-        {
-            id: 2,
-            issueType: 'Billing',
-            description: 'Incorrect charge on my credit card.',
-            status: 'In Progress',
-            date: '2023-10-05',
-        },
-        {
-            id: 3,
-            issueType: 'Service',
-            description: 'Poor customer service experience.',
-            status: 'Pending',
-            date: '2023-10-10',
-        },
-    ]);
+    const [complaints, setComplaints] = useState([]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -67,38 +53,96 @@ function RaiseComplaint() {
             errors.address = "Address cannot be empty.";
         }
 
+        // Issue Type Validation: Cannot be empty
+        if (!formData.issue_type.trim()) {
+            errors.address = "issue Type cannot be empty.";
+        }
+
+        // Custom Issue Type Validation: Required if "Other" is selected
+        if (formData.issue_type === "Other" && !formData.customIssueType.trim()) {
+            errors.customIssueType = "Please specify your issue type.";
+        }
+
         return errors;
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        toast.dismiss()
-        const errors = validateForm();
-        if (Object.keys(errors).length > 0) {
-            Object.values(errors).forEach((error) => toast.error(error, "error"));
-            return
+    async function fetchUserDetails(id) {
+        try {
+            setLoading(true)
+            const response = await axios.get(`${backend}/user/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
+                }
+            })
+            if (response.data.status === "Success") {
+                const { name, email, phone, _id } = response.data.data.user
+                setFormData(
+                    {
+                        ...formData,
+                        name,
+                        email,
+                        phone,
+                        userId: _id
+                    }
+                )
+                setLoading(false)
+            }
+        } catch (error) {
+            console.error("Error fetching user details:", error);
+            setLoading(false)
         }
-        const newComplaint = {
-            id: complaints.length + 1,
-            issueType: formData.issueType,
-            description: formData.description,
-            status: 'Pending',
-            date: new Date().toISOString().split('T')[0],
-        };
-        setComplaints([...complaints, newComplaint]);
-        alert('Your complaint has been submitted successfully!');
-        setFormData({
-            name: '',
-            email: '',
-            phone: '',
-            issueType: '',
-            description: '',
-        });
+    }
+
+    async function fetchUserComplaints(id) {
+        try {
+            const response = await axios.post(`${backend}/complaint/list`, {
+                pageNum: 1,
+                pageSize: 20,
+                filters: {
+                    userId: id
+                }
+            })
+
+            if (response.data.status === 'Success') {
+                setComplaints(response.data.data.complaintList)
+            }
+
+        } catch (error) {
+            console.log('Error while fetching user complaints', error)
+        }
+    }
+
+    const handleSubmit = async (e) => {
+        try {
+            e.preventDefault();
+            toast.dismiss()
+            const errors = validateForm();
+            if (Object.keys(errors).length > 0) {
+                Object.values(errors).forEach((error) => toast.error(error, "error"));
+                return
+            }
+
+            const response = await axios.post(`${backend}/complaint/new`, formData)
+            if (response.data.status === 'Success') {
+                toast.success('Your complaint has been submitted successfully!');
+            }
+            setFormData({
+                name: '',
+                email: '',
+                phone: '',
+                issue_type: '',
+                description: '',
+                customIssueType: ''
+            });
+            fetchUserComplaints(formData.userId)
+        } catch (error) {
+            console.log("Error while raising Complaint", error)
+        }
     };
 
     const statusStyles = {
         Pending: 'bg-yellow-100 text-yellow-800',
-        'In Progress': 'bg-blue-100 text-blue-800',
+        In_progress: 'bg-blue-100 text-blue-800',
         Resolved: 'bg-green-100 text-green-800',
     };
 
@@ -110,6 +154,10 @@ function RaiseComplaint() {
             if (!decodedToken.userId) {
                 navigate('/signin')
             }
+            else {
+                fetchUserDetails(decodedToken.userId)
+                fetchUserComplaints(decodedToken.userId)
+            }
         }
         else {
             navigate('/signin')
@@ -120,6 +168,9 @@ function RaiseComplaint() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+            {
+                loading && <LoadingSpinner />
+            }
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-8">
@@ -136,7 +187,7 @@ function RaiseComplaint() {
                             {/* Name */}
                             <div>
                                 <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                                    Full Name
+                                    Name
                                 </label>
                                 <div className="mt-1">
                                     <input
@@ -192,14 +243,14 @@ function RaiseComplaint() {
 
                             {/* Issue Type */}
                             <div>
-                                <label htmlFor="issueType" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="issue_type" className="block text-sm font-medium text-gray-700">
                                     Issue Type
                                 </label>
                                 <div className="mt-1">
                                     <select
-                                        name="issueType"
-                                        id="issueType"
-                                        value={formData.issueType}
+                                        name="issue_type"
+                                        id="issue_type"
+                                        value={formData.issue_type}
                                         onChange={handleInputChange}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                         required
@@ -215,6 +266,26 @@ function RaiseComplaint() {
                                     </select>
                                 </div>
                             </div>
+
+                            {formData.issue_type === "Other" && (
+                                <div>
+                                    <label htmlFor="customIssueType" className="block text-sm font-medium text-gray-700">
+                                        Specify Your Issue Type
+                                    </label>
+                                    <div className="mt-1">
+                                        <input
+                                            type="text"
+                                            name="customIssueType"
+                                            id="customIssueType"
+                                            value={formData.customIssueType}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                            placeholder="Enter your specific issue type"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Description */}
                             <div>
@@ -248,7 +319,9 @@ function RaiseComplaint() {
                     </div>
 
                     {/* Previous Complaints */}
-                    <div className="bg-white rounded-2xl shadow-2xl overflow-hidden p-6 sm:p-8">
+                    <div className="bg-white rounded-2xl shadow-2xl overflow-hidden p-6 sm:p-8 lg:max-h-[90vh] overflow-y-scroll" style={{
+                        scrollbarWidth: 'none'
+                    }}>
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">Previous Complaints</h2>
                         {complaints.length === 0 ? (
                             <p className="text-gray-500">No complaints found.</p>
@@ -256,12 +329,12 @@ function RaiseComplaint() {
                             <div className="space-y-4">
                                 {complaints.map((complaint) => (
                                     <div
-                                        key={complaint.id}
+                                        key={complaint._id}
                                         className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className='w-[60%] sm:w-auto'>
-                                                <h3 className="font-semibold text-gray-900">{complaint.issueType}</h3>
+                                                <h3 className="font-semibold text-gray-900">{complaint.issue_type === 'Other' ? complaint.customIssueType : complaint.issue_type}</h3>
                                                 <p className="text-sm text-gray-600">{complaint.description}</p>
                                             </div>
                                             <span
@@ -271,7 +344,7 @@ function RaiseComplaint() {
                                             </span>
                                         </div>
                                         <div className="mt-2 text-sm text-gray-500">
-                                            Raised on: {complaint.date}
+                                            Raised on: {convertUTCtoIST2(complaint.created_at)}
                                         </div>
                                     </div>
                                 ))}
