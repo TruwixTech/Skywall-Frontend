@@ -33,6 +33,7 @@ import MyOrders from './Components/UsersComponents/MyOrders.jsx'
 import UserProfile from './Components/UsersComponents/UserProfile.jsx'
 import RaiseComplaint from './Components/UsersComponents/RaiseComplaint.jsx'
 import CheckoutPage from './Pages/CheckoutPage.jsx'
+import AllComplaintRaised from './Components/AdminDashboardComponents/ComplaintRaisedComponents/AllComplaintRaised.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -66,6 +67,7 @@ const router = createBrowserRouter(
           <Route path='/admin-dashboard/orders' element={<AllOrders />} />
           <Route path='/admin-dashboard/coupon' element={<DiscountCoupon />} />
           <Route path='/admin-dashboard/inventory' element={<InventoryManagement />} />
+          <Route path='/admin-dashboard/complaints' element={<AllComplaintRaised />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFound />} />
