@@ -124,7 +124,6 @@ function RaiseComplaint() {
 
             const response = await axios.post(`${backend}/complaint/new`, formData)
             if (response.data.status === 'Success') {
-                console.log(response.data)
                 toast.success('Your complaint has been submitted successfully!');
             }
             setFormData({
