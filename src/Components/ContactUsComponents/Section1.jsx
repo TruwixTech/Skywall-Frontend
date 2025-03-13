@@ -1,6 +1,11 @@
 import React from "react";
 import { useState } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { toast } from "react-toastify";
+import axios from "axios";
+import LoadingSpinner from "../../utils/LoadingSpinner";
+
+const backend = import.meta.env.VITE_BACKEND;
 
 function Section1() {
   const [formData, setFormData] = useState({
@@ -32,6 +37,9 @@ function Section1() {
       return false;
     } else if (name.length < 3) {
       toast.error("Name must be at least 3 characters.");
+      return false;
+    } else if (!/^[A-Za-z\s]+$/.test(name)) {
+      toast.error("Name can only contain letters.");
       return false;
     }
 
@@ -87,7 +95,7 @@ function Section1() {
     setLoading(true);
 
     try {
-      await axios.post("", formData);
+      await axios.post(`${backend}/admin/contact-us`, formData);
       toast.success("Message sent successfully!");
       setFormData({
         name: "",
@@ -113,6 +121,9 @@ function Section1() {
           Contact Us
         </h1>
       </div>
+      {
+        loading && <LoadingSpinner />
+      }
 
       {/* form */}
       <div className="grid md:grid-cols-2 gap-8 px-5 md:px-10 lg:px-20 xl:px-32 py-10">
@@ -168,6 +179,7 @@ function Section1() {
                 type="text"
                 name="name"
                 value={formData.name}
+                required
                 onChange={handleChange}
                 className="w-full py-4 px-4 bg-gray-200 rounded-[25px] outline-none"
                 placeholder="Your full name"
@@ -182,6 +194,7 @@ function Section1() {
               <input
                 type="email"
                 name="email"
+                required
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full py-4 px-4 bg-gray-200 rounded-[25px] outline-none"
@@ -198,6 +211,7 @@ function Section1() {
               </label>
               <input
                 type="tel"
+                required
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
@@ -214,6 +228,7 @@ function Section1() {
               <input
                 type="text"
                 name="subject"
+                required
                 value={formData.subject}
                 onChange={handleChange}
                 className="w-full py-4 px-4 bg-gray-200 rounded-[25px] outline-none"
@@ -229,6 +244,7 @@ function Section1() {
             </label>
             <textarea
               name="message"
+              required
               value={formData.message}
               onChange={handleChange}
               className="w-full py-4 px-4 resize-none bg-gray-200 rounded-[25px] outline-none"

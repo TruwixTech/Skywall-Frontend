@@ -9,7 +9,10 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FaChevronDown } from "react-icons/fa6";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
+import { useDebounce } from 'use-debounce';
+import axios from "axios";
 
+const backend = import.meta.env.VITE_BACKEND;
 
 function Header() {
   const [dropdown, setDropDown] = useState(false);
@@ -18,6 +21,12 @@ function Header() {
   const [user, setUser] = useState({})
   const [logoutPopup, setLogoutPopup] = useState(false)
   const [userDropDown, setUserDropDown] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery] = useDebounce(searchQuery, 500);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchRef = useRef(null);
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -27,6 +36,53 @@ function Header() {
   const infoDropdownRef2 = useRef(null);
   const userDropdownRef = useRef(null)
   const token = localStorage.getItem("token")
+
+  // Add search API call
+  const fetchSearchResults = async (query) => {
+    try {
+      setSearchLoading(true);
+      const response = await axios.post(`${backend}/product/list`, {
+        pageNum: 1,
+        pageSize: 10,
+        filters: {
+          name: { $regex: query, $options: 'i' }
+        }
+      });
+
+      if (response.data.status === "Success") {
+        setSearchResults(response.data.data.productList);
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      toast.error("Error searching products");
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  // Handle search query changes
+  useEffect(() => {
+    if (debouncedQuery.length > 1) {
+      fetchSearchResults(debouncedQuery);
+    } else {
+      setSearchResults([]);
+    }
+  }, [debouncedQuery]);
+
+  // Close search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
+        setSearchQuery('');
+        setSearchResults([]);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
 
   useEffect(() => {
     if (token) {
@@ -139,7 +195,75 @@ function Header() {
 
         {/* Icons */}
         <div className="w-auto h-auto flex gap-3 items-center relative sm:gap-5 xl:gap-8">
-          <IoIosSearch size={20} className="text-black cursor-pointer sm:size-6" />
+          <div className="relative" ref={searchRef}>
+            {/* Search Icon */}
+            <IoIosSearch
+              size={20}
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="text-black cursor-pointer sm:size-6 hover:scale-110 transition-transform"
+            />
+
+            {/* Animated Search Bar */}
+            <div className={`
+    fixed top-0 left-0 right-0 bg-white shadow-md z-40 
+    transform transition-all duration-300 ease-out
+    ${isSearchOpen ? 'translate-y-16 opacity-100' : '-translate-y-full opacity-0'}
+  `}>
+              <div className="container mx-auto px-4 py-3 flex items-center gap-4">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  autoFocus
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 px-4 py-2 rounded-lg border-2 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                />
+
+                <button
+                  onClick={() => {
+                    setIsSearchOpen(false);
+                    setSearchQuery('');
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+
+              {/* Search Results Dropdown */}
+              {searchResults.length > 0 && !searchLoading && (
+                <div className="absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg max-h-96 overflow-y-auto z-50">
+                  <div className="container mx-auto px-4">
+                    {searchResults.map((product) => (
+                      <NavLink
+                        key={product._id}
+                        to={`/television/${product._id}`}
+                        onClick={() => {
+                          setIsSearchOpen(false);
+                          setSearchQuery('');
+                        }}
+                        className="block px-4 py-3 hover:bg-blue-50 transition-colors border-b border-gray-100"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-700">{product.name}</span>
+                          <span className="text-sm text-gray-500">
+                            ₹{product.price?.toFixed(2)}
+                          </span>
+                        </div>
+                      </NavLink>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Loading Indicator */}
+            {searchLoading && (
+              <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            )}
+          </div>
           {
             user && user.userId
               ? (
