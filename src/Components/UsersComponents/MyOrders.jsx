@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 // Mock status colors - replace with your actual enum imports
 const PENDING = 'Pending';
 const SHIPPED = 'Shipped';
-const Delivered = 'Delivered';
+const DELIVERED = 'Delivered';
 const CANCELLED = 'Cancelled';
 
 const backend = import.meta.env.VITE_BACKEND;
@@ -19,7 +19,7 @@ const backend = import.meta.env.VITE_BACKEND;
 const statusStyles = {
   [PENDING]: 'bg-yellow-100 text-yellow-800',
   [SHIPPED]: 'bg-blue-100 text-blue-800',
-  [Delivered]: 'bg-green-100 text-green-800',
+  [DELIVERED]: 'bg-green-100 text-green-800',
   [CANCELLED]: 'bg-red-100 text-red-800',
 };
 
