@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import LoadingSpinner from '../../utils/LoadingSpinner';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { FaClock, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaClock, FaCheckCircle, FaTimesCircle, FaTruck } from "react-icons/fa";
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -87,9 +87,10 @@ function AdminDashboard() {
   // Get status badge
   const getStatusBadge = (status) => {
     const statusConfig = {
-      PENDING: { color: 'bg-amber-100 text-amber-800', icon: <FaClock className="w-4 h-4 mr-1" /> },
-      COMPLETED: { color: 'bg-emerald-100 text-emerald-800', icon: <FaCheckCircle className="w-4 h-4 mr-1" /> },
-      CANCELLED: { color: 'bg-rose-100 text-rose-800', icon: <FaTimesCircle className="w-4 h-4 mr-1" /> }
+      Pending: { color: 'bg-amber-100 text-amber-800', icon: <FaClock className="w-4 h-4 mr-1" /> },
+      Shipped: { color: 'bg-blue-100 text-blue-800', icon: <FaTruck className="w-4 h-4 mr-1" /> },
+      Delivered: { color: 'bg-emerald-100 text-emerald-800', icon: <FaCheckCircle className="w-4 h-4 mr-1" /> },
+      Cancelled: { color: 'bg-rose-100 text-rose-800', icon: <FaTimesCircle className="w-4 h-4 mr-1" /> }
     };
 
     return (

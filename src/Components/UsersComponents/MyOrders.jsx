@@ -5,17 +5,20 @@ import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import LoadingSpinner from '../../utils/LoadingSpinner';
 import { convertUTCtoIST2 } from '../../utils/TimeConverter';
+import { toast } from 'react-toastify';
 
 // Mock status colors - replace with your actual enum imports
 const PENDING = 'Pending';
-const COMPLETED = 'Completed';
+const SHIPPED = 'Shipped';
+const DELIVERED = 'Delivered';
 const CANCELLED = 'Cancelled';
  
 const backend = import.meta.env.VITE_BACKEND;
  
 const statusStyles = {
   [PENDING]: 'bg-yellow-100 text-yellow-800',
-  [COMPLETED]: 'bg-green-100 text-green-800',
+  [SHIPPED]: 'bg-blue-100 text-blue-800',
+  [DELIVERED]: 'bg-green-100 text-green-800',
   [CANCELLED]: 'bg-red-100 text-red-800',
 };
  
@@ -23,8 +26,73 @@ function MyOrders() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [orders, setOrders] = useState([])
- 
- 
+  const [cancellingOrderId, setCancellingOrderId] = useState(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+
+  const CancelConfirmation = () => (
+    <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <h3 className="text-lg font-semibold mb-4">Confirm Cancellation</h3>
+        <p className="text-gray-600 mb-6">
+          Are you sure you want to cancel this order? This action cannot be undone.
+        </p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={() => {
+              setShowCancelConfirm(false);
+              setSelectedOrderId(null);
+            }}
+            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+          >
+            Go Back
+          </button>
+          <button
+            onClick={async () => {
+              setShowCancelConfirm(false);
+              if (selectedOrderId) {
+                await handleCancelOrder(selectedOrderId);
+              }
+              setSelectedOrderId(null);
+            }}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Confirm Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+
+  const handleCancelOrder = async (orderId) => {
+    try {
+      setLoading(true);
+      setCancellingOrderId(orderId);
+      const response = await axios.post(
+        `${backend}/order/${orderId}/update`,
+        { status: CANCELLED },
+        {
+          headers: {
+            Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
+          },
+        }
+      );
+
+      if (response.data.status === 'Success') {
+        fetchOrders();
+        toast.success('Order cancelled successfully');
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+      toast.error('Failed to cancel order');
+    } finally {
+      setCancellingOrderId(null);
+      setLoading(false);
+    }
+  };
+
   async function fetchOrders(id) {
     try {
       setLoading(true)
@@ -71,6 +139,7 @@ function MyOrders() {
         {
           loading && <LoadingSpinner />
         }
+        {showCancelConfirm && <CancelConfirmation />}
         {orders.length === 0 ? (
           <div className="text-center text-gray-500">No orders found</div>
         ) : (
@@ -140,6 +209,21 @@ function MyOrders() {
                     </div>
                   </div>
                 </div>
+                {order.status === PENDING && (
+                  <button
+                    onClick={() => {
+                      setSelectedOrderId(order._id);
+                      setShowCancelConfirm(true);
+                    }}
+                    disabled={cancellingOrderId === order._id}
+                    className={`rounded-xl py-2.5 mt-6 text-base w-full font-medium ${cancellingOrderId === order._id
+                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                        : 'bg-red-100 text-red-800 hover:bg-red-200'
+                      } transition-colors`}
+                  >
+                    {cancellingOrderId === order._id ? 'Cancelling...' : 'Cancel Order'}
+                  </button>
+                )}
               </div>
             ))}
           </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaClock, FaCheckCircle, FaTimesCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaClock, FaCheckCircle, FaTimesCircle, FaChevronLeft, FaChevronRight, FaTruck } from 'react-icons/fa';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -11,6 +12,10 @@ const AllOrders = () => {
     const [sort, setSort] = useState('NEWEST');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalOrders, setTotalOrders] = useState(0);
+    const [showStatusModal, setShowStatusModal] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [newStatus, setNewStatus] = useState('');
+    const [updatingStatus, setUpdatingStatus] = useState(false);
     const itemsPerPage = 20;
 
     async function fetchOrders() {
@@ -61,20 +66,58 @@ const AllOrders = () => {
         fetchOrders();
     }, [filter, sort, currentPage]);
 
-    const getStatusBadge = (status) => {
+    // Update order status function
+    async function updateOrderStatus(orderId, newStatus) {
+        try {
+            toast.dismiss()
+            setUpdatingStatus(true);
+            const response = await axios.post(`${backend}/order/${orderId}/update`, {
+                status: newStatus
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
+                }
+            });
+
+            if (response.data.status === 'Success') {
+                await fetchOrders();
+                toast.success("Order status updated successfully!");
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("Error updating order status:", error);
+            toast.error("Failed to update order status.");
+            return false;
+        } finally {
+            setUpdatingStatus(false);
+        }
+    }
+
+    const getStatusBadge = (order) => {
+        const status = order.status;
         const statusConfig = {
-            PENDING: { color: 'bg-amber-100 text-amber-800', icon: <FaClock className="w-4 h-4 mr-1" /> },
-            COMPLETED: { color: 'bg-emerald-100 text-emerald-800', icon: <FaCheckCircle className="w-4 h-4 mr-1" /> },
-            CANCELLED: { color: 'bg-rose-100 text-rose-800', icon: <FaTimesCircle className="w-4 h-4 mr-1" /> }
+            Pending: { color: 'bg-amber-100 text-amber-800', icon: <FaClock className="w-4 h-4 mr-1" /> },
+            Shipped: { color: 'bg-blue-100 text-blue-800', icon: <FaTruck className="w-4 h-4 mr-1" /> },
+            Delivered: { color: 'bg-emerald-100 text-emerald-800', icon: <FaCheckCircle className="w-4 h-4 mr-1" /> },
+            Cancelled: { color: 'bg-rose-100 text-rose-800', icon: <FaTimesCircle className="w-4 h-4 mr-1" /> }
         };
 
         return (
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusConfig[status]?.color}`}>
+            <button
+                onClick={() => {
+                    setSelectedOrder(order);
+                    setNewStatus(order.status);
+                    setShowStatusModal(true);
+                }}
+                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusConfig[status]?.color} hover:opacity-80 transition-opacity`}
+            >
                 {statusConfig[status]?.icon}
                 {status}
-            </span>
+            </button>
         );
     };
+
 
     function convertUTCtoIST(utcDateString) {
         const utcDate = new Date(utcDateString);
@@ -93,6 +136,43 @@ const AllOrders = () => {
     return (
         <div className="px-4 sm:px-6 lg:px-8 w-full py-8 bg-gradient-to-b from-gray-50 to-blue-50 min-h-screen">
             {/* Header Section */}
+            {showStatusModal && (
+                <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h3 className="text-lg font-semibold mb-4">Update Order Status</h3>
+                        <select
+                            value={newStatus}
+                            onChange={(e) => setNewStatus(e.target.value)}
+                            className="w-full p-2 border rounded mb-4 focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="Pending">Pending</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => setShowStatusModal(false)}
+                                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                disabled={updatingStatus}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    const success = await updateOrderStatus(selectedOrder._id, newStatus);
+                                    console.log(success)
+                                    if (success) setShowStatusModal(false);
+                                }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                                disabled={updatingStatus}
+                            >
+                                {updatingStatus ? 'Updating...' : 'Update'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div className="max-w-8xl mx-auto pt-6">
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
@@ -114,7 +194,8 @@ const AllOrders = () => {
                         >
                             <option value="ALL">All Orders</option>
                             <option value="Pending">Pending</option>
-                            <option value="Completed">Completed</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Delivered">Delivered</option>
                             <option value="Cancelled">Cancelled</option>
                         </select>
 
@@ -209,7 +290,7 @@ const AllOrders = () => {
                                                                 ₹{order.totalPrice.toLocaleString('en-IN')}
                                                             </td>
                                                             <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4">
-                                                                {getStatusBadge(order.status)}
+                                                                {getStatusBadge(order)}
                                                             </td>
                                                             <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4 text-sm text-gray-500">
                                                                 {convertUTCtoIST(order.created_at)}
@@ -222,7 +303,7 @@ const AllOrders = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={6} className="text-center py-10 text-lg sm:text-2xl font-bold text-gray-500">
+                                        <td colSpan={8} className="text-center py-10 text-lg sm:text-2xl font-bold text-gray-500">
                                             No orders found
                                         </td>
                                     </tr>
