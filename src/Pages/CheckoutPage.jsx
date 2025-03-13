@@ -5,9 +5,9 @@ import { FaCreditCard, FaTruck } from 'react-icons/fa';
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../utils/LoadingSpinner';
-
+ 
 const backend = import.meta.env.VITE_BACKEND;
-
+ 
 function CheckoutPage() {
     const [paymentMethod, setPaymentMethod] = useState('pay-online');
     const [formData, setFormData] = useState({
@@ -25,38 +25,38 @@ function CheckoutPage() {
     const { items, subtotal, shipping } = location.state || {};
     // const tax = subtotal * 0.08;
     const total = subtotal + shipping;
-
+ 
     const validateForm = () => {
         let isValid = true;
         toast.dismiss()
-
+ 
         // Name validation: Only letters and spaces
         if (!/^[A-Za-z\s]+$/.test(formData.name.trim())) {
             toast.error("Name must contain only letters");
             isValid = false;
         }
-
+ 
         // Email validation
         if (!/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/.test(formData.email.trim())) {
             toast.error("Enter a valid email address.");
             isValid = false;
         }
-
+ 
         // City validation: Only letters and spaces
         if (!/^[A-Za-z\s]+$/.test(formData.city.trim())) {
             toast.error("City must contain only letters and spaces.");
             isValid = false;
         }
-
+ 
         // ZIP Code validation: 6-digit number for India
         if (!/^\d{6}$/.test(formData.zip.trim())) {
             toast.error("ZIP code must be a 6-digit number.");
             isValid = false;
         }
-
+ 
         return isValid;
     };
-
+ 
     async function handleSubmit() {
         setLoading(true);
         try {
@@ -66,7 +66,7 @@ function CheckoutPage() {
             }
             const response = await axios.post(`${backend}/payment/new`, { amount: total.toFixed(0) });
             const data = response.data.data.payment
-
+ 
             const paymentObject = new window.Razorpay({
                 key: "rzp_test_m5TgogV8z5WjjW",
                 order_id: data.id,
@@ -117,17 +117,17 @@ function CheckoutPage() {
             console.log("error while order placement", error);
         }
     }
-
+ 
     const formatWarrantyPeriod = (months) => {
         if (months < 12) return `${months} Month${months > 1 ? "s" : ""}`;
-
+ 
         const years = Math.floor(months / 12);
         const remainingMonths = months % 12;
         return remainingMonths === 0
             ? `${years} Year${years > 1 ? "s" : ""}`
             : `${years}.${Math.round((remainingMonths / 12) * 10)} Years`;
     };
-
+ 
     useEffect(() => {
         // If user didn't come from the cart page, redirect to cart
         if (!location.state || location.state.from !== "cart") {
@@ -143,8 +143,8 @@ function CheckoutPage() {
             }
         )
     }, [location, navigate]);
-
-
+ 
+ 
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
@@ -162,7 +162,7 @@ function CheckoutPage() {
                                     <FaTruck className="h-6 w-6 text-blue-600 mr-2" />
                                     <h2 className="text-xl font-semibold">Shipping Address</h2>
                                 </div>
-
+ 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -177,7 +177,7 @@ function CheckoutPage() {
                                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         />
                                     </div>
-
+ 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Email
@@ -191,7 +191,7 @@ function CheckoutPage() {
                                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         />
                                     </div>
-
+ 
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Address
@@ -205,7 +205,7 @@ function CheckoutPage() {
                                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         />
                                     </div>
-
+ 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             City
@@ -219,7 +219,7 @@ function CheckoutPage() {
                                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         />
                                     </div>
-
+ 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Country
@@ -228,7 +228,7 @@ function CheckoutPage() {
                                             <option>India</option>
                                         </select>
                                     </div>
-
+ 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             ZIP Code
@@ -245,14 +245,14 @@ function CheckoutPage() {
                                     </div>
                                 </div>
                             </div>
-
+ 
                             {/* Payment Method */}
                             <div>
                                 <div className="flex items-center mb-4">
                                     <FaCreditCard className="h-6 w-6 text-blue-600 mr-2" />
                                     <h2 className="text-xl font-semibold">Payment Method</h2>
                                 </div>
-
+ 
                                 <div className="space-y-4">
                                     <div
                                         className={`p-4 border-2 rounded-md cursor-pointer transition-colors ${paymentMethod === 'pay-online'
@@ -271,7 +271,7 @@ function CheckoutPage() {
                                             <span className="ml-2 font-medium">Pay Online</span>
                                         </div>
                                     </div>
-
+ 
                                     {/* COD Option (Disabled) */}
                                     <div className="p-4 border-2 rounded-md bg-gray-100 border-gray-300 cursor-not-allowed opacity-50">
                                         <div className="flex items-center">
@@ -285,7 +285,7 @@ function CheckoutPage() {
                                         </div>
                                         <p className="text-sm text-red-500 mt-1">COD is unavailable right now.</p>
                                     </div>
-
+ 
                                     {/* uncomment this when cod is avaliable */}
                                     {/* <div
                                         className={`p-4 border-2 rounded-md cursor-pointer transition-colors ${paymentMethod === 'cod'
@@ -308,11 +308,11 @@ function CheckoutPage() {
                             </div>
                         </form>
                     </div>
-
+ 
                     {/* Right Column - Order Summary */}
                     <div className="bg-white rounded-xl shadow-sm p-6 h-fit">
                         <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
-
+ 
                         <div className="space-y-4 mb-8">
                             {cartItems.map((item) => {
                                 const warrantyPrice = item.product.warranty_pricing[item.warranty_months] || 0;
@@ -340,7 +340,7 @@ function CheckoutPage() {
                                     </div>)
                             })}
                         </div>
-
+ 
                         <div className="space-y-2 border-t border-gray-200 pt-4">
                             <div className="flex justify-between">
                                 <span className="text-gray-600">Subtotal</span>
@@ -359,7 +359,7 @@ function CheckoutPage() {
                                 <span>₹{total.toFixed(2)}</span>
                             </div>
                         </div>
-
+ 
                         <button
                             className="w-full mt-6 bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 rounded-md font-medium hover:opacity-90 transition-opacity"
                             onClick={handleSubmit}
@@ -372,5 +372,5 @@ function CheckoutPage() {
         </div>
     );
 }
-
+ 
 export default CheckoutPage;
