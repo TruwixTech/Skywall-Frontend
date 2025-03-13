@@ -16,6 +16,8 @@ function MyCart() {
     const [couponCode, setCouponCode] = useState('');
     const [discount, setDiscount] = useState(0);
     const [couponApplied, setCouponApplied] = useState(false);
+    const token = JSON.parse(localStorage.getItem('token'))
+
     // Add these calculation functions
     const calculateSubtotal = () => {
         return cartItems[0]?.items?.reduce((total, item) => {
@@ -23,11 +25,10 @@ function MyCart() {
             return total + (item.product.new_price * item.quantity) + warrantyPrice;
         }, 0) || 0;
     };
- 
-    const token = JSON.parse(localStorage.getItem('token'))
- 
+
     async function getCartItems() {
         try {
+            setLoading(true)
             const decodedToken = jwtDecode(token)
             const response = await axios.post(`${backend}/cart/list`, {
                 filters: {
@@ -43,13 +44,55 @@ function MyCart() {
  
             if (response.data.status === "Success") {
                 setCartItems(response.data.data.cartList)
+                setLoading(false)
             }
  
         } catch (error) {
             console.log("Error while fetching cart items", error)
+            setLoading(false)
         }
     }
- 
+
+    async function increaseDecreaseQuantity(cartItem, action) {
+        try {
+            toast.dismiss()
+            if (!cartItem.product || !cartItem.product._id) {
+                toast.error("Product not found.");
+                return;
+            }
+
+            let updatedQuantity = cartItem.quantity || 1; // Default to 1 if quantity is not defined
+
+            if (action === "increase") {
+                updatedQuantity += 1;
+            } else if (action === "decrease" && updatedQuantity > 1) {
+                updatedQuantity -= 1;
+            } else {
+                removeFromCart(cartItem.product._id)
+                return;
+            }
+
+            const response = await axios.post(`${backend}/cart/${cartItems[0]?._id}/update-quantity`, {
+                cart: {
+                    productId: cartItem.product._id,
+                    quantity: updatedQuantity
+                }
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+
+            if (response.data.status === "Success") {
+                toast.success("Quantity updated successfully!")
+                getCartItems()
+            }
+
+        } catch (error) {
+            console.log("Error while increasing/decreasing quantity", error);
+        }
+    }
+  
     async function handleCheckout() {
         toast.dismiss();
         toast.info("Proceeding to checkout...")
@@ -118,9 +161,9 @@ function MyCart() {
                 }
             })
             if (response.data.status === "Success") {
-                getCartItems()
                 toast.success("Product removed from cart successfully!")
                 setLoading(false)
+                getCartItems()
             }
         } catch (error) {
             setLoading(false)
@@ -169,9 +212,23 @@ function MyCart() {
                                                             <h3 className="text-lg font-semibold text-gray-800 truncate">
                                                                 {item.product.name}
                                                             </h3>
-                                                            <span className="text-sm text-gray-500 md:text-right md:pt-4">
-                                                                Qty: {item.quantity}
-                                                            </span>
+                                                            <div className="flex items-center gap-2 md:pt-4">
+                                                                <button
+                                                                    onClick={() => increaseDecreaseQuantity(item, "decrease")}
+                                                                    className="px-2 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
+                                                                >
+                                                                    -
+                                                                </button>
+                                                                <span className="text-sm text-gray-500">
+                                                                    Qty: {item.quantity}
+                                                                </span>
+                                                                <button
+                                                                    onClick={() => increaseDecreaseQuantity(item, "increase")}
+                                                                    className="px-2 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
+                                                                >
+                                                                    +
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                         <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                                                             <span className="text-sm font-medium text-gray-600">
@@ -308,7 +365,7 @@ function MyCart() {
                                             <div className="flex justify-between border-t pt-3">
                                                 <span className="text-lg font-semibold text-gray-800">Total:</span>
                                                 <span className="text-lg font-semibold text-green-600">
-                                                    ₹{((((calculateSubtotal()) - ((calculateSubtotal()) * (discount / 100)))) + shippingCost).toFixed(2) }
+                                                    ₹{((((calculateSubtotal()) - ((calculateSubtotal()) * (discount / 100)))) + shippingCost).toFixed(2)}
                                                 </span>
                                             </div>
                                         </div>
@@ -349,15 +406,17 @@ function MyCart() {
                                     {/* TV Images (With Fade Transition) */}
                                     <div className="relative w-full h-60 rounded-md overflow-hidden">
                                         <img
-                                            src={television?.image[0]}
-                                            alt="image"
-                                            className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-100 group-hover:opacity-0"
+                                            src={television.image[0]}
+                                            alt={television.name}
+                                            className={`${television.image.length > 1 ? "group-hover:opacity-0" : ""} absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-100`}
                                         />
-                                        <img
-                                            src={television?.image[1]}
-                                            alt="hover image"
-                                            className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100"
-                                        />
+                                        {television.image.length > 1 && (
+                                            <img
+                                                src={television.image[1]}
+                                                alt={television.name}
+                                                className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100"
+                                            />
+                                        )}
                                     </div>
  
                                     {/* TV Name */}

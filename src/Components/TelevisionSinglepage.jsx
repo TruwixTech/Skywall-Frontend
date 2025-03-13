@@ -41,6 +41,7 @@ const TelevisionSinglePage = () => {
   const [ratingDistribution, setRatingDistribution] = useState({})
   const [averageRating, setAverageRating] = useState(0);
   const [ratingPage, setRatingPage] = useState(1);
+  const [alreadyInCart, setAlreadyInCart] = useState(false)
   const navigate = useNavigate()
 
   // Handle quantity changes
@@ -111,6 +112,36 @@ const TelevisionSinglePage = () => {
     return ratingPercentages;
   };
 
+  async function getCartItems(token) {
+    try {
+      setLoading(true)
+      const decodedToken = jwtDecode(token)
+      const response = await axios.post(`${backend}/cart/list`, {
+        filters: {
+          user: decodedToken?.userId
+        },
+        pageNum: 1,
+        pageSize: 50
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.data.status === "Success") {
+        const isProductInCart = response.data.data.cartList[0].items.some(item => item.product._id === id)
+        setAlreadyInCart(isProductInCart)
+        // setCartItems(response.data.data.cartList)
+        setLoading(false)
+      }
+
+    } catch (error) {
+      console.log("Error while fetching cart items", error)
+      setLoading(false)
+    }
+  }
+
+
 
   async function addToCart() {
     toast.dismiss()
@@ -142,6 +173,7 @@ const TelevisionSinglePage = () => {
         toast.success("Product added to cart successfully!")
         setShowWarrantyPopup(false)
         setSelectedWarranty(null)
+        setAlreadyInCart(true)
         setQuantity(1)
       }
     } catch (error) {
@@ -238,6 +270,27 @@ const TelevisionSinglePage = () => {
       ? `${years} year${years > 1 ? "s" : ""}`
       : `${years}.${Math.round((remainingMonths / 12) * 10)} years`;
   };
+
+
+  function handlepopup() {
+    if (
+      singleProduct?.warranty_pricing &&
+      Object.keys(singleProduct.warranty_pricing).length === 1 &&
+      singleProduct.warranty_pricing[""] === 0
+    ) {
+      addToCart();
+    } else {
+      setShowWarrantyPopup(true);
+    }
+  }
+
+
+  useEffect(() => {
+    const token = JSON.parse(localStorage.getItem('token'))
+    if (token) {
+      getCartItems(token)
+    }
+  }, [])
 
   return (
     <div className="min-h-screen">
@@ -423,9 +476,18 @@ const TelevisionSinglePage = () => {
                   {loading ? (
                     <div className="h-12 w-full bg-gray-300 animate-pulse rounded" />
                   ) : (
-                    <button onClick={() => setShowWarrantyPopup(true)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md flex items-center justify-center">
+                    <button onClick={() => {
+                      alreadyInCart
+                        ? navigate('/cart')
+                        : handlepopup();
+                    }}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md flex items-center justify-center">
                       <ShoppingCart size={18} className="mr-2" />
-                      Add to Cart
+                      {
+                        alreadyInCart
+                          ? "Already in Cart"
+                          : "Add to Cart"
+                      }
                     </button>
                   )}
                 </div>
@@ -669,22 +731,22 @@ const TelevisionSinglePage = () => {
             {/* Review List */}
             <div className="space-y-6">
               {
-                productReviews.length > 0 
-               ? productReviews.map((review, index) => (
-                <div key={index} className={index !== 0 ? "pt-6 border-t" : ""}>
-                  <div className="flex justify-between">
-                    <span className="font-medium">{review.user.name}</span>
-                    <span className="text-sm text-gray-500">{convertUTCtoIST2(review.createdAt)}</span>
+                productReviews.length > 0
+                  ? productReviews.map((review, index) => (
+                    <div key={index} className={index !== 0 ? "pt-6 border-t" : ""}>
+                      <div className="flex justify-between">
+                        <span className="font-medium">{review.user.name}</span>
+                        <span className="text-sm text-gray-500">{convertUTCtoIST2(review.createdAt)}</span>
+                      </div>
+                      <div className="mt-1">{renderStars(review.rating)}</div>
+                      <h4 className="font-medium mt-2">{review.title}</h4>
+                      <p className="text-gray-700 mt-1">{review.comment}</p>
+                    </div>
+                  ))
+                  : <div className="w-full h-20 flex justify-center items-center">
+                    <span className="font-semibold text-lg lg:text-xl">No reviews found</span>
                   </div>
-                  <div className="mt-1">{renderStars(review.rating)}</div>
-                  <h4 className="font-medium mt-2">{review.title}</h4>
-                  <p className="text-gray-700 mt-1">{review.comment}</p>
-                </div>
-              ))
-              : <div className="w-full h-20 flex justify-center items-center">
-                <span className="font-semibold text-lg lg:text-xl">No reviews found</span>
-              </div>
-            }
+              }
 
               {/* Show more button */}
               {

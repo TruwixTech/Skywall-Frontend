@@ -60,19 +60,19 @@ const Footer = () => {
               Televisions
             </span>
             <span
-              onClick={() => navigate("/about-us")}
+              onClick={() => navigate("/about")}
               className="w-fit cursor-pointer"
             >
               About Us
             </span>
             <span
-              onClick={() => navigate("/news")}
+              onClick={() => navigate("/news-media")}
               className="w-fit cursor-pointer"
             >
               News & Media
             </span>
             <span
-              onClick={() => navigate("/contact-us")}
+              onClick={() => navigate("/contact")}
               className="w-fit cursor-pointer"
             >
               Contact
