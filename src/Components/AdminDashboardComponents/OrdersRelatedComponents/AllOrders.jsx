@@ -161,7 +161,6 @@ const AllOrders = () => {
                             <button
                                 onClick={async () => {
                                     const success = await updateOrderStatus(selectedOrder._id, newStatus);
-                                    console.log(success)
                                     if (success) setShowStatusModal(false);
                                 }}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"

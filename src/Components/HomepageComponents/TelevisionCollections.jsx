@@ -142,9 +142,19 @@ function TelevisionCollections() {
                 className="group w-full p-4 rounded-lg bg-white relative duration-300 ease-in-out transition-all overflow-hidden"
               >
                 {/* Sale Badge */}
-                <span className="absolute z-20 top-2 left-2 bg-blue-600 text-white text-sm px-6 py-1 rounded-full">
-                  Sale
-                </span>
+                {
+                  television.stock > 0
+                    ? <span className="absolute z-20 top-2 left-2 bg-blue-600 text-white text-sm px-6 py-1 rounded-full">
+                      Sale
+                    </span>
+                    : <span
+                      className={`absolute z-20 top-2 left-2 text-white text-sm px-3 py-1 rounded-full bg-red-600
+                        }`}
+                    >
+                      Out of Stock
+                    </span>
+                }
+
 
                 {/* TV Images (With Fade Transition) */}
                 {/* Product Images */}

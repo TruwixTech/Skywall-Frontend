@@ -271,6 +271,15 @@ const TelevisionSinglePage = () => {
       : `${years}.${Math.round((remainingMonths / 12) * 10)} years`;
   };
 
+  function addToCartBtn() {
+    toast.dismiss()
+    singleProduct?.stock > 0
+      ? alreadyInCart
+        ? navigate('/cart')
+        : handlepopup()
+      : toast.error("Product is out of stock.");
+  }
+
 
   function handlepopup() {
     if (
@@ -476,11 +485,7 @@ const TelevisionSinglePage = () => {
                   {loading ? (
                     <div className="h-12 w-full bg-gray-300 animate-pulse rounded" />
                   ) : (
-                    <button onClick={() => {
-                      alreadyInCart
-                        ? navigate('/cart')
-                        : handlepopup();
-                    }}
+                    <button onClick={addToCartBtn}
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md flex items-center justify-center">
                       <ShoppingCart size={18} className="mr-2" />
                       {
