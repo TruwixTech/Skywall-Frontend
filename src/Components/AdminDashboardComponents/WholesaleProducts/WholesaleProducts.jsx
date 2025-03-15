@@ -267,7 +267,7 @@ const WholesaleProductsPage = () => {
             setLoading(true);
 
             const wholesaleData = {
-                product: selectedProduct._id,
+                product_id: selectedProduct._id,
                 priceBreaks: selectedProduct.priceBreaks
             };
 
@@ -349,13 +349,13 @@ const WholesaleProductsPage = () => {
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-4">
                                         <img
-                                            src={product.product.image?.[0] || '/placeholder.jpg'}
-                                            alt={product.product.name}
+                                            src={product.product_id.image?.[0] || '/placeholder.jpg'}
+                                            alt={product.product_id.name}
                                             className="w-16 h-16 object-cover rounded-md border"
                                         />
                                         <div>
-                                            <h3 className="font-semibold text-lg">{product.product.name}</h3>
-                                            <p className="text-gray-600">₹{product.product.price}</p>
+                                            <h3 className="font-semibold text-lg">{product.product_id.name}</h3>
+                                            <p className="text-gray-600">₹{product.product_id.price}</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
