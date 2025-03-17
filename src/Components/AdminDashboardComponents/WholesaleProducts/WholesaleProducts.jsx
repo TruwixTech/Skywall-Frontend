@@ -121,10 +121,6 @@ const WholesaleProductsPage = () => {
                     toast.error("Min Quantity is required and must be at least 1.");
                     return;
                 }
-                if (!breakItem.maxQuantity || breakItem.maxQuantity < 1 || breakItem.maxQuantity < breakItem.minQuantity || breakItem.maxQuantity === breakItem.minQuantity) {
-                    toast.error("Max Quantity is required and must be at least more than Min Quantity and cannot be equal.");
-                    return;
-                }
                 if (breakItem.discount === undefined || breakItem.discount < 0 || breakItem.discount === 0) {
                     toast.error("Discount is required and cannot be negative and cannot be 0.");
                     return;
@@ -254,10 +250,6 @@ const WholesaleProductsPage = () => {
                     toast.error("Min Quantity is required and must be at least 1.");
                     return;
                 }
-                if (!breakItem.maxQuantity || breakItem.maxQuantity < 1 || breakItem.maxQuantity < breakItem.minQuantity || breakItem.maxQuantity === breakItem.minQuantity) {
-                    toast.error("Max Quantity is required and must be at least more than Min Quantity and cannot be equal.");
-                    return;
-                }
                 if (breakItem.discount === undefined || breakItem.discount < 0 || breakItem.discount === 0) {
                     toast.error("Discount is required and cannot be negative and cannot be 0.");
                     return;
@@ -383,7 +375,7 @@ const WholesaleProductsPage = () => {
                                             <div key={breakItem._id || index} className="flex gap-2 text-sm bg-gray-100 p-2 rounded">
                                                 <span className="font-medium">
                                                     {breakItem.minQuantity}
-                                                    {breakItem.maxQuantity ? ` - ${breakItem.maxQuantity}` : `+`} : Pieces
+                                                    {breakItem.maxQuantity ? ` - ${breakItem.maxQuantity}` : `+`} Pieces
                                                 </span>
                                                 <span className="text-blue-600">₹{breakItem.discount} discount</span>
                                             </div>

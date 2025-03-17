@@ -35,6 +35,7 @@ import RaiseComplaint from './Components/UsersComponents/RaiseComplaint.jsx'
 import CheckoutPage from './Pages/CheckoutPage.jsx'
 import AllComplaintRaised from './Components/AdminDashboardComponents/ComplaintRaisedComponents/AllComplaintRaised.jsx'
 import WholesaleProducts from './Components/AdminDashboardComponents/WholesaleProducts/WholesaleProducts.jsx'
+import WholesaleBulkOrders from './Pages/WholesaleBulkOrders.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -59,6 +60,7 @@ const router = createBrowserRouter(
         <Route path="/terms-conditions" element={<TermsCondition />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/shipping-policy" element={<ShippingPolicy />} />
+        <Route path="/wholesale-bulk-products" element={<WholesaleBulkOrders />} />
         <Route path='/admin-login' element={<AdminLogin />} />
         {/* Admin Dashboard Route */}
         <Route path='/admin-dashboard' element={<Admin />}>
