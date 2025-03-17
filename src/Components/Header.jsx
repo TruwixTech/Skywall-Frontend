@@ -173,6 +173,7 @@ function Header() {
                   { name: "Terms and Conditions", path: "/terms-conditions" },
                   { name: "Privacy Policy", path: "/privacy-policy" },
                   { name: "Shipping Policy", path: "/shipping-policy" },
+                  { name: "Wholesale Bulk Orders", path: "/wholesale-bulk-products" },
                 ].map((item) => (
                   <NavLink
                     key={item.path}
@@ -356,6 +357,7 @@ function Header() {
                 { name: "Terms and Conditions", path: "/terms-conditions" },
                 { name: "Privacy Policy", path: "/privacy-policy" },
                 { name: "Shipping Policy", path: "/shipping-policy" },
+                { name: "Wholesale Bulk Orders", path: "/wholesale-bulk-products" },
               ].map((item) => (
                 <NavLink
                   key={item.path}
