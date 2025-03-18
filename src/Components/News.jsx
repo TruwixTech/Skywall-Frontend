@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, Clock, ArrowRight } from "lucide-react";
+import NewsImg from '../assets/newsImg.webp'
 
 function News() {
   const [newsArticles, setNewsArticles] = useState([]);
@@ -19,7 +20,7 @@ function News() {
         content:
           "SkyWall made waves at the Consumer Electronics Expo 2024 with their showcase of next-generation television technology. Attendees were treated to demonstrations of SkyWall's newest smart TV models featuring AI-enhanced picture quality, advanced voice control, and seamless integration with smart home ecosystems. The highlight of the event was the unveiling of SkyWall's proprietary Crystal Clear Display technology, offering unprecedented color accuracy and contrast ratios that rivals much more expensive competitors. Industry analysts praised SkyWall's commitment to bringing premium features to mid-range price points, potentially disrupting the established market leaders.",
         image:
-          "https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kiebflazlzuayet7acve",
+          NewsImg,
         date: "August 10, 2024",
         readTime: "4 min read",
         category: "Events",
@@ -33,7 +34,7 @@ function News() {
         content:
           "SkyWall announced today that it has secured partnership agreements with five major streaming platforms, bringing optimized apps and exclusive content directly to SkyWall Smart TV users. The partnerships include improved integration with the SkyWall operating system, allowing for faster load times, reduced buffering, and enhanced picture quality when streaming content. Several streaming partners will also offer exclusive promotions for SkyWall TV owners, including extended free trials and discounted subscription rates. This move strengthens SkyWall's position as a value-focused brand that doesn't compromise on entertainment options.",
         image:
-          "https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kiebflazlzuayet7acve",
+          NewsImg,
         date: "August 3, 2024",
         readTime: "3 min read",
         category: "Partnerships",
@@ -47,7 +48,7 @@ function News() {
         content:
           "SkyWall has officially launched its 2024 television lineup, focusing on three key areas of improvement: gaming performance, smart home integration, and energy efficiency. The new models feature reduced input lag (as low as 9.8ms), variable refresh rate support, and auto low-latency mode, making them ideal for console and PC gamers. Smart home capabilities have been expanded with support for all major ecosystems including Google Home, Amazon Alexa, and Apple HomeKit. Perhaps most impressively, the entire lineup boasts significantly improved energy efficiency, with the company claiming up to 25% reduction in power consumption compared to previous models while maintaining brightness levels. The 2024 collection includes models ranging from 24-inch HD displays to 85-inch 4K flagships.",
         image:
-          "https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kiebflazlzuayet7acve",
+          NewsImg,
         date: "July 28, 2024",
         readTime: "5 min read",
         category: "Product Launch",
@@ -61,7 +62,7 @@ function News() {
         content:
           "A new feature series on the SkyWall blog shares compelling stories from customers about how their SkyWall televisions became central to family life during the pandemic. From virtual family gatherings to homeschooling support through educational apps, these testimonials highlight the versatility of SkyWall Smart TVs beyond traditional entertainment. Several stories focus on the affordability of SkyWall models that allowed families to upgrade their home entertainment systems despite economic uncertainty. The company plans to continue the series with monthly installments featuring diverse customer experiences from different regions.",
         image:
-          "https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kiebflazlzuayet7acve",
+          NewsImg,
         date: "July 21, 2024",
         readTime: "6 min read",
         category: "Customer Stories",
@@ -75,7 +76,7 @@ function News() {
         content:
           "SkyWall has announced the opening of a new manufacturing facility designed with sustainability at its core. The state-of-the-art plant uses renewable energy sources for 60% of its power needs, features water recycling systems, and implements zero-waste packaging initiatives. The facility increases SkyWall's production capacity by approximately 40%, allowing the company to meet growing demand while maintaining competitive pricing. Company executives emphasized that the expansion represents their commitment to both business growth and environmental responsibility. The facility is expected to create over 300 jobs and will primarily serve markets in Asia and the Pacific region.",
         image:
-          "https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kiebflazlzuayet7acve",
+          NewsImg,
         date: "July 15, 2024",
         readTime: "4 min read",
         category: "Company News",
@@ -89,7 +90,7 @@ function News() {
         content:
           "SkyWall has launched a comprehensive educational content package available at no additional cost to all SkyWall Smart TV owners. The initiative includes partnerships with leading educational content providers to offer interactive learning experiences across subjects including mathematics, science, language arts, and social studies. Content is available for students from elementary through high school levels, with some college-preparatory material also included. The package can be downloaded through the SkyWall app store and includes parental controls for managing screen time and content accessibility. This initiative aligns with SkyWall's mission to provide value beyond entertainment and positions their televisions as multipurpose household devices.",
         image:
-          "https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kiebflazlzuayet7acve",
+          NewsImg,
         date: "July 8, 2024",
         readTime: "3 min read",
         category: "Services",
