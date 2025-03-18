@@ -8,6 +8,8 @@ import {
   Facebook,
   Twitter,
 } from "lucide-react";
+import NewsImg from '../assets/newsImg.webp'
+
 
 function SingleNews() {
   const { id } = useParams();
@@ -31,7 +33,7 @@ function SingleNews() {
         content:
           "SkyWall made waves at the Consumer Electronics Expo 2024 with their showcase of next-generation television technology. Attendees were treated to demonstrations of SkyWall's newest smart TV models featuring AI-enhanced picture quality, advanced voice control, and seamless integration with smart home ecosystems. The highlight of the event was the unveiling of SkyWall's proprietary Crystal Clear Display technology, offering unprecedented color accuracy and contrast ratios that rivals much more expensive competitors. Industry analysts praised SkyWall's commitment to bringing premium features to mid-range price points, potentially disrupting the established market leaders.\n\nThe company's booth was one of the most visited at the expo, with continuous demonstrations of the new features drawing large crowds throughout the four-day event. Particularly popular was the interactive zone where visitors could experience the new voice control system that recognizes commands in multiple languages and dialects with remarkable accuracy, even in noisy environments.\n\nSkyWall representatives also revealed plans for future software updates that will bring additional functionality to existing TV models, demonstrating the company's commitment to supporting their products well beyond the initial purchase. This approach to extending the useful life of their televisions through software improvements was highlighted as part of SkyWall's broader sustainability goals.",
         image:
-          "https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kiebflazlzuayet7acve",
+          NewsImg,
         date: "August 10, 2024",
         readTime: "4 min read",
         category: "Events",
@@ -46,7 +48,7 @@ function SingleNews() {
         content:
           "SkyWall announced today that it has secured partnership agreements with five major streaming platforms, bringing optimized apps and exclusive content directly to SkyWall Smart TV users. The partnerships include improved integration with the SkyWall operating system, allowing for faster load times, reduced buffering, and enhanced picture quality when streaming content. Several streaming partners will also offer exclusive promotions for SkyWall TV owners, including extended free trials and discounted subscription rates. This move strengthens SkyWall's position as a value-focused brand that doesn't compromise on entertainment options.\n\nThe new partnership agreements cover global streaming giants as well as regional content providers, ensuring that SkyWall users around the world will benefit from the enhanced integration. Technical improvements include dedicated processing resources for streaming applications, reduced latency when switching between apps, and intelligent content recommendations based on viewing habits across platforms.\n\nThe first wave of optimized streaming apps will begin rolling out to SkyWall Smart TVs via automatic updates starting next month, with the full suite expected to be available on all compatible models by the end of the quarter. Older models will also receive the updates where hardware specifications allow, reinforcing SkyWall's commitment to supporting their entire product ecosystem.",
         image:
-          "https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kiebflazlzuayet7acve",
+          NewsImg,
         date: "August 3, 2024",
         readTime: "3 min read",
         category: "Partnerships",
@@ -61,7 +63,7 @@ function SingleNews() {
         content:
           "SkyWall has officially launched its 2024 television lineup, focusing on three key areas of improvement: gaming performance, smart home integration, and energy efficiency. The new models feature reduced input lag (as low as 9.8ms), variable refresh rate support, and auto low-latency mode, making them ideal for console and PC gamers. Smart home capabilities have been expanded with support for all major ecosystems including Google Home, Amazon Alexa, and Apple HomeKit. Perhaps most impressively, the entire lineup boasts significantly improved energy efficiency, with the company claiming up to 25% reduction in power consumption compared to previous models while maintaining brightness levels. The 2024 collection includes models ranging from 24-inch HD displays to 85-inch 4K flagships.\n\nThe gaming-oriented features represent a significant push into the growing gaming TV market segment, with the top models supporting 4K resolution at 120Hz refresh rate and including HDMI 2.1 ports. SkyWall has also introduced a new Game Mode Pro interface that provides real-time information about frame rates, input lag, and HDR status, along with customizable picture settings specifically for different game genres.\n\nOn the smart home front, the enhanced connectivity allows SkyWall TVs to serve as control hubs for compatible devices, with a redesigned dashboard for managing connected equipment. The Energy Star certified lineup includes new power management features that can adjust brightness based on ambient light conditions and viewing content type, maximizing both visual quality and efficiency.",
         image:
-          "https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kiebflazlzuayet7acve",
+          NewsImg,
         date: "July 28, 2024",
         readTime: "5 min read",
         category: "Product Launch",
@@ -76,7 +78,7 @@ function SingleNews() {
         content:
           "A new feature series on the SkyWall blog shares compelling stories from customers about how their SkyWall televisions became central to family life during the pandemic. From virtual family gatherings to homeschooling support through educational apps, these testimonials highlight the versatility of SkyWall Smart TVs beyond traditional entertainment. Several stories focus on the affordability of SkyWall models that allowed families to upgrade their home entertainment systems despite economic uncertainty. The company plans to continue the series with monthly installments featuring diverse customer experiences from different regions.\n\nOne particularly moving story comes from the Martinez family in Florida, who used their SkyWall TV to maintain virtual Sunday dinners with extended family members across three states. The large screen and video conferencing app integration made these gatherings feel more immersive than typical smartphone or laptop calls, helping maintain important family traditions during isolation periods.\n\nAnother highlighted story features a teacher who used his SkyWall TV as a teaching tool during remote learning, utilizing the screen mirroring function to create a more engaging classroom experience from his living room. The ability to wirelessly connect his laptop while still having access to educational apps directly on the TV provided flexibility that smaller displays couldn't match.",
         image:
-          "https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kiebflazlzuayet7acve",
+          NewsImg,
         date: "July 21, 2024",
         readTime: "6 min read",
         category: "Customer Stories",
@@ -91,7 +93,7 @@ function SingleNews() {
         content:
           "SkyWall has announced the opening of a new manufacturing facility designed with sustainability at its core. The state-of-the-art plant uses renewable energy sources for 60% of its power needs, features water recycling systems, and implements zero-waste packaging initiatives. The facility increases SkyWall's production capacity by approximately 40%, allowing the company to meet growing demand while maintaining competitive pricing. Company executives emphasized that the expansion represents their commitment to both business growth and environmental responsibility. The facility is expected to create over 300 jobs and will primarily serve markets in Asia and the Pacific region.\n\nThe new plant incorporates several innovative sustainability features, including a solar array covering the entire roof surface, rainwater collection systems, and advanced waste management processes that ensure nearly 95% of production materials are either used in products or recycled. The building itself was constructed using low-carbon concrete and other environmentally friendly materials, reducing the carbon footprint of construction by an estimated 35% compared to conventional methods.\n\nIn addition to environmental benefits, the facility features improved working conditions with natural lighting throughout production areas, enhanced air filtration systems, and ergonomically designed workstations. These improvements are expected to boost productivity while reducing workplace injuries and employee turnover rates.",
         image:
-          "https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kiebflazlzuayet7acve",
+          NewsImg,
         date: "July 15, 2024",
         readTime: "4 min read",
         category: "Company News",
@@ -106,7 +108,7 @@ function SingleNews() {
         content:
           "SkyWall has launched a comprehensive educational content package available at no additional cost to all SkyWall Smart TV owners. The initiative includes partnerships with leading educational content providers to offer interactive learning experiences across subjects including mathematics, science, language arts, and social studies. Content is available for students from elementary through high school levels, with some college-preparatory material also included. The package can be downloaded through the SkyWall app store and includes parental controls for managing screen time and content accessibility. This initiative aligns with SkyWall's mission to provide value beyond entertainment and positions their televisions as multipurpose household devices.\n\nThe educational package includes both on-demand video lessons and interactive applications that encourage active learning through quizzes, problem-solving exercises, and virtual experiments. Content is regularly updated to reflect current educational standards and best practices, with seasonal updates planned to provide fresh material throughout the school year.\n\nEducators have responded positively to the initiative, with several school districts expressing interest in recommending SkyWall TVs for families looking to support at-home learning. The company is also exploring partnerships with educational institutions to develop custom content that could supplement classroom curriculum, potentially creating a bridge between home and school learning environments.",
         image:
-          "https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kiebflazlzuayet7acve",
+          NewsImg,
         date: "July 8, 2024",
         readTime: "3 min read",
         category: "Services",

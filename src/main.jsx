@@ -36,6 +36,7 @@ import CheckoutPage from './Pages/CheckoutPage.jsx'
 import AllComplaintRaised from './Components/AdminDashboardComponents/ComplaintRaisedComponents/AllComplaintRaised.jsx'
 import WholesaleProducts from './Components/AdminDashboardComponents/WholesaleProducts/WholesaleProducts.jsx'
 import WholesaleBulkOrders from './Pages/WholesaleBulkOrders.jsx'
+import WholesaleBulkProductsOrders from './Components/AdminDashboardComponents/WholesaleBulkOrders/WholesaleBulkOrders.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -72,6 +73,7 @@ const router = createBrowserRouter(
           <Route path='/admin-dashboard/inventory' element={<InventoryManagement />} />
           <Route path='/admin-dashboard/complaints' element={<AllComplaintRaised />} />
           <Route path='/admin-dashboard/wholesale' element={<WholesaleProducts />} />
+          <Route path='/admin-dashboard/wholesale-bulk-orders' element={<WholesaleBulkProductsOrders />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFound />} />
