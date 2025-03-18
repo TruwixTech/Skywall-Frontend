@@ -290,7 +290,7 @@ const WholesaleProductsPage = () => {
 
 
     return (
-        <div className="container mx-auto p-5 md:px-10 pt-14">
+        <div className="container mx-auto p-5 md:px-10 pt-14 bg-gradient-to-b from-gray-50 to-blue-50">
             <h1 className="text-2xl font-bold mb-6 lg:text-4xl">Wholesale & Bulk Products Management</h1>
 
             <div className="flex justify-between items-center mb-6">
