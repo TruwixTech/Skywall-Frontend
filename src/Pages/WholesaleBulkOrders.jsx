@@ -1,25 +1,48 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import LoadingSpinner from '../utils/LoadingSpinner';
 
 const backend = import.meta.env.VITE_BACKEND;
 
 function WholesaleBulkOrders() {
     const [wholesaleBulkProducts, setWholesaleBulkProducts] = useState([]);
+    const [loading, setLoading] = useState(false)
     const [checkoutForm, setCheckoutForm] = useState({
+        // Contact Information
         email: '',
         contact: '',
+
+        // Shipping Address
         firstName: '',
         lastName: '',
         fullAddress: '',
+        apartment: '',
         city: '',
-        country: '',
+        country: 'India',
         state: '',
-        zipCode: ''
+        zipCode: '',
+
+        // Billing Address
+        billingAddress: 'same', // 'same' or 'different'
+        billingFirstName: '',
+        billingLastName: '',
+        billingFullAddress: '',
+        billingApartment: '',
+        billingCity: '',
+        billingCountry: 'India',
+        billingState: '',
+        billingZipCode: '',
+
+        // Company Information
+        companyName: '',
+        gstNumber: ''
     });
 
     async function fetchWholesaleBulkProducts() {
         try {
+            setLoading(true);
             const response = await axios.post(`${backend}/wholesale/list`, {
                 pageNum: 1,
                 pageSize: 20,
@@ -34,15 +57,43 @@ function WholesaleBulkOrders() {
                     expanded: false // Add expanded state
                 }));
                 setWholesaleBulkProducts(productsWithQuantity);
+                setLoading(false);
             }
         } catch (error) {
             console.log("Error while fetching wholesale bulk products", error);
+            setLoading(false);
         }
     }
 
     useEffect(() => {
         fetchWholesaleBulkProducts();
     }, []);
+
+    useEffect(() => {
+        if (checkoutForm.billingAddress === 'same') {
+            setCheckoutForm(prev => ({
+                ...prev,
+                billingFirstName: prev.firstName,
+                billingLastName: prev.lastName,
+                billingFullAddress: prev.fullAddress,
+                billingApartment: prev.apartment,
+                billingCity: prev.city,
+                billingCountry: prev.country,
+                billingState: prev.state,
+                billingZipCode: prev.zipCode
+            }));
+        }
+    }, [
+        checkoutForm.billingAddress,
+        checkoutForm.firstName,
+        checkoutForm.lastName,
+        checkoutForm.fullAddress,
+        checkoutForm.apartment,
+        checkoutForm.city,
+        checkoutForm.country,
+        checkoutForm.state,
+        checkoutForm.zipCode
+    ]);
 
     const handleQuantityChange = (index, value) => {
         const updatedProducts = [...wholesaleBulkProducts];
@@ -89,23 +140,202 @@ function WholesaleBulkOrders() {
     }, 0);
 
     const handleCheckoutFormChange = (e) => {
-        const { name, value } = e.target;
-        setCheckoutForm({
-            ...checkoutForm,
-            [name]: value
-        });
+        const { name, value, type, checked } = e.target;
+
+        // For radio buttons
+        if (type === 'radio') {
+            setCheckoutForm(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        } else {
+            setCheckoutForm(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     };
 
-    const handleCheckoutSubmit = (e) => {
-        e.preventDefault();
-        // Handle form submission, e.g., send data to backend
-        console.log('Checkout Form Data:', checkoutForm);
-        // You can add your API call here to process the order
+    const validateForm = () => {
+        const nameRegex = /^[A-Za-z\s]+$/;
+        const contactRegex = /^[0-9]{10}$/;
+        const zipRegex = /^[0-9]{6}$/;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+        if (!emailRegex.test(checkoutForm.email)) {
+            toast.error("Enter a valid email address");
+            return false;
+        }
+
+        if (!contactRegex.test(checkoutForm.contact)) {
+            toast.error("Contact must be exactly 10 digits");
+            return false;
+        }
+
+        if (!nameRegex.test(checkoutForm.firstName) || !checkoutForm.firstName.trim()) {
+            toast.error("First name must contain only letters");
+            return false;
+        }
+
+        if (!nameRegex.test(checkoutForm.lastName) || !checkoutForm.lastName.trim()) {
+            toast.error("Last name must contain only letters");
+            return false;
+        }
+
+        if (!checkoutForm.fullAddress.trim()) {
+            toast.error("Shipping address is required");
+            return false;
+        }
+
+        if (!checkoutForm.city.trim()) {
+            toast.error("City is required");
+            return false;
+        }
+
+        if (!checkoutForm.country.trim()) {
+            toast.error("Country is required");
+            return false;
+        }
+
+        if (!checkoutForm.state.trim()) {
+            toast.error("State is required");
+            return false;
+        }
+
+        if (!zipRegex.test(checkoutForm.zipCode)) {
+            toast.error("Zip code must be exactly 6 digits");
+            return false;
+        }
+
+        if (checkoutForm.billingAddress === 'different') {
+            if (!nameRegex.test(checkoutForm.billingFirstName) || !checkoutForm.billingFirstName.trim()) {
+                toast.error("Billing first name must contain only letters");
+                return false;
+            }
+
+            if (!nameRegex.test(checkoutForm.billingLastName) || !checkoutForm.billingLastName.trim()) {
+                toast.error("Billing last name must contain only letters");
+                return false;
+            }
+
+            if (!checkoutForm.billingFullAddress.trim()) {
+                toast.error("Billing address is required");
+                return false;
+            }
+
+            if (!checkoutForm.billingCity.trim()) {
+                toast.error("Billing city is required");
+                return false;
+            }
+
+            if (!checkoutForm.billingCountry.trim()) {
+                toast.error("Billing country is required");
+                return false;
+            }
+
+            if (!checkoutForm.billingState.trim()) {
+                toast.error("Billing state is required");
+                return false;
+            }
+
+            if (!zipRegex.test(checkoutForm.billingZipCode)) {
+                toast.error("Billing zip code must be exactly 6 digits");
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    const handleCheckoutSubmit = async (e) => {
+        try {
+            e.preventDefault();
+            if (!validateForm()) return
+            setLoading(true);
+            const products = selectedProducts.map(product => ({
+                product_id: product.product_id._id,
+                quantity: product.quantity,
+                price: calculatePrice(product).totalPrice.toFixed(0)
+            }))
+            const data = {
+                products: products,
+                total_price: totalSelectedValue.toFixed(0),
+                email: checkoutForm.email,
+                contact: checkoutForm.contact,
+                shipping_address: {
+                    firstName: checkoutForm.firstName,
+                    lastName: checkoutForm.lastName,
+                    fullAddress: checkoutForm.fullAddress,
+                    apartment: checkoutForm.apartment,
+                    city: checkoutForm.city,
+                    country: checkoutForm.country,
+                    state: checkoutForm.state,
+                    zipCode: checkoutForm.zipCode
+                },
+                billing_address: {
+                    billingFirstName: checkoutForm.billingFirstName,
+                    billingLastName: checkoutForm.billingLastName,
+                    billingFullAddress: checkoutForm.billingFullAddress,
+                    billingApartment: checkoutForm.billingApartment,
+                    billingCity: checkoutForm.billingCity,
+                    billingCountry: checkoutForm.billingCountry,
+                    billingState: checkoutForm.billingState,
+                    billingZipCode: checkoutForm.billingZipCode
+                },
+                companyName: checkoutForm.companyName,
+                gstNumber: checkoutForm.gstNumber,
+            }
+
+            const response = await axios.post(`${backend}/wholesale/orders/new`, data);
+
+            if (response.data.status === "Success") {
+                toast.success("Order Placed Successfully! Please check your email for order details");
+                fetchWholesaleBulkProducts()
+                setCheckoutForm({
+                    // Contact Information
+                    email: '',
+                    contact: '',
+
+                    // Shipping Address
+                    firstName: '',
+                    lastName: '',
+                    fullAddress: '',
+                    apartment: '',
+                    city: '',
+                    country: 'India',
+                    state: '',
+                    zipCode: '',
+
+                    // Billing Address
+                    billingAddress: 'same', // 'same' or 'different'
+                    billingFirstName: '',
+                    billingLastName: '',
+                    billingFullAddress: '',
+                    billingApartment: '',
+                    billingCity: '',
+                    billingCountry: 'India',
+                    billingState: '',
+                    billingZipCode: '',
+
+                    // Company Information
+                    companyName: '',
+                    gstNumber: ''
+                });
+                setLoading(false);
+            }
+
+        } catch (error) {
+            setLoading(false);
+            console.log("Error while submitting checkout form", error);
+        }
     };
 
 
     return (
         <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+            {
+                loading && <LoadingSpinner />
+            }
             <div className="max-w-7xl mx-auto">
                 <h1 className="text-4xl font-bold text-gray-900 text-center mb-8">
                     Wholesale/Bulk Orders
@@ -169,8 +399,8 @@ function WholesaleBulkOrders() {
                                                     <div
                                                         key={idx}
                                                         className={`p-4 rounded-xl border-2 transition-all duration-200 ${applicableBreak === breakItem
-                                                                ? 'border-indigo-500 bg-indigo-50 scale-105 shadow-md'
-                                                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                                            ? 'border-indigo-500 bg-indigo-50 scale-105 shadow-md'
+                                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                                                             }`}
                                                     >
                                                         <p className="text-sm font-medium text-gray-600">
@@ -265,106 +495,247 @@ function WholesaleBulkOrders() {
                         </div>
                     )}
 
-                    <div className="mt-8 p-6 bg-white rounded-xl">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-6">Checkout</h2>
-                        <form onSubmit={handleCheckoutSubmit}>
-                            <div className="mb-8">
-                                <h3 className="text-xl font-semibold text-gray-700 mb-4">Contact Information</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="mt-8 p-6 bg-white rounded-xl ">
+                        <h2 className="text-3xl font-bold text-gray-800 mb-6">Secure Checkout</h2>
+                        <form onSubmit={handleCheckoutSubmit} className="space-y-8">
+                            {/* Contact Information */}
+                            <div className="bg-gray-50 p-6 rounded-lg">
+                                <h3 className="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Contact Information</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <input
                                         type="email"
                                         name="email"
-                                        placeholder="Email"
+                                        placeholder="Email*"
                                         value={checkoutForm.email}
                                         onChange={handleCheckoutFormChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                         required
                                     />
                                     <input
                                         type="tel"
                                         name="contact"
-                                        placeholder="Contact Number"
+                                        placeholder="Contact Number*"
                                         value={checkoutForm.contact}
                                         onChange={handleCheckoutFormChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                         required
                                     />
                                 </div>
                             </div>
 
-                            <div className="mb-8">
-                                <h3 className="text-xl font-semibold text-gray-700 mb-4">Shipping Address</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* Shipping Address */}
+                            <div className="bg-gray-50 p-6 rounded-lg">
+                                <h3 className="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Shipping Address</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <input
                                         type="text"
                                         name="firstName"
-                                        placeholder="First Name"
+                                        placeholder="First Name*"
                                         value={checkoutForm.firstName}
                                         onChange={handleCheckoutFormChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                                         required
                                     />
                                     <input
                                         type="text"
                                         name="lastName"
-                                        placeholder="Last Name"
+                                        placeholder="Last Name*"
                                         value={checkoutForm.lastName}
                                         onChange={handleCheckoutFormChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                                         required
                                     />
                                     <input
                                         type="text"
                                         name="fullAddress"
-                                        placeholder="Full Address"
+                                        placeholder="Street Address*"
                                         value={checkoutForm.fullAddress}
                                         onChange={handleCheckoutFormChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 md:col-span-2"
                                         required
                                     />
                                     <input
                                         type="text"
+                                        name="apartment"
+                                        placeholder="Apartment, Suite, etc. (optional)"
+                                        value={checkoutForm.apartment}
+                                        onChange={handleCheckoutFormChange}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 md:col-span-2"
+                                    />
+                                    <input
+                                        type="text"
                                         name="city"
-                                        placeholder="City"
+                                        placeholder="City*"
                                         value={checkoutForm.city}
                                         onChange={handleCheckoutFormChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                                         required
                                     />
                                     <input
                                         type="text"
                                         name="country"
-                                        placeholder="Country"
+                                        disabled
+                                        placeholder="Country*"
                                         value={checkoutForm.country}
                                         onChange={handleCheckoutFormChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                                         required
                                     />
                                     <input
                                         type="text"
                                         name="state"
-                                        placeholder="State"
+                                        placeholder="State/Province*"
                                         value={checkoutForm.state}
                                         onChange={handleCheckoutFormChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                                         required
                                     />
                                     <input
                                         type="text"
                                         name="zipCode"
-                                        placeholder="Zip Code"
+                                        placeholder="ZIP/Postal Code*"
                                         value={checkoutForm.zipCode}
                                         onChange={handleCheckoutFormChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                                         required
                                     />
                                 </div>
                             </div>
 
+                            {/* Billing Address */}
+                            <div className="bg-gray-50 p-6 rounded-lg">
+                                <h3 className="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Billing Address</h3>
+                                <div className="space-y-4">
+                                    <div className="flex gap-4">
+                                        <label className="flex items-center space-x-2">
+                                            <input
+                                                type="radio"
+                                                name="billingAddress"
+                                                value="same"
+                                                checked={checkoutForm.billingAddress === 'same'}
+                                                onChange={handleCheckoutFormChange}
+                                                className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                            />
+                                            <span className="text-gray-700">Same as shipping address</span>
+                                        </label>
+                                        <label className="flex items-center space-x-2">
+                                            <input
+                                                type="radio"
+                                                name="billingAddress"
+                                                value="different"
+                                                checked={checkoutForm.billingAddress === 'different'}
+                                                onChange={handleCheckoutFormChange}
+                                                className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                            />
+                                            <span className="text-gray-700">Use a different address</span>
+                                        </label>
+                                    </div>
+
+                                    {checkoutForm.billingAddress === 'different' && (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                            {/* Repeat all shipping address fields for billing */}
+                                            <input
+                                                type="text"
+                                                name="billingFirstName"
+                                                value={checkoutForm.billingFirstName}
+                                                onChange={handleCheckoutFormChange}
+                                                placeholder="First Name*"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                                required
+                                            />
+                                            <input
+                                                type="text"
+                                                name="billingLastName"
+                                                value={checkoutForm.billingLastName}
+                                                onChange={handleCheckoutFormChange}
+                                                placeholder="Last Name*"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                                required
+                                            />
+                                            <input
+                                                type="text"
+                                                name="billingFullAddress"
+                                                value={checkoutForm.billingFullAddress}
+                                                onChange={handleCheckoutFormChange}
+                                                placeholder="Street Address*"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 md:col-span-2"
+                                                required
+                                            />
+                                            <input
+                                                type="text"
+                                                name="billingApartment"
+                                                value={checkoutForm.billingApartment}
+                                                onChange={handleCheckoutFormChange}
+                                                placeholder="Apartment, Suite, etc. (optional)"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 md:col-span-2"
+                                            />
+                                            <input
+                                                type="text"
+                                                name="billingCity"
+                                                value={checkoutForm.billingCity}
+                                                onChange={handleCheckoutFormChange}
+                                                placeholder="City*"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                                required
+                                            />
+                                            <input
+                                                type="text"
+                                                name="billingCountry"
+                                                disabled
+                                                value={checkoutForm.billingCountry}
+                                                onChange={handleCheckoutFormChange}
+                                                placeholder="Country*"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                                required
+                                            />
+                                            <input
+                                                type="text"
+                                                name="billingState"
+                                                value={checkoutForm.billingState}
+                                                onChange={handleCheckoutFormChange}
+                                                placeholder="State/Province*"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                                required
+                                            />
+                                            <input
+                                                type="text"
+                                                name="billingZipCode"
+                                                value={checkoutForm.billingZipCode}
+                                                onChange={handleCheckoutFormChange}
+                                                placeholder="ZIP/Postal Code*"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                                required
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* Company & GST Fields */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                                        <input
+                                            type="text"
+                                            name="companyName"
+                                            value={checkoutForm.companyName}
+                                            onChange={handleCheckoutFormChange}
+                                            placeholder="Company Name (optional)"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        />
+                                        <input
+                                            type="text"
+                                            name="gstNumber"
+                                            value={checkoutForm.gstNumber}
+                                            onChange={handleCheckoutFormChange}
+                                            placeholder="GST Number (optional)"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Submit Button */}
                             <div className="flex justify-end">
                                 <button
                                     type="submit"
-                                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all"
+                                    className="px-8 py-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all font-semibold shadow-md hover:shadow-lg"
                                 >
                                     Place Order
                                 </button>

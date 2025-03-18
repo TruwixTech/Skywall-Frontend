@@ -4,6 +4,7 @@ import { SlLocationPin } from "react-icons/sl";
 import { LuPhoneCall } from "react-icons/lu";
 import { FaFacebookF, FaXTwitter, FaThreads } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
+import { FaWhatsapp } from "react-icons/fa";
 import Logo from "../assets/logo.png";
 
 const Footer = () => {
@@ -16,10 +17,9 @@ const Footer = () => {
         className="whatsapp-float"
         target="_blank"
       >
-        <img
-          src="https://res.cloudinary.com/dsxne7kta/image/upload/f_auto,q_auto/kgtfjtgqkaian3inh1sz"
-          alt="WhatsApp"
-        />
+        <span className="p-2 rounded-full flex justify-center items-center bg-[#0ec043] md:hover:scale-110 duration-500 ease-in-out">
+          <FaWhatsapp size={35} className="whatsapp-icon text-white" />
+        </span>
       </a>
 
       <div className="w-full h-auto flex flex-col py-4 items-center gap-7 font-dmSans md:flex-row md:justify-between md:items-start md:px-10 md:my-7 lg:px-20">
