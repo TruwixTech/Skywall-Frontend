@@ -12,16 +12,16 @@ const PENDING = 'Pending';
 const SHIPPED = 'Shipped';
 const DELIVERED = 'Delivered';
 const CANCELLED = 'Cancelled';
- 
+
 const backend = import.meta.env.VITE_BACKEND;
- 
+
 const statusStyles = {
   [PENDING]: 'bg-yellow-100 text-yellow-800',
   [SHIPPED]: 'bg-blue-100 text-blue-800',
   [DELIVERED]: 'bg-green-100 text-green-800',
   [CANCELLED]: 'bg-red-100 text-red-800',
 };
- 
+
 function MyOrders() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
@@ -130,8 +130,39 @@ function MyOrders() {
       navigate('/signin')
     }
   }, [])
- 
- 
+
+  // Add these SVG icons at the top of your file
+  const TruckIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+    </svg>
+  );
+
+  const FactoryIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0l4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0l-5.571 3-5.571-3" />
+    </svg>
+  );
+
+  const ArrowPathIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+    </svg>
+  );
+
+  const MapPinIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+    </svg>
+  );
+
+  const GlobeIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+    </svg>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="mx-auto max-w-7xl">
@@ -147,12 +178,17 @@ function MyOrders() {
             {orders.map((order) => (
               <div
                 key={order._id}
-                className="rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-lg"
+                className="relative rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-lg"
               >
                 {/* Order Header */}
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="truncate text-sm font-medium text-gray-500">
-                    Order # {order._id}
+                <div className="mb-4 flex items-start justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">
+                      Order # {order._id.slice(-8)}
+                    </div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {convertUTCtoIST2(order.created_at)}
+                    </div>
                   </div>
                   <span
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${statusStyles[order.status]}`}
@@ -160,27 +196,30 @@ function MyOrders() {
                     {order.status}
                   </span>
                 </div>
- 
+
                 {/* Products List */}
-                <div className="mb-4 border-b border-t border-gray-200">
+                <div className="mb-4 space-y-4">
                   {order.products.map((product, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between py-3"
-                    >
-                      <div className="flex-1 truncate pr-4">
-                        <div className="font-medium text-gray-900">
+                    <div key={index} className="flex items-start space-x-4">
+                      <img
+                        src={product.product_id?.image?.[0] || "/placeholder.png"}
+                        alt={product.product_id.name}
+                        className="h-12 w-12 flex-shrink-0 rounded-md border object-cover"
+                      />
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-gray-900">
                           {product.product_id.name}
                         </div>
-                        <div className="text-sm text-gray-500">
-                          Qty: {product.quantity}
-                          {product.total_warranty && (
-                            <span>
-                              {' • Warranty: '}
-                              {product.total_warranty >= 12
-                                ? `${(product.total_warranty / 12).toFixed(1)} Years`
-                                : `${product.total_warranty} Months`}
-                              {/* {format(new Date(product.warranty_expiry_date), 'MMM dd, yyyy')} */}
+                        <div className="text-xs text-gray-500">
+                          <span>Qty: {product.quantity}</span>
+                          {product.total_warranty > 0 && (
+                            <span className="ml-2">
+                              <span className="mx-1">•</span>
+                              <span className="font-medium text-blue-600">
+                                {product.total_warranty >= 12
+                                  ? `${(product.total_warranty / 12).toFixed(1)}Y`
+                                  : `${product.total_warranty}M`}
+                              </span> warranty
                             </span>
                           )}
                         </div>
@@ -188,27 +227,47 @@ function MyOrders() {
                     </div>
                   ))}
                 </div>
- 
-                {/* Order Details */}
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between font-medium">
-                    <span>Total:</span>
-                    <span>₹ {order.totalPrice.toFixed(2)}</span>
-                  </div>
-                  <div className="text-gray-500">
-                    <div>Shipping to: {order.shippingAddress}</div>
-                    <div>
-                      Expected Delivery:{' '}
-                      {order.expectedDelivery || 'N/A'}
-                      {/* {format(new Date(order.expectedDelivery), 'MMM dd, yyyy')} */}
+
+                {/* Logistics Details */}
+                <div className="mb-4 space-y-2 rounded-lg bg-gray-50 p-4 text-sm">
+                  <div className="font-medium text-gray-700">Logistics Details</div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <TruckIcon className="h-4 w-4 text-gray-400" />
+                      <span className="truncate">{order.dispatchCenter}</span>
                     </div>
-                    <div>
-                      Order Date:{' '}
-                      {convertUTCtoIST2(order.created_at)}
-                      {/* {format(new Date(order.created_at), 'MMM dd, yyyy')} */}
+                    <div className="flex items-center gap-2">
+                      <FactoryIcon className="h-4 w-4 text-gray-400" />
+                      <span className="truncate">{order.originCenter}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <ArrowPathIcon className="h-4 w-4 text-gray-400" />
+                      <span className="truncate">{order.returnCenter}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPinIcon className="h-4 w-4 text-gray-400" />
+                      <span>{order.facilityCity}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <GlobeIcon className="h-4 w-4 text-gray-400" />
+                      <span>{order.facilityState}</span>
                     </div>
                   </div>
                 </div>
+
+                {/* Order Summary */}
+                <div className="space-y-2 border-t pt-4 text-sm">
+                  <div className="flex justify-between font-medium text-gray-900">
+                    <span>Total Amount:</span>
+                    <span>₹{order.totalPrice.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="text-gray-500">
+                    <div className="truncate">Shipping: {order.shippingAddress}</div>
+                    <div>Delivery: {order.expectedDelivery || 'To be confirmed'}</div>
+                  </div>
+                </div>
+
+                {/* Cancel Button */}
                 {order.status === PENDING && (
                   <button
                     onClick={() => {
@@ -216,12 +275,12 @@ function MyOrders() {
                       setShowCancelConfirm(true);
                     }}
                     disabled={cancellingOrderId === order._id}
-                    className={`rounded-xl py-2.5 mt-6 text-base w-full font-medium ${cancellingOrderId === order._id
-                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                        : 'bg-red-100 text-red-800 hover:bg-red-200'
-                      } transition-colors`}
+                    className={`mt-4 w-full rounded-lg py-2 text-sm font-medium transition-colors ${cancellingOrderId === order._id
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-red-50 text-red-700 hover:bg-red-100'
+                      }`}
                   >
-                    {cancellingOrderId === order._id ? 'Cancelling...' : 'Cancel Order'}
+                    {cancellingOrderId === order._id ? 'Processing...' : 'Cancel Order'}
                   </button>
                 )}
               </div>
@@ -232,5 +291,5 @@ function MyOrders() {
     </div>
   );
 }
- 
+
 export default MyOrders;

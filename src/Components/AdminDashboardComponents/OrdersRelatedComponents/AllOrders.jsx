@@ -212,12 +212,31 @@ const AllOrders = () => {
                 {/* Orders Table */}
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
+                        <table className="min-w-full divide-y divide-gray-200" style={{
+                            scrollbarWidth: 'thin'
+                        }}>
                             <thead className="bg-gray-50">
                                 <tr>
-                                    {['Order Details', 'Product', 'Qty', 'Warranty Extended', 'Total Warranty', 'Total', 'Status', 'Order Date'].map((header) => (
-                                        <th key={header} className="px-4 sm:px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
-                                            {header}
+                                    {[
+                                        { label: 'Order Details', minWidth: 'min-w-[200px]' },
+                                        { label: 'Product', minWidth: 'min-w-[300px]' },
+                                        { label: 'Qty', minWidth: 'min-w-[100px]' },
+                                        { label: 'Warranty Extended', minWidth: 'min-w-[100px]' },
+                                        { label: 'Total Warranty', minWidth: 'min-w-[150px]' },
+                                        { label: 'Total', minWidth: 'min-w-[100px]' },
+                                        { label: 'Dispatch Center', minWidth: 'min-w-[160px]' },
+                                        { label: 'Origin Center', minWidth: 'min-w-[160px]' },
+                                        { label: 'Return Center', minWidth: 'min-w-[160px]' },
+                                        { label: 'Facility City', minWidth: 'min-w-[150px]' },
+                                        { label: 'Facility State', minWidth: 'min-w-[150px]' },
+                                        { label: 'Status', minWidth: 'min-w-[130px]' },
+                                        { label: 'Order Date', minWidth: 'min-w-[160px]' }
+                                    ].map(({ label, minWidth }) => (
+                                        <th
+                                            key={label}
+                                            className={`px-6 sm:px-8 py-4 text-sm text-center font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap ${minWidth}`}
+                                        >
+                                            {label}
                                         </th>
                                     ))}
                                 </tr>
@@ -226,7 +245,7 @@ const AllOrders = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="6" className="px-6 py-8 text-center">
+                                        <td colSpan="13" className="px-6 py-8 text-center">
                                             <div className="flex justify-center items-center space-x-2 text-gray-500">
                                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                                                 <span>Loading orders...</span>
@@ -266,7 +285,7 @@ const AllOrders = () => {
                                                     </td>
 
                                                     {/* Quantity */}
-                                                    <td className="px-4 sm:px-6 py-4 text-sm text-gray-900 font-medium">
+                                                    <td className="px-4 sm:px-6 py-4 text-sm text-center text-gray-900 font-medium">
                                                         {product.quantity}
                                                     </td>
 
@@ -285,13 +304,28 @@ const AllOrders = () => {
                                                     {/* Order-level Data */}
                                                     {index === 0 && (
                                                         <>
-                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4 text-sm font-medium text-gray-900">
+                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 text-center py-4 text-sm font-medium text-gray-900">
                                                                 ₹{order.totalPrice.toLocaleString('en-IN')}
                                                             </td>
-                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4">
+                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4 text-center text-sm font-medium text-gray-900">
+                                                                {order.dispatchCenter}
+                                                            </td>
+                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4 text-center text-sm font-medium text-gray-900">
+                                                                {order.originCenter}
+                                                            </td>
+                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4 text-center text-sm font-medium text-gray-900">
+                                                                {order.returnCenter}
+                                                            </td>
+                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4 text-center text-sm font-medium text-gray-900">
+                                                                {order.facilityCity}
+                                                            </td>
+                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4 text-center text-sm font-medium text-gray-900">
+                                                                {order.facilityState}
+                                                            </td>
+                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4 text-center">
                                                                 {getStatusBadge(order)}
                                                             </td>
-                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4 text-sm text-gray-500">
+                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 py-4 text-sm text-center text-gray-500">
                                                                 {convertUTCtoIST(order.created_at)}
                                                             </td>
                                                         </>
@@ -302,7 +336,7 @@ const AllOrders = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={8} className="text-center py-10 text-lg sm:text-2xl font-bold text-gray-500">
+                                        <td colSpan={13} className="text-center py-10 text-lg sm:text-2xl font-bold text-gray-500">
                                             No orders found
                                         </td>
                                     </tr>

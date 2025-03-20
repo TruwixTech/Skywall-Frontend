@@ -40,10 +40,11 @@ function AdminDashboard() {
       });
       if (response.data.status === "Success") {
         setDashboardData(response.data.data.dashboard_data);
+        setLoading(false);
+
       }
     } catch (error) {
       console.log("Error while getting Dashboard Data", error);
-    } finally {
       setLoading(false);
     }
   }
@@ -65,10 +66,10 @@ function AdminDashboard() {
       if (response.data.status === "Success") {
         setOrders(response.data.data.orderList);
         setTotalOrders(response.data.data.orderCount);
+        setLoading(false);
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
-    } finally {
       setLoading(false);
     }
   }
