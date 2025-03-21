@@ -102,7 +102,7 @@ const DiscountCoupon = () => {
   }, [])
 
   return (
-    <div className="px-5 w-full py-14 bg-gradient-to-b from-gray-50 to-blue-50">
+    <div className="px-5 w-full py-14 bg-gradient-to-b from-gray-50 to-blue-50 min-h-screen">
       {
         loading && <LoadingSpinner />
       }

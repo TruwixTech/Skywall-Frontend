@@ -31,7 +31,11 @@ const Sidebar = () => {
             {/* Sidebar */}
             <div 
                 ref={sidebarRef}
-                className={`fixed top-0 left-0 h-full w-64 bg-gray-900 text-white p-6 transform ${isOpen ? "translate-x-0" : "-translate-x-64"} transition-transform duration-300 ease-in-out z-50 shadow-lg`}
+                className={`fixed top-0 left-0 h-full overflow-y-scroll w-64 bg-gray-900 text-white p-6 pb-10 transform ${isOpen ? "translate-x-0" : "-translate-x-64"} transition-transform duration-300 ease-in-out z-50 shadow-lg`}
+                style={{
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#4A5568 #1A202C",
+                }}
             >
                 {/* Close Button */}
                 <button onClick={closeNav} className="absolute top-4 right-4 text-white text-2xl">
@@ -49,6 +53,7 @@ const Sidebar = () => {
                     <Link to="/admin-dashboard/wholesale" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">Wholesale Products</Link>
                     <Link to="/admin-dashboard/wholesale-bulk-orders" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">Bulk Orders</Link>
                     <Link to="/admin-dashboard/area-of-services" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">Area of Services</Link>
+                    <Link to="/admin-dashboard/invoices" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">Invoices</Link>
                     <Link to="/admin-dashboard/complaints" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">All Complaint Raised</Link>
                 </nav>
             </div>

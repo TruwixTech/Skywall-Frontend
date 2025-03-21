@@ -29,6 +29,7 @@ function MyOrders() {
   const [cancellingOrderId, setCancellingOrderId] = useState(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [userId, setUserId] = useState(null)
 
   const CancelConfirmation = () => (
     <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -93,14 +94,14 @@ function MyOrders() {
     }
   };
 
-  async function fetchOrders(id) {
+  async function fetchOrders() {
     try {
       setLoading(true)
       const response = await axios.post(`${backend}/order/list`, {
         pageNum: 1,
         pageSize: 20,
         filters: {
-          user_id: id
+          user_id: userId
         }
       }, {
         headers: {
@@ -123,13 +124,14 @@ function MyOrders() {
       if (!decodedToken.userId) {
         navigate('/signin')
       } else {
-        fetchOrders(decodedToken.userId)
+        setUserId(decodedToken?.userId)
+        fetchOrders()
       }
     }
     else {
       navigate('/signin')
     }
-  }, [])
+  }, [userId])
 
   // Add these SVG icons at the top of your file
   const TruckIcon = () => (

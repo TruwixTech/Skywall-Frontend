@@ -38,6 +38,8 @@ import WholesaleProducts from './Components/AdminDashboardComponents/WholesalePr
 import WholesaleBulkOrders from './Pages/WholesaleBulkOrders.jsx'
 import WholesaleBulkProductsOrders from './Components/AdminDashboardComponents/WholesaleBulkOrders/WholesaleBulkOrders.jsx'
 import AreaOfServices from './Components/AdminDashboardComponents/AreaOfServices/AreaOfServices.jsx'
+import Invoice from './Components/AdminDashboardComponents/InvoiceComponents/Invoice.jsx'
+import MyInvoices from './Components/UsersComponents/MyInvoices.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -63,6 +65,8 @@ const router = createBrowserRouter(
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/shipping-policy" element={<ShippingPolicy />} />
         <Route path="/wholesale-bulk-products" element={<WholesaleBulkOrders />} />
+        <Route path='/my-invoices' element={<MyInvoices />} />
+
         <Route path='/admin-login' element={<AdminLogin />} />
         {/* Admin Dashboard Route */}
         <Route path='/admin-dashboard' element={<Admin />}>
@@ -75,6 +79,7 @@ const router = createBrowserRouter(
           <Route path='/admin-dashboard/complaints' element={<AllComplaintRaised />} />
           <Route path='/admin-dashboard/wholesale' element={<WholesaleProducts />} />
           <Route path='/admin-dashboard/wholesale-bulk-orders' element={<WholesaleBulkProductsOrders />} />
+          <Route path='/admin-dashboard/invoices' element={<Invoice />} />
           <Route path='/admin-dashboard/area-of-services' element={<AreaOfServices />} />
         </Route>
       </Route>

@@ -282,6 +282,7 @@ function Header() {
                           <>
                             <NavLink onClick={() => setUserDropDown(!userDropDown)} to='/user-profile' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Profile</NavLink>
                             <NavLink onClick={() => setUserDropDown(!userDropDown)} to='/myorders' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">My Orders</NavLink>
+                            <NavLink onClick={() => setUserDropDown(!userDropDown)} to='/my-invoices' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">My Invoices</NavLink>
                             <NavLink onClick={() => setUserDropDown(!userDropDown)} to='/raise-complaint' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Raise Complaint</NavLink>
                           </>
                         )

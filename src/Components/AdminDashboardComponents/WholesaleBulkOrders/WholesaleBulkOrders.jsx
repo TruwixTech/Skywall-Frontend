@@ -183,6 +183,7 @@ const WholesaleBulkOrders = () => {
                                                 {order.shipping_address.apartment && <p>{order.shipping_address.apartment}</p>}
                                                 <p>{order.shipping_address.city}, {order.shipping_address.state}</p>
                                                 <p>{order.shipping_address.country}, {order.shipping_address.zipCode}</p>
+                                                <p>{order.contact}</p>
                                             </div>
                                         </div>
 
@@ -197,6 +198,7 @@ const WholesaleBulkOrders = () => {
                                                 {order.billing_address.billingApartment && <p>{order.billing_address.billingApartment}</p>}
                                                 <p>{order.billing_address.billingCity}, {order.billing_address.billingState}</p>
                                                 <p>{order.billing_address.billingCountry}, {order.billing_address.billingZipCode}</p>
+                                                <p>{order.contact}</p>
                                             </div>
                                         </div>
                                     </div>
