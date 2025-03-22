@@ -56,7 +56,7 @@ function Television() {
 
     const selectedRange = priceRanges[priceRange];
     const priceFilter =
-      tv.price >= selectedRange.min && tv.price <= selectedRange.max;
+      tv.new_price >= selectedRange.min && tv.new_price <= selectedRange.max;
 
     return availabilityFilter && priceFilter;
   });

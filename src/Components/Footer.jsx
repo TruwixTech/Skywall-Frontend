@@ -138,7 +138,7 @@ const Footer = () => {
             Track Orders
           </button>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/wholesale-bulk-products")}
             className="w-41 mt-5 py-2 cursor-pointer px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-3xl"
           >
             Wholesale Orders

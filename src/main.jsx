@@ -41,6 +41,7 @@ import AreaOfServices from './Components/AdminDashboardComponents/AreaOfServices
 import Invoice from './Components/AdminDashboardComponents/InvoiceComponents/Invoice.jsx'
 import MyInvoices from './Components/UsersComponents/MyInvoices.jsx'
 import ReturnRequest from './Components/AdminDashboardComponents/ReturnRequestComponents/ReturnRequest.jsx'
+import ForgotPassword from './Pages/ForgotPassword.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -56,6 +57,7 @@ const router = createBrowserRouter(
         <Route path='/disclaimer' element={<Disclaimer />} />
         <Route path='/contact' element={<Contact />} />
         <Route path='/signin' element={<SignIn />} />
+        <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route path='/signup' element={<SignUp />} />
         <Route path='/cart' element={<MyCart />} />
         <Route path='/televisions' element={<Television />} />
