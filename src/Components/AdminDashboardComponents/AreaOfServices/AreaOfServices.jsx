@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import LoadingSpinner from '../../../utils/LoadingSpinner';
 import { toast } from 'react-toastify';
-import { MdDelete, MdEdit, MdSearch  } from "react-icons/md";
+import { MdDelete, MdEdit, MdSearch } from "react-icons/md";
 
 
 const backend = import.meta.env.VITE_BACKEND;
@@ -84,11 +84,12 @@ function AreaOfServices() {
         try {
             toast.dismiss();
             setLoading(true);
+            const zipcodeConvertedToNumber = parseInt(searchQuery);
             const response = await axios.post(`${backend}/zipcode/list`, {
                 pageNum: currentPage,
                 pageSize: itemsPerPage,
                 filters: {
-                    zipcode: { $regex: searchQuery, $options: 'i' }
+                    zipcode: zipcodeConvertedToNumber
                 }
             }, {
                 headers: {
@@ -278,7 +279,7 @@ function AreaOfServices() {
                         <table className="min-w-full bg-white">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Zipcode</th>
+                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Pincode</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Dispatch Center</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Origin Center</th>
                                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase">Return Center</th>
@@ -290,7 +291,9 @@ function AreaOfServices() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
-                                {zipcodes.map((zipcode) => (
+                                {
+                                zipcodes.length > 0 
+                                ? zipcodes.map((zipcode) => (
                                     <tr key={zipcode._id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4 text-sm text-gray-700">{zipcode.zipcode}</td>
                                         <td className="px-6 py-4 text-sm text-gray-700">{zipcode.dispatchCenter}</td>
@@ -324,7 +327,13 @@ function AreaOfServices() {
                                             />
                                         </td>
                                     </tr>
-                                ))}
+                                ))
+                                : (
+                                    <tr>
+                                        <td colSpan="9" className="text-center py-4 text-gray-600">No zipcodes found</td>
+                                    </tr>
+                                )
+                            }
                             </tbody>
                         </table>
                     </div>

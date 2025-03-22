@@ -31,7 +31,7 @@ function AdminLogin() {
                 navigate('/admin-dashboard')
             }
         } catch (error) {
-            console.log(error)
+            toast.error(error?.response?.data?.data?.message)
             setLoading(false)
         }
     }
