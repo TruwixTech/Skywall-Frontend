@@ -48,6 +48,33 @@ const ReturnRequest = () => {
         }
     }
 
+
+    // async function searchReturnRequests() {
+    //     try {
+    //         setLoading(true);
+    //         const response = await axios.post(`${backend}/returnRequest/list`, {
+    //             pageNum: currentPage,
+    //             pageSize: itemsPerPage,
+    //             filters: {
+    //                 email: { $regex: searchTerm, $options: 'i' }
+    //             },
+    //         }, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
+    //             }
+    //         });
+
+    //         if (response.data.status === "Success") {
+    //             setReturnRequests(response.data.data.returnRequestList);
+    //             setTotalItems(response.data.data.totalCount);
+    //         }
+    //     } catch (error) {
+    //         console.error("Error fetching orders:", error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // }
+
     const handlePageChange = (newPage) => {
         if (newPage > 0 && newPage <= totalPages) {
             setCurrentPage(newPage);
@@ -57,7 +84,7 @@ const ReturnRequest = () => {
     async function updateStatus(request, field) {
         try {
             const data = { [field]: true };
-            const response = await axios.post(`${backend}/returnRequest/${request._id}/update`, {...data, data: request},
+            const response = await axios.post(`${backend}/returnRequest/${request._id}/update`, { ...data, data: request },
                 {
                     headers: {
                         'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
@@ -80,6 +107,11 @@ const ReturnRequest = () => {
         setUpdatingField(field);
         setShowConfirmPopup(true);
     };
+
+    // const handleSearch = () => {
+    //     setCurrentPage(1);
+    //     searchReturnRequests();
+    // };
 
     useEffect(() => {
         fetchReturnRequests();
@@ -128,16 +160,25 @@ const ReturnRequest = () => {
                 </h1>
 
                 <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:justify-between">
-                    <div className="relative flex-1">
-                        <input
-                            type="text"
-                            placeholder="Search by name, email, or payment ID..."
-                            className="w-full p-3 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        <Search className="w-5 h-5 absolute left-3 top-3.5 text-gray-400" />
-                    </div>
+                    {/* <div className="flex gap-2 flex-1">
+                        <div className="relative flex-1">
+                            <input
+                                type="text"
+                                placeholder="Search by Email"
+                                className="w-full p-3 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                            />
+                            <Search className="w-5 h-5 absolute left-3 top-3.5 text-gray-400" />
+                        </div>
+                        <button
+                            onClick={handleSearch}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 whitespace-nowrap"
+                        >
+                            Search
+                        </button>
+                    </div> */}
 
                     {totalItems > 20 && (
                         <div className="flex items-center gap-4">
@@ -174,133 +215,147 @@ const ReturnRequest = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {returnRequests.map((request) => {
-                        const bothApproved = request.status && request.refund_status;
-                        return (
-                            <div key={request._id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                                {/* User Section */}
-                                <div className="border-b pb-4 mb-4">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <User className="w-6 h-6 text-blue-600" />
-                                        <div>
-                                            <h3 className="text-lg font-semibold">{request.user_id.name}</h3>
-                                            <p className="text-gray-600">{request.user_id.email}</p>
-                                            <p className="text-gray-600">{request.user_id.phone}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                                        <Calendar className="w-4 h-4" />
-                                        <span>Request Date: {convertUTCtoIST2(request.created_at)}</span>
-                                    </div>
-                                </div>
-
-                                {/* Products Section */}
-                                <div className="border-b pb-4 mb-4">
-                                    <div className="flex items-center gap-2 mb-3 text-gray-700">
-                                        <Package className="w-5 h-5" />
-                                        <span className="font-medium">Products</span>
-                                    </div>
-                                    <ul className="space-y-2">
-                                        {request.order_id.products.map((product, index) => (
-                                            <li key={index} className="flex justify-between text-sm">
-                                                <span>{product.product_id.name}</span>
-                                                <span className="text-gray-500">Qty: {product.quantity}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-
-                                {/* Payment & Status Section */}
-                                <div className="grid grid-cols-2 gap-4 mb-4">
-                                    <div className="flex items-center gap-2">
-                                        <Wallet className="w-5 h-5 text-green-600" />
-                                        <div>
-                                            <p className="text-sm text-gray-500">Payment ID</p>
-                                            <p className="font-medium">{request.payment_id}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <RotateCw className="w-5 h-5 text-purple-600" />
-                                        <div>
-                                            <p className="text-sm text-gray-500">Refund Amount</p>
-                                            <p className="font-medium">₹{request.refund_amount?.toLocaleString()}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Status Controls */}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium flex items-center gap-2">
-                                            <BadgeCheck className="w-4 h-4" />
-                                            Approval Status
-                                        </label>
-                                        <button
-                                            onClick={() => handleStatusClick(request, 'status')}
-                                            disabled={bothApproved || request.refund_status}
-                                            className={`flex items-center justify-center gap-2 p-2 rounded-lg text-sm font-medium transition-colors ${request.status
-                                                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                                    : 'bg-red-100 text-red-700 hover:bg-red-200'
-                                                } ${bothApproved ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        >
-                                            {request.status ? (
-                                                <>
-                                                    <CheckCircle className="w-4 h-4" />
-                                                    Approved
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Ban className="w-4 h-4" />
-                                                    Pending Approval
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
-
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium flex items-center gap-2">
-                                            <Wallet className="w-4 h-4" />
-                                            Refund Status
-                                        </label>
-                                        <button
-                                            onClick={() => handleStatusClick(request, 'refund_status')}
-                                            disabled={bothApproved || !request.status || request.refund_status}
-                                            className={`flex items-center justify-center gap-2 p-2 rounded-lg text-sm font-medium transition-colors ${request.refund_status
-                                                    ? 'bg-blue-100 text-blue-700 cursor-default'
-                                                    : `${request.status
-                                                        ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
-                                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                    }`
-                                                } ${bothApproved ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        >
-                                            {request.refund_status ? (
-                                                <>
-                                                    <CheckCircle className="w-4 h-4" />
-                                                    Refund Completed
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Clock className="w-4 h-4" />
-                                                    Mark as Refunded
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Return Reason */}
-                                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                                    <p className="text-sm font-medium flex items-center gap-2">
-                                        <ClipboardList className="w-4 h-4" />
-                                        Return Reason
-                                    </p>
-                                    <p className="text-gray-600 text-sm mt-1">{request.return_reason}</p>
-                                </div>
+                    {
+                        returnRequests.length === 0 ? (
+                            <div className="col-span-full text-center py-12">
+                                <div className="text-gray-400 mb-4">📭</div>
+                                <h3 className="text-lg font-medium text-gray-500">
+                                    No return requests found
+                                </h3>
+                                <p className="text-gray-400 mt-1">
+                                    {searchTerm ? `No results for "${searchTerm}"` : 'No requests available'}
+                                </p>
                             </div>
+                        ) : (
+                            returnRequests.map((request) => {
+                                const bothApproved = request.status && request.refund_status;
+                                return (
+                                    <div key={request._id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                                        {/* User Section */}
+                                        <div className="border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <User className="w-6 h-6 text-blue-600" />
+                                                <div>
+                                                    <h3 className="text-lg font-semibold">{request.user_id.name}</h3>
+                                                    <p className="text-gray-600">{request.user_id.email}</p>
+                                                    <p className="text-gray-600">{request.user_id.phone}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                                                <Calendar className="w-4 h-4" />
+                                                <span>Request Date: {convertUTCtoIST2(request.created_at)}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Products Section */}
+                                        <div className="border-b pb-4 mb-4">
+                                            <div className="flex items-center gap-2 mb-3 text-gray-700">
+                                                <Package className="w-5 h-5" />
+                                                <span className="font-medium">Products</span>
+                                            </div>
+                                            <ul className="space-y-2">
+                                                {request.order_id.products.map((product, index) => (
+                                                    <li key={index} className="flex justify-between text-sm">
+                                                        <span>{product.product_id.name}</span>
+                                                        <span className="text-gray-500">Qty: {product.quantity}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+
+                                        {/* Payment & Status Section */}
+                                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-4">
+                                            <div className="flex items-center gap-2">
+                                                <Wallet className="w-5 h-5 text-green-600" />
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Payment ID</p>
+                                                    <p className="font-medium">{request.payment_id}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <RotateCw className="w-5 h-5 text-purple-600" />
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Refund Amount</p>
+                                                    <p className="font-medium">₹{request.refund_amount?.toLocaleString()}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Status Controls */}
+                                        <div className="grid grid-cols-1 xl:grid-cols-2  gap-4">
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-sm font-medium flex items-center gap-2">
+                                                    <BadgeCheck className="w-4 h-4" />
+                                                    Approval Status
+                                                </label>
+                                                <button
+                                                    onClick={() => handleStatusClick(request, 'status')}
+                                                    disabled={bothApproved || request.refund_status}
+                                                    className={`flex items-center justify-center gap-2 p-2 rounded-lg text-sm font-medium transition-colors ${request.status
+                                                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                        : 'bg-red-100 text-red-700 hover:bg-red-200'
+                                                        } ${bothApproved ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                >
+                                                    {request.status ? (
+                                                        <>
+                                                            <CheckCircle className="w-4 h-4" />
+                                                            Approved
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Ban className="w-4 h-4" />
+                                                            Pending Approval
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
+
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-sm font-medium flex items-center gap-2">
+                                                    <Wallet className="w-4 h-4" />
+                                                    Refund Status
+                                                </label>
+                                                <button
+                                                    onClick={() => handleStatusClick(request, 'refund_status')}
+                                                    disabled={bothApproved || !request.status || request.refund_status}
+                                                    className={`flex items-center justify-center gap-2 p-2 rounded-lg text-sm font-medium transition-colors ${request.refund_status
+                                                        ? 'bg-blue-100 text-blue-700 cursor-default'
+                                                        : `${request.status
+                                                            ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                                                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                        }`
+                                                        } ${bothApproved ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                >
+                                                    {request.refund_status ? (
+                                                        <>
+                                                            <CheckCircle className="w-4 h-4" />
+                                                            Refund Completed
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Clock className="w-4 h-4" />
+                                                            Mark as Refunded
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Return Reason */}
+                                        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                                            <p className="text-sm font-medium flex items-center gap-2">
+                                                <ClipboardList className="w-4 h-4" />
+                                                Return Reason
+                                            </p>
+                                            <p className="text-gray-600 text-sm mt-1">{request.return_reason}</p>
+                                        </div>
+                                    </div>
+                                )
+                            })
                         )
-                    })}
+                    }
                 </div>
             </div>
         </div>
