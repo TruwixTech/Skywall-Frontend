@@ -65,6 +65,7 @@ function AllComplaintRaised() {
             <tr>
               <th className="py-3 px-4 text-left">Name</th>
               <th className="py-3 px-4 text-left">Email</th>
+              <th className="py-3 px-4 text-left">Phone Number</th>
               <th className="py-3 px-4 text-left">Issue Type</th>
               <th className="py-3 px-4 text-left">Description</th>
               <th className="py-3 px-4 text-left">Status</th>
@@ -76,6 +77,7 @@ function AllComplaintRaised() {
               <tr key={complaint._id} className="border-b hover:bg-gray-50">
                 <td className="py-3 px-4">{complaint.name}</td>
                 <td className="py-3 px-4">{complaint.email}</td>
+                <td className="py-3 px-4">{complaint.userId.phone}</td>
                 <td className="py-3 px-4">{complaint.issue_type === 'Other' ? complaint.customIssueType : complaint.issue_type}</td>
                 <td className="py-3 px-4 max-w-xs">{complaint.description}</td>
                 <td className="py-3 px-4">

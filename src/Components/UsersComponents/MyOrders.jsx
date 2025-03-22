@@ -12,6 +12,7 @@ const PENDING = 'Pending';
 const SHIPPED = 'Shipped';
 const DELIVERED = 'Delivered';
 const CANCELLED = 'Cancelled';
+const RETURNED = 'Returned';
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -20,6 +21,7 @@ const statusStyles = {
   [SHIPPED]: 'bg-blue-100 text-blue-800',
   [DELIVERED]: 'bg-green-100 text-green-800',
   [CANCELLED]: 'bg-red-100 text-red-800',
+  [RETURNED]: 'bg-cyan-100 text-cyan-800' 
 };
 
 function MyOrders() {
@@ -29,6 +31,12 @@ function MyOrders() {
   const [cancellingOrderId, setCancellingOrderId] = useState(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [userId, setUserId] = useState(null)
+
+  const [showReturnPopup, setShowReturnPopup] = useState(false);
+  const [returnReason, setReturnReason] = useState('');
+  const [customReason, setCustomReason] = useState('');
+  const [processingReturnId, setProcessingReturnId] = useState(null);
 
   const CancelConfirmation = () => (
     <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -93,14 +101,14 @@ function MyOrders() {
     }
   };
 
-  async function fetchOrders(id) {
+  async function fetchOrders() {
     try {
       setLoading(true)
       const response = await axios.post(`${backend}/order/list`, {
         pageNum: 1,
         pageSize: 20,
         filters: {
-          user_id: id
+          user_id: userId
         }
       }, {
         headers: {
@@ -116,6 +124,38 @@ function MyOrders() {
     }
   }
 
+  async function handleSubmitReturn(order) {
+    try {
+      if (!returnReason || (returnReason === 'Other' && !customReason)) return;
+
+      setProcessingReturnId(order._id);
+      const reason = returnReason === 'Other' ? customReason : returnReason;
+
+      const data = {
+        order_id: order._id,
+        user_id: userId,
+        return_reason: reason,
+        refund_amount: order.totalPrice,
+      }
+
+      const response = await axios.post(`${backend}/returnRequest/create`, data, {
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
+        }
+      })
+      if (response.data.status === "Success") {
+        setShowReturnPopup(false);
+        setProcessingReturnId(null);
+        setReturnReason('');
+        setCustomReason('');
+        fetchOrders()
+        toast.success("Return request submitted successfully!");
+      }
+    } catch (error) {
+      console.error('Error submitting return request:', error);
+    }
+  }
+
   useEffect(() => {
     const token = JSON.parse(localStorage.getItem('token'))
     if (token) {
@@ -123,13 +163,14 @@ function MyOrders() {
       if (!decodedToken.userId) {
         navigate('/signin')
       } else {
-        fetchOrders(decodedToken.userId)
+        setUserId(decodedToken?.userId)
+        fetchOrders()
       }
     }
     else {
       navigate('/signin')
     }
-  }, [])
+  }, [userId])
 
   // Add these SVG icons at the top of your file
   const TruckIcon = () => (
@@ -283,6 +324,96 @@ function MyOrders() {
                     {cancellingOrderId === order._id ? 'Processing...' : 'Cancel Order'}
                   </button>
                 )}
+
+                {/* Return Button */}
+                {order.status === DELIVERED && order.return_request === false && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setSelectedOrderId(order._id);
+                        setShowReturnPopup(true);
+                      }}
+                      disabled={processingReturnId === order._id}
+                      className={`mt-4 w-full rounded-lg py-2 text-sm font-medium transition-colors ${processingReturnId === order._id
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                        }`}
+                    >
+                      {processingReturnId === order._id ? 'Processing...' : 'Return Order'}
+                    </button>
+
+                    {showReturnPopup && selectedOrderId === order._id && (
+                      <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                          <h3 className="text-lg font-semibold mb-4">Select Return Reason</h3>
+
+                          <div className="space-y-3 mb-4">
+                            {['Defective product', 'Wrong item delivered', 'Product not as described', 'Changed mind', 'Other'].map((reason) => (
+                              <label key={reason} className="flex items-center space-x-3">
+                                <input
+                                  type="radio"
+                                  name="returnReason"
+                                  value={reason}
+                                  checked={returnReason === reason}
+                                  onChange={(e) => {
+                                    setReturnReason(e.target.value);
+                                    if (e.target.value !== 'Other') setCustomReason('');
+                                  }}
+                                  className="form-radio h-4 w-4 text-blue-600"
+                                />
+                                <span className="text-gray-700">{reason}</span>
+                              </label>
+                            ))}
+                          </div>
+
+                          {returnReason === 'Other' && (
+                            <textarea
+                              value={customReason}
+                              onChange={(e) => setCustomReason(e.target.value)}
+                              placeholder="Please specify your reason"
+                              className="w-full p-2 border rounded-md mt-2 mb-4 text-sm resize-none"
+                              rows="3"
+                            />
+                          )}
+
+                          <div className="flex justify-end space-x-3">
+                            <button
+                              onClick={() => {
+                                setShowReturnPopup(false);
+                                setReturnReason('');
+                                setCustomReason('');
+                              }}
+                              className="px-4 py-2 text-gray-700 hover:text-gray-900"
+                            >
+                              Close
+                            </button>
+                            <button
+                              onClick={() => handleSubmitReturn(order)}
+                              disabled={!returnReason || (returnReason === 'Other' && !customReason)}
+                              className={`px-4 py-2 rounded-md ${(!returnReason || (returnReason === 'Other' && !customReason))
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                                }`}
+                            >
+                              Submit Return
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {
+                  order.return_request && order.status !== RETURNED && (
+                    <button
+                      disabled
+                      className="mt-4 w-full rounded-lg py-2 text-sm font-medium bg-gray-100 text-gray-400 cursor-not-allowed"
+                    >
+                      Return Requested
+                    </button>
+                  )
+                }
               </div>
             ))}
           </div>

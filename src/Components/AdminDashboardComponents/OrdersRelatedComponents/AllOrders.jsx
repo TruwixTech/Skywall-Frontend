@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaClock, FaCheckCircle, FaTimesCircle, FaChevronLeft, FaChevronRight, FaTruck } from 'react-icons/fa';
+import { FaClock, FaCheckCircle, FaTimesCircle, FaChevronLeft, FaChevronRight, FaTruck , FaBox} from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -67,12 +67,14 @@ const AllOrders = () => {
     }, [filter, sort, currentPage]);
 
     // Update order status function
-    async function updateOrderStatus(orderId, newStatus) {
+    async function updateOrderStatus(order, newStatus) {
         try {
             toast.dismiss()
+            setLoading(true);
             setUpdatingStatus(true);
-            const response = await axios.post(`${backend}/order/${orderId}/update`, {
-                status: newStatus
+            const response = await axios.post(`${backend}/order/${order._id}/update`, {
+                status: newStatus,
+                order: order
             }, {
                 headers: {
                     'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
@@ -80,6 +82,7 @@ const AllOrders = () => {
             });
 
             if (response.data.status === 'Success') {
+                setLoading(false);
                 await fetchOrders();
                 toast.success("Order status updated successfully!");
                 return true;
@@ -91,6 +94,7 @@ const AllOrders = () => {
             return false;
         } finally {
             setUpdatingStatus(false);
+            setLoading(false);
         }
     }
 
@@ -100,7 +104,11 @@ const AllOrders = () => {
             Pending: { color: 'bg-amber-100 text-amber-800', icon: <FaClock className="w-4 h-4 mr-1" /> },
             Shipped: { color: 'bg-blue-100 text-blue-800', icon: <FaTruck className="w-4 h-4 mr-1" /> },
             Delivered: { color: 'bg-emerald-100 text-emerald-800', icon: <FaCheckCircle className="w-4 h-4 mr-1" /> },
-            Cancelled: { color: 'bg-rose-100 text-rose-800', icon: <FaTimesCircle className="w-4 h-4 mr-1" /> }
+            Cancelled: { color: 'bg-rose-100 text-rose-800', icon: <FaTimesCircle className="w-4 h-4 mr-1" /> },
+            Returned: {
+                color: 'bg-indigo-100 text-indigo-800',
+                icon: <FaBox className="w-4 h-4 mr-1" />
+            }
         };
 
         return (
@@ -149,6 +157,7 @@ const AllOrders = () => {
                             <option value="Shipped">Shipped</option>
                             <option value="Delivered">Delivered</option>
                             <option value="Cancelled">Cancelled</option>
+                            <option value="Returned">Returned</option>
                         </select>
                         <div className="flex justify-end gap-2">
                             <button
@@ -160,7 +169,7 @@ const AllOrders = () => {
                             </button>
                             <button
                                 onClick={async () => {
-                                    const success = await updateOrderStatus(selectedOrder._id, newStatus);
+                                    const success = await updateOrderStatus(selectedOrder, newStatus);
                                     if (success) setShowStatusModal(false);
                                 }}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
@@ -223,6 +232,7 @@ const AllOrders = () => {
                                         { label: 'Qty', minWidth: 'min-w-[100px]' },
                                         { label: 'Warranty Extended', minWidth: 'min-w-[100px]' },
                                         { label: 'Total Warranty', minWidth: 'min-w-[150px]' },
+                                        { label: 'Phone Number', minWidth: 'min-w-[100px]' },
                                         { label: 'Total', minWidth: 'min-w-[100px]' },
                                         { label: 'Dispatch Center', minWidth: 'min-w-[160px]' },
                                         { label: 'Origin Center', minWidth: 'min-w-[160px]' },
@@ -304,6 +314,9 @@ const AllOrders = () => {
                                                     {/* Order-level Data */}
                                                     {index === 0 && (
                                                         <>
+                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 text-center py-4 text-sm font-medium text-gray-900">
+                                                                {order?.user_id?.phone}
+                                                            </td>
                                                             <td rowSpan={order.products.length} className="px-4 sm:px-6 text-center py-4 text-sm font-medium text-gray-900">
                                                                 ₹{order.totalPrice.toLocaleString('en-IN')}
                                                             </td>
