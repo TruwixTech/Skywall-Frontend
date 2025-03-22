@@ -40,6 +40,7 @@ import WholesaleBulkProductsOrders from './Components/AdminDashboardComponents/W
 import AreaOfServices from './Components/AdminDashboardComponents/AreaOfServices/AreaOfServices.jsx'
 import Invoice from './Components/AdminDashboardComponents/InvoiceComponents/Invoice.jsx'
 import MyInvoices from './Components/UsersComponents/MyInvoices.jsx'
+import ReturnRequest from './Components/AdminDashboardComponents/ReturnRequestComponents/ReturnRequest.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -80,6 +81,7 @@ const router = createBrowserRouter(
           <Route path='/admin-dashboard/wholesale' element={<WholesaleProducts />} />
           <Route path='/admin-dashboard/wholesale-bulk-orders' element={<WholesaleBulkProductsOrders />} />
           <Route path='/admin-dashboard/invoices' element={<Invoice />} />
+          <Route path='/admin-dashboard/return-requests' element={<ReturnRequest />} />
           <Route path='/admin-dashboard/area-of-services' element={<AreaOfServices />} />
         </Route>
       </Route>
@@ -91,7 +93,17 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ToastContainer />
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+     />
     <RouterProvider router={router} />
   </StrictMode>,
 )

@@ -58,22 +58,23 @@ function Invoice() {
             setLoading(true);
             setDownloadingId(invoiceId);
 
-            // const response = await axios.post(`${backend}/invoice/${invoiceId}/download-invoice`);
+            const response = await axios.post(`${backend}/invoice/${invoiceId}/download-invoice`, {}, { responseType: "blob" });
 
-            // if (response.data.status === "Success") {
-            //     const blob = new Blob([response.data.data.invoice], { type: "application/pdf" });
-            //     const url = window.URL.createObjectURL(blob);
+            if (response.status === 200) {
+                const url = window.URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
 
-            //     // Create a temporary link to trigger the download
-            //     const link = document.createElement("a");
-            //     link.href = url;
-            //     link.download = `invoice-${invoiceId}.pdf`; // Default file name
-            //     link.click();
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `invoice-${invoiceId}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
 
-            //     // Clean up the temporary Blob URL
-            //     window.URL.revokeObjectURL(url);
-            //     toast.success("Invoice downloaded successfully");
-            // }
+                window.URL.revokeObjectURL(url);
+                toast.success("Invoice downloaded successfully");
+            } else {
+                toast.error("Failed to download invoice");
+            }
         } catch (error) {
             console.error("Error downloading invoice", error);
             toast.error("Failed to download invoice");

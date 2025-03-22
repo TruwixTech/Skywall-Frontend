@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaClock, FaCheckCircle, FaTimesCircle, FaChevronLeft, FaChevronRight, FaTruck } from 'react-icons/fa';
+import { FaClock, FaCheckCircle, FaTimesCircle, FaChevronLeft, FaChevronRight, FaTruck , FaBox} from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -104,7 +104,11 @@ const AllOrders = () => {
             Pending: { color: 'bg-amber-100 text-amber-800', icon: <FaClock className="w-4 h-4 mr-1" /> },
             Shipped: { color: 'bg-blue-100 text-blue-800', icon: <FaTruck className="w-4 h-4 mr-1" /> },
             Delivered: { color: 'bg-emerald-100 text-emerald-800', icon: <FaCheckCircle className="w-4 h-4 mr-1" /> },
-            Cancelled: { color: 'bg-rose-100 text-rose-800', icon: <FaTimesCircle className="w-4 h-4 mr-1" /> }
+            Cancelled: { color: 'bg-rose-100 text-rose-800', icon: <FaTimesCircle className="w-4 h-4 mr-1" /> },
+            Returned: {
+                color: 'bg-indigo-100 text-indigo-800',
+                icon: <FaBox className="w-4 h-4 mr-1" />
+            }
         };
 
         return (
@@ -153,6 +157,7 @@ const AllOrders = () => {
                             <option value="Shipped">Shipped</option>
                             <option value="Delivered">Delivered</option>
                             <option value="Cancelled">Cancelled</option>
+                            <option value="Returned">Returned</option>
                         </select>
                         <div className="flex justify-end gap-2">
                             <button
@@ -309,7 +314,7 @@ const AllOrders = () => {
                                                     {/* Order-level Data */}
                                                     {index === 0 && (
                                                         <>
-                                                        <td rowSpan={order.products.length} className="px-4 sm:px-6 text-center py-4 text-sm font-medium text-gray-900">
+                                                            <td rowSpan={order.products.length} className="px-4 sm:px-6 text-center py-4 text-sm font-medium text-gray-900">
                                                                 {order?.user_id?.phone}
                                                             </td>
                                                             <td rowSpan={order.products.length} className="px-4 sm:px-6 text-center py-4 text-sm font-medium text-gray-900">
