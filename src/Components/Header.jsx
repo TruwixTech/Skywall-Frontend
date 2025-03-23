@@ -69,21 +69,6 @@ function Header() {
     }
   }, [debouncedQuery]);
 
-  // Close search when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
-        setIsSearchOpen(false);
-        setSearchQuery('');
-        setSearchResults([]);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-
   useEffect(() => {
     if (token) {
       const decoded = jwtDecode(token)
@@ -119,10 +104,28 @@ function Header() {
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
         setUserDropDown(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
+        setSearchQuery('');
+        setSearchResults([]);
+      }
+    }
+
+    function handleScroll() {
+      setDropDown(false);
+      setInfoDropdown(false);
+      setInfoDropdown2(false);
+      setUserDropDown(false);
+      setIsSearchOpen(false);
     }
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   return (
@@ -208,7 +211,7 @@ function Header() {
             <div className={`
     fixed top-0 left-0 right-0 bg-white shadow-md z-40 
     transform transition-all duration-300 ease-out
-    ${isSearchOpen ? 'translate-y-16 opacity-100' : '-translate-y-full opacity-0'}
+    ${isSearchOpen ? 'translate-y-16 md:translate-y-[85px] opacity-100' : '-translate-y-full opacity-0'}
   `}>
               <div className="container mx-auto px-4 py-3 flex items-center gap-4">
                 <input
@@ -278,7 +281,7 @@ function Header() {
                         )
                       }
                       {
-                        user.role === 'User' || user.role === 'user' && (
+                        user.role === 'User' && (
                           <>
                             <NavLink onClick={() => setUserDropDown(!userDropDown)} to='/user-profile' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">Profile</NavLink>
                             <NavLink onClick={() => setUserDropDown(!userDropDown)} to='/myorders' className="cursor-pointer px-4 py-2 transition-colors duration-300 text-center hover:text-black text-gray-500 hover:underline hover:underline-offset-4">My Orders</NavLink>

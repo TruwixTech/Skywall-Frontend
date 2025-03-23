@@ -14,13 +14,14 @@ function SignUp() {
         email: '',
         password: ''
     });
-    const [loading, setLoading] = useState(false)
-
-    const navigate = useNavigate()
+    const [loading, setLoading] = useState(false);
+    const [showOtpVerification, setShowOtpVerification] = useState(false);
+    const [otp, setOtp] = useState('');
+    const navigate = useNavigate();
 
     function validateForm() {
         const { name, phone, email, password } = formData;
-        toast.dismiss()
+        toast.dismiss();
         if (!name.trim()) {
             toast.error("Name is required.");
             return false;
@@ -56,86 +57,162 @@ function SignUp() {
         return true;
     }
 
-    async function signup(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
-
-        if (!validateForm()) return; // Stop if validation fails
+        if (!validateForm()) return;
 
         try {
-            setLoading(true)
-            const response = await axios.post(`${backend}/auth/signup`, formData);
-            if (response.data.status === "Success") {
-                toast.success("Account created successfully!");
-                setLoading(false)
-                localStorage.setItem("token", JSON.stringify(response.data.data.token))
-                setFormData({
-                    name: '',
-                    phone: '',
-                    email: '',
-                    password: ''
-                })
-                navigate('/')
+            setLoading(true);
+            await axios.post(`${backend}/otp/send-email-otp`, { email: formData.email });
+            toast.success("OTP sent to your email!");
+            setShowOtpVerification(true);
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to send OTP.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function verifyOtp(e) {
+        e.preventDefault();
+        if (!otp.trim() || otp.length !== 6) {
+            toast.error("Please enter a valid 6-digit OTP.");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            // Verify OTP
+            const verifyResponse = await axios.post(`${backend}/otp/verify-email-otp`, {
+                email: formData.email,
+                otp: otp
+            });
+
+            if (verifyResponse.data.status === "Success") {
+                // Create account after successful verification
+                const signupResponse = await axios.post(`${backend}/auth/signup`, formData);
+                if (signupResponse.data.status === "Success") {
+                    toast.success("Account created successfully!");
+                    localStorage.setItem("token", JSON.stringify(signupResponse.data.data.token));
+                    setFormData({ name: '', phone: '', email: '', password: '' });
+                    setOtp('');
+                    navigate('/');
+                }
             } else {
-                toast.error(response.data.message || "Signup failed.");
+                toast.error(verifyResponse.data.message || "OTP verification failed.");
             }
         } catch (error) {
-            setLoading(false)
-            console.log(error.response.data.data.message || error);
-            toast.error(error.response.data.data.message || "Signup failed.");
+            toast.error(error.response?.data?.message || "An error occurred during verification.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function resendOtp() {
+        try {
+            setLoading(true);
+            await axios.post(`${backend}/otp/send-email-otp`, { email: formData.email });
+            toast.success("OTP resent successfully!");
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to resend OTP.");
+        } finally {
+            setLoading(false);
         }
     }
 
     return (
         <div className="flex items-center justify-center min-h-[90vh]">
             <div className="bg-white p-4 md:p-8 rounded-lg w-full max-w-xl">
-                <h2 className="text-3xl font-semibold text-center mb-6">Create Account</h2>
+                {!showOtpVerification ? (
+                    <>
+                        <h2 className="text-3xl font-semibold text-center mb-6">Create Account</h2>
+                        <form className="space-y-4" onSubmit={handleSubmit}>
+                            <input
+                                type="text"
+                                placeholder="Name"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                className="w-full p-3 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-800"
+                            />
 
-                <form className="space-y-4" onSubmit={signup}>
-                    <input
-                        type="text"
-                        placeholder="Name"
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full p-3 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-800"
-                    />
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                maxLength={10}
+                                placeholder="Phone"
+                                value={formData.phone}
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/\D/g, "");
+                                    if (value.length <= 10) {
+                                        setFormData({ ...formData, phone: value });
+                                    }
+                                }}
+                                className="w-full p-3 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-800"
+                            />
 
-                    <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        maxLength={10}
-                        placeholder="Phone"
-                        onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, "");
-                            if (value.length <= 10) {
-                                setFormData({ ...formData, phone: value });
-                            }
-                        }}
-                        className="w-full p-3 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-800"
-                    />
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                className="w-full p-3 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-800"
+                            />
 
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full p-3 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-800"
-                    />
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                value={formData.password}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                className="w-full p-3 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-800"
+                            />
 
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        className="w-full p-3 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-800"
-                    />
+                            <button
+                                type="submit"
+                                className="w-full bg-[#121212] text-white p-3 rounded-lg hover:bg-gray-800 transition duration-300 text-lg font-semibold"
+                            >
+                                Create
+                            </button>
+                        </form>
+                    </>
+                ) : (
+                    <>
+                        <h2 className="text-3xl font-semibold text-center mb-6">Verify Email</h2>
+                        <form className="space-y-4" onSubmit={verifyOtp}>
+                            <input
+                                type="text"
+                                placeholder="Enter 6-digit OTP"
+                                value={otp}
+                                maxLength={6}
+                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                                className="w-full p-3 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-800"
+                            />
+                            <button
+                                type="submit"
+                                className="w-full bg-[#121212] text-white p-3 rounded-lg hover:bg-[#121212a8] transition duration-300 text-lg font-semibold"
+                            >
+                                Verify OTP
+                            </button>
+                            <div className="flex justify-between items-center mt-4">
+                                <button
+                                    type="button"
+                                    onClick={resendOtp}
+                                    className="text-sm text-gray-600 hover:underline"
+                                >
+                                    Resend OTP
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowOtpVerification(false)}
+                                    className="text-sm text-gray-600 hover:underline"
+                                >
+                                    Back to Sign Up
+                                </button>
+                            </div>
+                        </form>
+                    </>
+                )}
 
-                    <button
-                        type="submit"
-                        className="w-full bg-[#121212] text-white p-3 rounded-lg hover:bg-[#121212a8] transition duration-300 text-lg font-semibold"
-                    >
-                        Create
-                    </button>
-                </form>
-
-                {/* Already have an account */}
                 <div className="text-center mt-4">
                     <p className="text-gray-600 text-sm">
                         Already have an account?{" "}
@@ -145,9 +222,7 @@ function SignUp() {
                     </p>
                 </div>
             </div>
-            {
-                loading && <LoadingSpinner />
-            }
+            {loading && <LoadingSpinner />}
         </div>
     );
 }
