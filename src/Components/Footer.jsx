@@ -1,17 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 import { LuMailOpen } from "react-icons/lu";
 import { SlLocationPin } from "react-icons/sl";
 import { LuPhoneCall } from "react-icons/lu";
 import { FaFacebookF, FaXTwitter, FaThreads } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { FaWhatsapp } from "react-icons/fa";
-import Logo from "../assets/logo.png";
+import Logo from "../assets/logo.webp";
+import axios from "axios";
+import { toast } from "react-toastify";
+import LoadingSpinner from "../utils/LoadingSpinner";
+
+const backend = import.meta.env.VITE_BACKEND;
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  async function userSubsribes() {
+    try {
+      setLoading(true);
+      const response = await axios.post(`${backend}/otp/user-subscribes`, {
+        email: email
+      })
+      if (response.data.status === "Success") {
+        toast.success('Subscribed successfully!');
+        setLoading(false);
+        setEmail('');
+      }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  }
 
   return (
     <footer className="w-full h-auto flex flex-col bg-gray-200">
+      {
+        loading && <LoadingSpinner />
+      }
       <a
         href="https://wa.me/+919871723469"
         className="whatsapp-float"
@@ -30,10 +57,12 @@ const Footer = () => {
           <div className="w-80 h-auto flex p-1 rounded-3xl overflow-hidden bg-white xl:w-full">
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Subscribe to Get Exclusive offers"
               className="outline-none text-black w-full py-1.5 px-4"
             />
-            <span className="bg-blue-600 hover:bg-blue-700 text-white font-medium flex justify-center items-center px-6 rounded-3xl cursor-pointer">
+            <span onClick={userSubsribes} className="bg-blue-600 hover:bg-blue-700 text-white font-medium flex justify-center items-center px-6 rounded-3xl cursor-pointer">
               Submit
             </span>
           </div>
@@ -149,17 +178,17 @@ const Footer = () => {
         <div>
           <h1 className="font-bold text-2xl xl:text-3xl">Contact Us</h1>
           <div className="mt-4 flex flex-col space-y-3">
-            <span className="flex gap-4 items-center">
-              <SlLocationPin size={20} /> <p>Ghaziabad</p>
+            <span className="flex gap-4 items-center lg:text-xs xl:text-base">
+              <SlLocationPin size={20} className="flex-shrink-0" /> <p>49/26 Site: 4, Sahibabad Industrial Area Ghaziabad, Uttar Pradesh, India 201010</p>
             </span>
 
-            <span className="flex gap-4 items-center">
-              <LuMailOpen size={20} />{" "}
-              <a href="mailto:abcs@skywall.in">abcd@skywall.in</a>
+            <span className="flex gap-4 items-center lg:text-xs xl:text-base">
+              <LuMailOpen size={20} className="flex-shrink-0" />{" "}
+              <a href="mailto:abcs@skywall.in">customer.care@foxskyindia.com</a>
             </span>
-            <span className="flex gap-4 items-center">
+            <span className="flex gap-4 items-center lg:text-xs xl:text-base">
               <LuPhoneCall size={20} />{" "}
-              <a href="tel:+911111111111">+91 1111111111</a>
+              <a href="tel:+917079797902">+91 7079797902</a>
             </span>
           </div>
         </div>

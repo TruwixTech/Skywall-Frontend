@@ -17,7 +17,6 @@ const roleStyles = {
 const backend = import.meta.env.VITE_BACKEND;
 
 function UserProfile() {
-    // Mock user data - replace with actual data from your API
     const [user, setUser] = useState({
         name: '',
         email: '',
@@ -28,27 +27,39 @@ function UserProfile() {
         updated_at: '',
         _id: ''
     });
+    const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [showOtpVerification, setShowOtpVerification] = useState(false);
+    const [otp, setOtp] = useState('');
+    const [originalEmail, setOriginalEmail] = useState('');
+    const navigate = useNavigate();
 
-    const [isEditing, setIsEditing] = useState(false); // State to toggle edit mode
-    const [loading, setLoading] = useState(false)
-    const navigate = useNavigate()
-
-    // Toggle edit mode
-    const handleEditClick = () => {
+    const handleEditClick = async () => {
         if (!isEditing) {
             setIsEditing(true);
             return;
         }
 
-        // When trying to save, validate first
         const errors = validateForm();
         if (Object.keys(errors).length > 0) {
             Object.values(errors).forEach(error => toast.error(error));
             return;
         }
-
-        // If validations pass, proceed to save
-        editProfile();
+        // Check if email has changed
+        if (user.email !== originalEmail) {
+            try {
+                setLoading(true);
+                await axios.post(`${backend}/otp/send-email-otp`, { email: user.email });
+                toast.success("OTP sent to your new email!");
+                setShowOtpVerification(true);
+            } catch (error) {
+                toast.error(error.response?.data?.message || "Failed to send OTP.");
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            editProfile();
+        }
     };
 
     const validateForm = () => {
@@ -90,24 +101,69 @@ function UserProfile() {
         return errors;
     };
 
-    async function editProfile() {
+    const editProfile = async (providedOtp = null) => {
         try {
-            setLoading(true)
-            const response = await axios.post(`${backend}/user/${user._id}/update`, { user: user }, {
+            setLoading(true);
+            const payload = {
+                user: user,
+                ...(user.email !== originalEmail && { otp: providedOtp })
+            };
+
+            const response = await axios.post(`${backend}/user/${user._id}/update`, payload, {
                 headers: {
                     'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
                 }
-            })
+            });
+
             if (response.data.status === "Success") {
-                setIsEditing(false)
-                toast.success("Profile updated successfully!")
-                setLoading(false)
+                setIsEditing(false);
+                setOriginalEmail(user.email);
+                toast.success("Profile updated successfully!");
+                setShowOtpVerification(false);
             }
         } catch (error) {
-            setLoading(false)
-            console.error("Error editing profile:", error);
+            toast.error(error.response?.data?.message || "Error updating profile.");
+        } finally {
+            setLoading(false);
         }
-    }
+    };
+
+    const handleVerifyAndSave = async (e) => {
+        e.preventDefault();
+        if (!otp.trim() || otp.length !== 6) {
+            toast.error("Please enter a valid 6-digit OTP.");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            // Verify OTP first
+            const verifyResponse = await axios.post(`${backend}/otp/verify-email-otp`, {
+                email: user.email,
+                otp: otp
+            });
+
+            if (verifyResponse.data.status === "Success") {
+                await editProfile(otp);
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "OTP verification failed.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const resendOtp = async () => {
+        try {
+            setLoading(true);
+            await axios.post(`${backend}/otp/send-email-otp`, { email: user.email });
+            toast.success("OTP resent successfully!");
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to resend OTP.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     function convertToIST(utcTimestamp) {
         // Ensure the timestamp is properly parsed as a Date object
@@ -149,6 +205,7 @@ function UserProfile() {
                 const { name, email, phone, address, role, created_at, updated_at, _id } = response.data.data.user
                 setUser({ name, email, phone, address, role, created_at, updated_at, _id })
                 setLoading(false)
+                setOriginalEmail(email)
             }
         } catch (error) {
             console.error("Error fetching user details:", error);
@@ -175,6 +232,57 @@ function UserProfile() {
 
     return (
         <div className="h-auto bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
+            {/* OTP Verification Modal */}
+            {showOtpVerification && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-white p-8 rounded-xl w-96 shadow-2xl">
+                        {/* Header */}
+                        <div className="text-center mb-6">
+                            <h3 className="text-2xl font-bold text-gray-800">Verify Your Email</h3>
+                            <p className="text-sm text-gray-500 mt-2">
+                                We've sent a 6-digit OTP to your new email address.
+                            </p>
+                        </div>
+
+                        {/* OTP Input */}
+                        <div className="mb-6">
+                            <input
+                                type="text"
+                                placeholder="Enter 6-digit OTP"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                maxLength={6}
+                            />
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex flex-col gap-3">
+                            <button
+                                onClick={handleVerifyAndSave}
+                                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all"
+                            >
+                                Verify OTP
+                            </button>
+                            <button
+                                onClick={resendOtp}
+                                className="w-full text-blue-600 hover:text-blue-700 text-sm font-medium hover:underline transition-all"
+                            >
+                                Resend OTP
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setShowOtpVerification(false);
+                                    setUser({ ...user, email: originalEmail });
+                                }}
+                                className="w-full text-gray-500 hover:text-gray-700 text-sm font-medium hover:underline transition-all"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div className="mx-auto max-w-4xl">
                 {/* Profile Card */}
                 {

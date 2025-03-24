@@ -184,6 +184,7 @@ const TelevisionSinglePage = () => {
 
   async function fetchSingleProductReviews(id) {
     try {
+      setLoading(true)
       const response = await axios.post(`${backend}/review/list`, {
         pageNum: ratingPage,
         pageSize: 20,
@@ -195,9 +196,11 @@ const TelevisionSinglePage = () => {
         setProductReviews(response.data.data.reviewList)
         const ratingPercentages = calculateRatingDistribution(response.data.data.reviewList);
         setRatingDistribution(ratingPercentages)
+        setLoading(false)
       }
     } catch (error) {
       console.log("Error while fetching single product reviews", error)
+      setLoading(false)
     }
   }
 
@@ -248,7 +251,6 @@ const TelevisionSinglePage = () => {
         setExpandedSpecs(response.data.data.product?.specificationSchema[0]?.title)
         setSingleProduct(response.data.data.product)
         setImages(response.data.data.product?.image)
-        setLoading(false)
         fetchSingleProductReviews(response.data.data.product._id)
       }
     } catch (error) {
@@ -331,14 +333,14 @@ const TelevisionSinglePage = () => {
             {/* Product Images */}
             <div className="col-span-1 space-y-4">
               {/* Main Image */}
-              <div className="border rounded-lg overflow-hidden h-64 sm:h-80 flex items-center justify-center bg-gray-100">
+              <div className="border rounded-lg overflow-hidden h-64 sm:h-80 flex items-center justify-center">
                 {loading ? (
                   <div className="w-full h-full bg-gray-300 animate-pulse" />
                 ) : (
                   <img
                     src={images[selectedImage]}
                     alt='television Image'
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 )}
               </div>

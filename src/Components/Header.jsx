@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import Logo from "../assets/logo.png";
+import Logo from "../assets/logo.webp";
 import { HiBars3 } from "react-icons/hi2";
 import { FaRegUser } from "react-icons/fa6";
 import { IoIosSearch } from "react-icons/io";
