@@ -1,5 +1,4 @@
 import React from "react";
-import Aboutimage from "../../assets/aboutimage.jpg";
 
 function Section1() {
   return (
@@ -11,7 +10,6 @@ function Section1() {
       </div>
       <div className="w-full flex justify-center items-center">
         <div className="w-full px-5 md:px-10 lg:px-20 xl:px-32 py-5">
-          {/* <img src={Aboutimage} className="md:py-6 py-2 w-full" /> */}
           <div>
             <p className="md:text-[20px] text-[16px] text-gray-500 md:py-6 py-2">
               <strong className="text-[#4d4d4d]">
