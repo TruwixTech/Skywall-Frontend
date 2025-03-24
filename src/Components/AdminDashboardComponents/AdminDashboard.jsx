@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import LoadingSpinner from '../../utils/LoadingSpinner';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { FaClock, FaCheckCircle, FaTimesCircle, FaTruck , FaUndo } from "react-icons/fa";
+import { FaClock, FaCheckCircle, FaTimesCircle, FaTruck, FaUndo } from "react-icons/fa";
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -160,15 +160,25 @@ function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => (
-                    <tr key={order._id} className="border-b last:border-b-0">
-                      <td className="py-4 px-5">#{order._id.slice(-6).toUpperCase()}</td>
-                      <td className="px-5">{order.name || order.email}</td>
-                      <td className="px-5">{formatDate(order.created_at)}</td>
-                      <td className="px-5">{getStatusBadge(order.status)}</td>
-                      <td className="px-5">₹{order.totalPrice?.toLocaleString('en-IN')}</td>
-                    </tr>
-                  ))}
+                  {
+                    orders.length > 0
+                      ? orders.map((order) => (
+                        <tr key={order._id} className="border-b last:border-b-0">
+                          <td className="py-4 px-5">#{order._id.slice(-6).toUpperCase()}</td>
+                          <td className="px-5">{order.name || order.email}</td>
+                          <td className="px-5">{formatDate(order.created_at)}</td>
+                          <td className="px-5">{getStatusBadge(order.status)}</td>
+                          <td className="px-5">₹{order.totalPrice?.toLocaleString('en-IN')}</td>
+                        </tr>
+                      ))
+                      : (
+                        <tr>
+                          <td colSpan="5" className="py-4 px-5 text-center text-gray-600">
+                            No orders found
+                          </td>
+                        </tr>
+                      )
+                  }
                 </tbody>
               </table>
             </div>

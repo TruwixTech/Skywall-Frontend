@@ -169,7 +169,7 @@ function Header() {
 
             {/* Dropdown Menu */}
             {infoDropdown && (
-              <div className="absolute top-10 left-0 w-64 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-10">
+              <div className="absolute top-10 left-0 w-64 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-30">
                 {[
                   { name: "Unboxing Policy", path: "/unboxing-policy" },
                   { name: "Disclaimer", path: "/disclaimer" },
@@ -354,7 +354,7 @@ function Header() {
 
           {/* Dropdown Menu */}
           {infoDropdown2 && (
-            <div className="absolute top-10 right-0 w-64 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-10">
+            <div className="absolute top-10 right-0 w-64 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-30">
               {[
                 { name: "Unboxing Policy", path: "/unboxing-policy" },
                 { name: "Disclaimer", path: "/disclaimer" },

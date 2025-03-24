@@ -421,11 +421,25 @@ const TelevisionSinglePage = () => {
                 ) : (
                   singleProduct?.stock > 0 ? (
                     <>
-                      <span className="flex items-center text-green-600">
-                        <Check size={16} className="mr-1" />
-                        In Stock
-                      </span>
-                      <span className="text-sm text-gray-500">Ready to ship</span>
+                      {
+                        singleProduct?.stock < 5
+                          ? (
+                            <>
+                              <span className="flex items-center text-red-600">
+                                Hurry up! Only {singleProduct?.stock} items left
+                              </span>
+                            </>
+                          )
+                          : (
+                            <>
+                              <span className="flex items-center text-green-600">
+                                <Check size={16} className="mr-1" />
+                                In Stock
+                              </span>
+                              <span className="text-sm text-gray-500">Ready to ship</span>
+                            </>
+                          )
+                      }
                     </>
                   ) : (
                     <span className="text-red-600">Out of Stock</span>

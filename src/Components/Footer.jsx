@@ -29,7 +29,6 @@ const Footer = () => {
         setEmail('');
       }
     } catch (error) {
-      console.log(error);
       setLoading(false);
     }
   }
