@@ -1,14 +1,21 @@
 import React, { useState, useEffect, useCallback, memo } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FaPlay, FaPause } from "react-icons/fa";
-import HeroImg1 from "../../assets/hero1.jpg";
-import HeroImg2 from "../../assets/hero2.jpg";
-import HeroImg3 from "../../assets/hero3.jpg";
+import HeroImg1 from "../../assets/hero1.webp";
+import HeroImg2 from "../../assets/hero2.webp";
+import HeroImg3 from "../../assets/hero3.webp";
 
-// Memoized carousel images array
 const carousel = [HeroImg1, HeroImg2, HeroImg3];
 
-// Memoized components to prevent unnecessary re-renders
+// Function to preload images
+const preloadImages = (images) => {
+  images.forEach((src) => {
+    const img = new Image();
+    img.src = src;
+  });
+};
+
+// Memoized components
 const ArrowButton = memo(({ direction, onClick }) => (
   <button
     onClick={onClick}
@@ -46,6 +53,10 @@ function HeroSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
+  useEffect(() => {
+    preloadImages(carousel); // Preload images on mount
+  }, []);
+
   // Memoized slide navigation functions
   const nextSlide = useCallback(() => {
     setCurrentIndex(prev => (prev === carousel.length - 1 ? 0 : prev + 1));
@@ -66,7 +77,6 @@ function HeroSection() {
     return () => clearInterval(interval);
   }, [isPlaying, nextSlide]);
 
-  // Mobile controls component
   const MobileControls = memo(() => (
     <div className="w-full bg-gray-200 h-10 flex justify-center items-center md:hidden">
       <div className="w-auto flex gap-4 sm:gap-8 items-center">
@@ -104,7 +114,7 @@ function HeroSection() {
         className="flex transition-transform duration-700 ease-in-out"
         style={{ 
           transform: `translateX(-${currentIndex * 100}%)`,
-          willChange: 'transform' // Hint browser about animation
+          willChange: 'transform'
         }}
       >
         {carousel.map((image, index) => (
@@ -113,8 +123,8 @@ function HeroSection() {
             src={image} 
             alt={`Slide ${index}`} 
             className="w-full h-full object-cover"
-            loading="lazy" // Defer offscreen images
-            decoding="async" // Async image decoding
+            loading="eager" // Load immediately
+            decoding="async"
           />
         ))}
       </div>

@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, memo } from 'react';
-import Video from '../../assets/video.mp4';
 
 function VideoSection() {
   const videoRef = useRef(null);
@@ -40,7 +39,7 @@ function VideoSection() {
         className="w-full h-auto"
         aria-label="Background video"
       >
-        <source src={Video} type="video/mp4" />
+        <source src='https://res.cloudinary.com/daqtq6xns/video/upload/f_auto:video,q_auto/bmt6hni1u5hog7gih5an' type="video/mp4" />
         Your browser does not support the video tag.
       </video>
     </div>
