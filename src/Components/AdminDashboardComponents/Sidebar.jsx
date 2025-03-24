@@ -45,7 +45,7 @@ const Sidebar = () => {
                 {/* Navigation Links */}
                 <nav className="mt-10 space-y-4">
                     <Link to="/admin-dashboard" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">Dashboard</Link>
-                    <Link to="/admin-dashboard/statistics" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">Statistics</Link>
+                    {/* <Link to="/admin-dashboard/statistics" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">Statistics</Link> */}
                     <Link to="/admin-dashboard/addproduct" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">Add Product</Link>
                     <Link to="/admin-dashboard/allproduct" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">All Products</Link>
                     <Link to="/admin-dashboard/orders" onClick={closeNav} className="block p-3 hover:bg-gray-700 rounded">Orders</Link>
