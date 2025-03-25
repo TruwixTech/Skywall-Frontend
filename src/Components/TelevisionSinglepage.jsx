@@ -52,7 +52,7 @@ const TelevisionSinglePage = () => {
   const increaseQuantity = () => {
     toast.dismiss()
     if (quantity === singleProduct?.stock) {
-      toast.error("Product is out of stock.");
+      toast.error("Available Stock Quantity Exceeded.");
       return
     }
     setQuantity(quantity + 1);

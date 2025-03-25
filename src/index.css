@@ -15,8 +15,8 @@ input[type="number"] {
 
 .whatsapp-float {
   position: fixed;
-  bottom: 40px;
-  right: 40px;
+  bottom: 62px;
+  right: 20px;
   z-index: 1000;
 }
 

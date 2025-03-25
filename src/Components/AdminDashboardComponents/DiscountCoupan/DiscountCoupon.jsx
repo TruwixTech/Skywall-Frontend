@@ -3,6 +3,8 @@ import { IoAdd, IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";
 import axios from "axios";
 import LoadingSpinner from "../../../utils/LoadingSpinner";
+import { useAdminRouteProtection } from '../../../utils/AuthUtils';
+import UnauthorizedPopup from '../../../utils/UnAuthorizedPopup';
 
 const backend = import.meta.env.VITE_BACKEND
 
@@ -10,7 +12,7 @@ const DiscountCoupon = () => {
   // Fake Coupons Data
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const { showPopup, closePopup, isAuthorized } = useAdminRouteProtection(["SuperAdmin"]);
   const [showModal, setShowModal] = useState(false);
   const [newCoupon, setNewCoupon] = useState({
     code: "",
@@ -100,6 +102,10 @@ const DiscountCoupon = () => {
   useEffect(() => {
     getCoupons()
   }, [])
+
+  if (!isAuthorized) {
+    return showPopup ? <UnauthorizedPopup onClose={closePopup} /> : null;
+  }
 
   return (
     <div className="px-5 w-full py-14 bg-gradient-to-b from-gray-50 to-blue-50 min-h-screen">

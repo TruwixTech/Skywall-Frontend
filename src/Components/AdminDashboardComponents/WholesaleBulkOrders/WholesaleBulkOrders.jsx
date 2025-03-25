@@ -4,6 +4,8 @@ import LoadingSpinner from '../../../utils/LoadingSpinner';
 import { convertUTCtoIST2 } from '../../../utils/TimeConverter';
 import { FiChevronDown, FiBox, FiMapPin, FiCreditCard, FiDollarSign } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import { useAdminRouteProtection } from '../../../utils/AuthUtils';
+import UnauthorizedPopup from '../../../utils/UnAuthorizedPopup';
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -12,6 +14,7 @@ const WholesaleBulkOrders = () => {
     const [expandedOrder, setExpandedOrder] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const { showPopup, closePopup, isAuthorized } = useAdminRouteProtection(["SuperAdmin"]);
 
     // Fetch orders from backend
     const fetchOrders = async () => {
@@ -49,7 +52,7 @@ const WholesaleBulkOrders = () => {
                     'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
                 }
             });
-            if(response.data.status === 'Success'){
+            if (response.data.status === 'Success') {
                 toast.success("Payment status updated successfully!");
                 fetchOrders();
                 setLoading(false);
@@ -60,6 +63,9 @@ const WholesaleBulkOrders = () => {
         }
     };
 
+    if (!isAuthorized) {
+        return showPopup ? <UnauthorizedPopup onClose={closePopup} /> : null;
+    }
 
     return (
         <div className="container mx-auto px-4 py-8 pt-14 bg-gradient-to-b from-gray-50 to-blue-50">

@@ -3,7 +3,8 @@ import axios from 'axios';
 import LoadingSpinner from '../../../utils/LoadingSpinner';
 import { toast } from 'react-toastify';
 import { MdDelete, MdEdit, MdSearch } from "react-icons/md";
-
+import { useAdminRouteProtection } from '../../../utils/AuthUtils';
+import UnauthorizedPopup from '../../../utils/UnAuthorizedPopup';
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -28,6 +29,8 @@ function AreaOfServices() {
     const [selectedZipcodeId, setSelectedZipcodeId] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const { showPopup, closePopup, isAuthorized } = useAdminRouteProtection(["SuperAdmin"]);
+
 
     // Validation function
     const validateForm = () => {
@@ -230,6 +233,10 @@ function AreaOfServices() {
         </div>
     );
 
+    if (!isAuthorized) {
+        return showPopup ? <UnauthorizedPopup onClose={closePopup} /> : null;
+    }
+
     return (
         <div className="container mx-auto px-4 py-8 pt-14">
             <div className="flex flex-col gap-3 sm:gap-0 sm:flex-row sm:justify-between sm:items-center mb-8">
@@ -292,48 +299,48 @@ function AreaOfServices() {
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {
-                                zipcodes.length > 0 
-                                ? zipcodes.map((zipcode) => (
-                                    <tr key={zipcode._id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 text-sm text-gray-700">{zipcode.zipcode}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-700">{zipcode.dispatchCenter}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-700">{zipcode.originCenter}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-700">{zipcode.returnCenter}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-700">{zipcode.facilityCity}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-700">{zipcode.facilityState}</td>
-                                        <td className="px-6 py-4">
-                                            <span
-                                                className={`px-3 py-1 text-sm rounded-full ${zipcode.outOfDeliveryArea
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-red-100 text-red-800'
-                                                    }`}
-                                            >
-                                                {zipcode.outOfDeliveryArea ? 'Yes' : 'No'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <button
-                                                onClick={() => handleEdit(zipcode)}
-                                                className="text-blue-500 hover:text-blue-700 transition-colors mx-auto"
-                                            >
-                                                <MdEdit size={20} />
-                                            </button>
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <MdDelete
-                                                onClick={() => promptDelete(zipcode._id)}
-                                                size={20}
-                                                className="text-red-500 hover:text-red-700 mx-auto cursor-pointer transition-colors"
-                                            />
-                                        </td>
-                                    </tr>
-                                ))
-                                : (
-                                    <tr>
-                                        <td colSpan="9" className="text-center py-4 text-gray-600">No zipcodes found</td>
-                                    </tr>
-                                )
-                            }
+                                    zipcodes.length > 0
+                                        ? zipcodes.map((zipcode) => (
+                                            <tr key={zipcode._id} className="hover:bg-gray-50 transition-colors">
+                                                <td className="px-6 py-4 text-sm text-gray-700">{zipcode.zipcode}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-700">{zipcode.dispatchCenter}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-700">{zipcode.originCenter}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-700">{zipcode.returnCenter}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-700">{zipcode.facilityCity}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-700">{zipcode.facilityState}</td>
+                                                <td className="px-6 py-4">
+                                                    <span
+                                                        className={`px-3 py-1 text-sm rounded-full ${zipcode.outOfDeliveryArea
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : 'bg-red-100 text-red-800'
+                                                            }`}
+                                                    >
+                                                        {zipcode.outOfDeliveryArea ? 'Yes' : 'No'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    <button
+                                                        onClick={() => handleEdit(zipcode)}
+                                                        className="text-blue-500 hover:text-blue-700 transition-colors mx-auto"
+                                                    >
+                                                        <MdEdit size={20} />
+                                                    </button>
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    <MdDelete
+                                                        onClick={() => promptDelete(zipcode._id)}
+                                                        size={20}
+                                                        className="text-red-500 hover:text-red-700 mx-auto cursor-pointer transition-colors"
+                                                    />
+                                                </td>
+                                            </tr>
+                                        ))
+                                        : (
+                                            <tr>
+                                                <td colSpan="9" className="text-center py-4 text-gray-600">No zipcodes found</td>
+                                            </tr>
+                                        )
+                                }
                             </tbody>
                         </table>
                     </div>

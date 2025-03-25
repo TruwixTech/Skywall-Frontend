@@ -2,13 +2,15 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { convertUTCtoIST2 } from '../../../utils/TimeConverter';
 import LoadingSpinner from '../../../utils/LoadingSpinner';
-
+import { useAdminRouteProtection } from '../../../utils/AuthUtils';
+import UnauthorizedPopup from '../../../utils/UnAuthorizedPopup';
 
 const backend = import.meta.env.VITE_BACKEND;
 
 function AllComplaintRaised() {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { showPopup, closePopup, isAuthorized } = useAdminRouteProtection(["SuperAdmin"]);
 
   // Fetch all complaints
   const fetchComplaints = async () => {
@@ -37,12 +39,12 @@ function AllComplaintRaised() {
   const handleStatusUpdate = async (complaintId, newStatus) => {
     try {
       setLoading(true)
-      const response = await axios.post(`${backend}/complaint/${complaintId}/update`, { status: newStatus },{
+      const response = await axios.post(`${backend}/complaint/${complaintId}/update`, { status: newStatus }, {
         headers: {
           'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
         }
       });
-      if(response.data.status === 'Success'){
+      if (response.data.status === 'Success') {
         fetchComplaints()
         setLoading(false)
       }
@@ -51,6 +53,10 @@ function AllComplaintRaised() {
       setLoading(false)
     }
   };
+
+  if (!isAuthorized) {
+    return showPopup ? <UnauthorizedPopup onClose={closePopup} /> : null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 pt-16 bg-gradient-to-b from-gray-50 to-blue-50">
