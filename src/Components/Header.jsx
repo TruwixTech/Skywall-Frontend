@@ -15,7 +15,7 @@ import axios from "axios";
 
 const backend = import.meta.env.VITE_BACKEND;
 
-function BottomNavigation({ searchFunc }) {
+function BottomNavigation({ searchFunc , user }) {
   return (
     <div className='fixed bottom-0 left-0 right-0 w-full h-auto p-2 bg-white border-t border-gray-200 flex justify-around items-center z-50 sm:hidden'>
 
@@ -52,12 +52,18 @@ function BottomNavigation({ searchFunc }) {
       </NavLink>
 
       <NavLink
-        to='/signin'
+        to={user && Object.keys(user).length > 0 ? '/user-profile' : '/signin'}
         className={({ isActive }) => `flex flex-col items-center transition-colors ${isActive ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'
           }`}
       >
         <User size={24} />
-        <span className='text-xs mt-1'>Login</span>
+        {
+          user && Object.keys(user).length > 0 ? (
+            <span className='text-xs mt-1'>Profile</span>
+          ) : (
+            <span className='text-xs mt-1'>Login</span>
+          )
+        }
       </NavLink>
 
     </div>
@@ -187,7 +193,7 @@ function Header() {
         </NavLink>
 
         {/* Bottom Navigation Bar */}
-        <BottomNavigation searchFunc={() => setIsSearchOpen(!isSearchOpen)} />
+        <BottomNavigation searchFunc={() => setIsSearchOpen(!isSearchOpen)} user={user} />
 
         <div className="w-auto h-auto gap-5 items-center hidden lg:flex lg:gap-8 xl:gap-12">
           {[
