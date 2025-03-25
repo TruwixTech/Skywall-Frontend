@@ -6,7 +6,8 @@ import {
 } from 'react-icons/fa';
 import LoadingSpinner from '../../../utils/LoadingSpinner';
 import { toast } from 'react-toastify';
-
+import { useAdminRouteProtection } from '../../../utils/AuthUtils';
+import UnauthorizedPopup from '../../../utils/UnAuthorizedPopup';
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -18,6 +19,7 @@ function Invoice() {
     const [totalInvoices, setTotalInvoices] = useState(0);
     const [sort, setSort] = useState('NEWEST');
     const [loading, setLoading] = useState(false);
+    const { showPopup, closePopup, isAuthorized } = useAdminRouteProtection(["SuperAdmin"]);
 
     useEffect(() => {
         fetchInvoices();
@@ -84,6 +86,9 @@ function Invoice() {
         }
     };
 
+    if (!isAuthorized) {
+        return showPopup ? <UnauthorizedPopup onClose={closePopup} /> : null;
+    }
 
     return (
         <div className="container mx-auto p-4 min-h-screen pt-14 bg-gradient-to-b from-gray-50 to-blue-50">

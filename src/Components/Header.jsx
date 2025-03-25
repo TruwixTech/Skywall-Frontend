@@ -5,7 +5,8 @@ import { FaRegUser } from "react-icons/fa6";
 import { IoIosSearch } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { TiShoppingCart } from "react-icons/ti";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Home, Search, ShoppingCart, User, ShoppingBag } from 'lucide-react';
 import { FaChevronDown } from "react-icons/fa6";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
@@ -13,6 +14,55 @@ import { useDebounce } from 'use-debounce';
 import axios from "axios";
 
 const backend = import.meta.env.VITE_BACKEND;
+
+function BottomNavigation({ searchFunc }) {
+  return (
+    <div className='fixed bottom-0 left-0 right-0 w-full h-auto p-2 bg-white border-t border-gray-200 flex justify-around items-center z-50 sm:hidden'>
+
+      <NavLink
+        to='/'
+        className={({ isActive }) => `flex flex-col items-center transition-colors ${isActive ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'
+          }`}
+      >
+        <Home size={24} />
+        <span className='text-xs mt-1'>Home</span>
+      </NavLink>
+
+      <button onClick={searchFunc} className='flex flex-col items-center text-gray-600 hover:text-gray-900 transition-colors'>
+        <Search size={24} />
+        <span className='text-xs mt-1'>Search</span>
+      </button>
+
+      <NavLink
+        to='/televisions'
+        className={({ isActive }) => `flex flex-col items-center transition-colors ${isActive ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'
+          }`}
+      >
+        <ShoppingBag size={24} />
+        <span className='text-xs mt-1'>Shop</span>
+      </NavLink>
+
+      <NavLink
+        to='/cart'
+        className={({ isActive }) => `flex flex-col items-center transition-colors ${isActive ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'
+          }`}
+      >
+        <ShoppingCart size={24} />
+        <span className='text-xs mt-1'>Cart</span>
+      </NavLink>
+
+      <NavLink
+        to='/signin'
+        className={({ isActive }) => `flex flex-col items-center transition-colors ${isActive ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'
+          }`}
+      >
+        <User size={24} />
+        <span className='text-xs mt-1'>Login</span>
+      </NavLink>
+
+    </div>
+  );
+}
 
 function Header() {
   const [dropdown, setDropDown] = useState(false);
@@ -135,6 +185,9 @@ function Header() {
         <NavLink to="/" className="w-auto h-9 md:h-12">
           <img src={Logo} alt="logo" className="w-full h-full" />
         </NavLink>
+
+        {/* Bottom Navigation Bar */}
+        <BottomNavigation searchFunc={() => setIsSearchOpen(!isSearchOpen)} />
 
         <div className="w-auto h-auto gap-5 items-center hidden lg:flex lg:gap-8 xl:gap-12">
           {[

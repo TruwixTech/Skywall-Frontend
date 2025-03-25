@@ -39,7 +39,7 @@ function MyOrders() {
   const [processingReturnId, setProcessingReturnId] = useState(null);
 
   const CancelConfirmation = () => (
-    <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center p-4 z-[100]">
       <div className="bg-white rounded-lg p-6 max-w-md w-full">
         <h3 className="text-lg font-semibold mb-4">Confirm Cancellation</h3>
         <p className="text-gray-600 mb-6">
@@ -219,7 +219,7 @@ function MyOrders() {
             {orders.map((order) => (
               <div
                 key={order._id}
-                className="relative rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-lg"
+                className="rounded-lg bg-white p-6 shadow-md transition-all hover:shadow-lg"
               >
                 {/* Order Header */}
                 <div className="mb-4 flex items-start justify-between">
@@ -343,7 +343,7 @@ function MyOrders() {
                     </button>
 
                     {showReturnPopup && selectedOrderId === order._id && (
-                      <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4">
+                      <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4 z-10">
                         <div className="bg-white rounded-lg p-6 w-full max-w-md">
                           <h3 className="text-lg font-semibold mb-4">Select Return Reason</h3>
 

@@ -3,6 +3,8 @@ import axios from 'axios';
 import { IoClose, IoPencil, IoTrash } from "react-icons/io5";
 import LoadingSpinner from '../../../utils/LoadingSpinner';
 import { toast } from 'react-toastify';
+import { useAdminRouteProtection } from '../../../utils/AuthUtils';
+import UnauthorizedPopup from '../../../utils/UnAuthorizedPopup';
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -17,6 +19,7 @@ const WholesaleProductsPage = () => {
     const [wholesaleToDelete, setWholesaleToDelete] = useState(null);
     const [currentPage] = useState(1);
     const [productsPerPage] = useState(10);
+    const { showPopup, closePopup, isAuthorized } = useAdminRouteProtection(["SuperAdmin"]);
 
     useEffect(() => {
         fetchAllProducts();
@@ -287,7 +290,9 @@ const WholesaleProductsPage = () => {
         }
     };
 
-
+    if (!isAuthorized) {
+        return showPopup ? <UnauthorizedPopup onClose={closePopup} /> : null;
+    }
 
     return (
         <div className="container mx-auto p-5 md:px-10 pt-14 bg-gradient-to-b from-gray-50 to-blue-50">
