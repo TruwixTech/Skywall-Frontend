@@ -11,7 +11,8 @@ function Admin() {
             const token = localStorage.getItem("token"); // Ensure correct key
             if (token) {
                 const decoded = jwtDecode(token);
-                if (decoded.role !== 'Admin') {
+                const adminTags = ["SubAdmin","SuperAdmin"]
+                if (decoded.role && !adminTags.includes(decoded.role)) {
                     navigate('/admin-login')
                 }
             } else {

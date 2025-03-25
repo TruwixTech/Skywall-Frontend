@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { IoClose } from "react-icons/io5";
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../../utils/LoadingSpinner';
+import { useAdminRouteProtection } from '../../../utils/AuthUtils';
+import UnauthorizedPopup from '../../../utils/UnAuthorizedPopup';
 
 const backend = import.meta.env.VITE_BACKEND
 
@@ -22,6 +24,7 @@ const AddProduct = () => {
         warranty_pricing: [{ month: "", price: "" }],
     });
     const [previewImages, setPreviewImages] = useState([]);
+    const { showPopup, closePopup, isAuthorized } = useAdminRouteProtection(["SuperAdmin"]);
     const [loading, setLoading] = useState(false)
 
     // Remove Image
@@ -210,6 +213,10 @@ const AddProduct = () => {
             setLoading(false)
         }
     };
+
+    if (!isAuthorized) {
+        return showPopup ? <UnauthorizedPopup onClose={closePopup} /> : null;
+    }
 
     return (
         <div className="container mx-auto px-4 py-14 max-w-3xl ">
