@@ -17,6 +17,8 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../../utils/LoadingSpinner';
 import EditProduct from './EditProductForm';
+import { useAdminRouteProtection } from '../../../utils/AuthUtils';
+import UnauthorizedPopup from '../../../utils/UnAuthorizedPopup';
 
 const backend = import.meta.env.VITE_BACKEND
 
@@ -36,6 +38,7 @@ const AllProducts = () => {
     const [loading, setLoading] = useState(false);
     const [editPopUp, setEditPopUp] = useState(false);
     const productsPerPage = 6;
+    const { showPopup, closePopup, isAuthorized } = useAdminRouteProtection(["SuperAdmin"]);
 
 
     // Open Modal
@@ -519,6 +522,10 @@ const AllProducts = () => {
             </div>
         </div>
     );
+
+    if (!isAuthorized) {
+        return showPopup ? <UnauthorizedPopup onClose={closePopup} /> : null;
+    }
 
     return (
         <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-blue-50 p-8 pt-14">

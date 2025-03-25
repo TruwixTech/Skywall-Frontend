@@ -7,6 +7,8 @@ import LoadingSpinner from '../../../utils/LoadingSpinner';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { convertUTCtoIST2 } from '../../../utils/TimeConverter';
+import { useAdminRouteProtection } from '../../../utils/AuthUtils';
+import UnauthorizedPopup from '../../../utils/UnAuthorizedPopup';
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -21,6 +23,7 @@ const ReturnRequest = () => {
     const [showConfirmPopup, setShowConfirmPopup] = useState(false);
     const [selectedRequestId, setSelectedRequestId] = useState(null);
     const [updatingField, setUpdatingField] = useState('');
+    const { showPopup, closePopup, isAuthorized } = useAdminRouteProtection(["SuperAdmin"]);
 
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -47,33 +50,6 @@ const ReturnRequest = () => {
             setLoading(false);
         }
     }
-
-
-    // async function searchReturnRequests() {
-    //     try {
-    //         setLoading(true);
-    //         const response = await axios.post(`${backend}/returnRequest/list`, {
-    //             pageNum: currentPage,
-    //             pageSize: itemsPerPage,
-    //             filters: {
-    //                 email: { $regex: searchTerm, $options: 'i' }
-    //             },
-    //         }, {
-    //             headers: {
-    //                 'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token'))}`
-    //             }
-    //         });
-
-    //         if (response.data.status === "Success") {
-    //             setReturnRequests(response.data.data.returnRequestList);
-    //             setTotalItems(response.data.data.totalCount);
-    //         }
-    //     } catch (error) {
-    //         console.error("Error fetching orders:", error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // }
 
     const handlePageChange = (newPage) => {
         if (newPage > 0 && newPage <= totalPages) {
@@ -107,16 +83,13 @@ const ReturnRequest = () => {
         setUpdatingField(field);
         setShowConfirmPopup(true);
     };
-
-    // const handleSearch = () => {
-    //     setCurrentPage(1);
-    //     searchReturnRequests();
-    // };
-
     useEffect(() => {
         fetchReturnRequests();
     }, [currentPage, itemsPerPage]);
 
+    if (!isAuthorized) {
+        return showPopup ? <UnauthorizedPopup onClose={closePopup} /> : null;
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 p-6 w-full bg-gradient-to-b from-gray-50 to-blue-50">
@@ -160,26 +133,6 @@ const ReturnRequest = () => {
                 </h1>
 
                 <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:justify-between">
-                    {/* <div className="flex gap-2 flex-1">
-                        <div className="relative flex-1">
-                            <input
-                                type="text"
-                                placeholder="Search by Email"
-                                className="w-full p-3 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                            />
-                            <Search className="w-5 h-5 absolute left-3 top-3.5 text-gray-400" />
-                        </div>
-                        <button
-                            onClick={handleSearch}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 whitespace-nowrap"
-                        >
-                            Search
-                        </button>
-                    </div> */}
-
                     {totalItems > 20 && (
                         <div className="flex items-center gap-4">
                             <select

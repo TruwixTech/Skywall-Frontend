@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { LuMailOpen } from "react-icons/lu";
 import { SlLocationPin } from "react-icons/sl";
 import { LuPhoneCall } from "react-icons/lu";
-import { FaFacebookF, FaXTwitter, FaThreads } from "react-icons/fa6";
-import { useNavigate } from "react-router-dom";
+import { FaFacebookF, FaXTwitter, FaInstagram } from "react-icons/fa6";
+import { Link, useNavigate } from "react-router-dom";
 import { FaWhatsapp } from "react-icons/fa";
 import Logo from "../assets/logo.webp";
 import axios from "axios";
 import { toast } from "react-toastify";
 import LoadingSpinner from "../utils/LoadingSpinner";
+
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -149,15 +150,15 @@ const Footer = () => {
         <div className="flex flex-col">
           {/* <h1 className="font-bold text-2xl xl:text-3xl">Follow Us</h1> */}
           <div className="mt-4 flex gap-3">
-            <span className="w-fit cursor-pointer p-2 bg-blue-600 hover:bg-blue-700 rounded-full flex justify-center items-center">
+            <Link target="_blank" to='https://www.facebook.com/skywalltv.in' className="w-fit cursor-pointer p-2 bg-blue-600 hover:bg-blue-700 rounded-full flex justify-center items-center">
               <FaFacebookF size={18} className="text-white" />
-            </span>
-            <span className="w-fit cursor-pointer p-2 bg-blue-600 hover:bg-blue-700 rounded-full flex justify-center items-center">
+            </Link>
+            <Link target="_blank" to='https://x.com/Skywall_tv' className="w-fit cursor-pointer p-2 bg-blue-600 hover:bg-blue-700 rounded-full flex justify-center items-center">
               <FaXTwitter size={18} className="text-white" />
-            </span>
-            <span className="w-fit cursor-pointer p-2 bg-blue-600 hover:bg-blue-700 rounded-full flex justify-center items-center">
-              <FaThreads size={18} className="text-white" />
-            </span>
+            </Link>
+            <Link target="_blank" to='https://www.instagram.com/skywalltvofficial/' className="w-fit cursor-pointer p-2 bg-blue-600 hover:bg-blue-700 rounded-full flex justify-center items-center">
+              <FaInstagram size={18} className="text-white" />
+            </Link>
           </div>
           <button
             onClick={() => navigate("/")}
