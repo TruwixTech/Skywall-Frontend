@@ -95,7 +95,7 @@ const ReturnRequest = () => {
         <div className="min-h-screen bg-gray-50 p-6 w-full bg-gradient-to-b from-gray-50 to-blue-50">
             <div className="max-w-7xl mx-auto">
                 {showConfirmPopup && (
-                    <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4">
+                    <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4 z-50">
                         <div className="bg-white rounded-xl p-6 w-full max-w-md">
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-lg font-semibold">Confirm Update</h3>
