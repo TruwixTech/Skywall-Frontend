@@ -97,10 +97,16 @@ function WholesaleBulkOrders() {
 
     const handleQuantityChange = (index, value) => {
         const updatedProducts = [...wholesaleBulkProducts];
-        updatedProducts[index].quantity = Math.max(1, Number(value));
-        updatedProducts[index].selected = true; // Auto-select when quantity changes
+    
+        // Allow empty input to let the user clear the field
+        updatedProducts[index].quantity = value === "" ? "" : Math.max(1, Number(value));
+    
+        // Auto-select when quantity changes
+        updatedProducts[index].selected = true;
+    
         setWholesaleBulkProducts(updatedProducts);
     };
+    
 
     const handleCheckboxChange = (index) => {
         const updatedProducts = [...wholesaleBulkProducts];
@@ -421,10 +427,11 @@ function WholesaleBulkOrders() {
                                                     <input
                                                         type="number"
                                                         min="1"
-                                                        value={item.quantity}
+                                                        value={item.quantity === 0 ? "" : item.quantity} // Allow empty value
                                                         onChange={(e) => handleQuantityChange(index, e.target.value)}
                                                         className="w-24 px-4 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                                                     />
+
                                                 </div>
 
                                                 <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8">
