@@ -5,13 +5,13 @@ import axios from "axios";
 const backend = import.meta.env.VITE_BACKEND;
 
 const SaleBadge = memo(() => (
-  <span className="absolute z-20 top-2 left-2 bg-blue-600 text-white text-sm px-6 py-1 rounded-full">
+  <span className="absolute z-10 top-2 left-2 bg-blue-600 text-white text-sm px-6 py-1 rounded-full">
     Sale
   </span>
 ));
 
 const OutOfStockBadge = memo(() => (
-  <span className="absolute z-20 top-2 left-2 text-white text-sm px-3 py-1 rounded-full bg-red-600">
+  <span className="absolute z-10 top-2 left-2 text-white text-sm px-3 py-1 rounded-full bg-red-600">
     Out of Stock
   </span>
 ));

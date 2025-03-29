@@ -15,7 +15,7 @@ import axios from "axios";
 
 const backend = import.meta.env.VITE_BACKEND;
 
-function BottomNavigation({ searchFunc , user }) {
+function BottomNavigation({ searchFunc, user }) {
   return (
     <div className='fixed bottom-0 left-0 right-0 w-full h-auto p-2 bg-white border-t border-gray-200 flex justify-around items-center z-50 sm:hidden'>
 
@@ -168,11 +168,14 @@ function Header() {
     }
 
     function handleScroll() {
-      setDropDown(false);
-      setInfoDropdown(false);
-      setInfoDropdown2(false);
-      setUserDropDown(false);
-      setIsSearchOpen(false);
+      const scrollY = window.scrollY;
+      if (scrollY.toFixed(0) > 300) {
+        setDropDown(false);
+        setInfoDropdown(false);
+        setInfoDropdown2(false);
+        setUserDropDown(false);
+        setIsSearchOpen(false);
+      }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -228,7 +231,7 @@ function Header() {
 
             {/* Dropdown Menu */}
             {infoDropdown && (
-              <div className="absolute top-10 left-0 w-64 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-30">
+              <div className="absolute top-10 left-0 w-64 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-40">
                 {[
                   { name: "Unboxing Policy", path: "/unboxing-policy" },
                   { name: "Disclaimer", path: "/disclaimer" },
@@ -413,7 +416,7 @@ function Header() {
 
           {/* Dropdown Menu */}
           {infoDropdown2 && (
-            <div className="absolute top-10 right-0 w-64 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-30">
+            <div className="absolute top-10 right-0 w-64 bg-white border border-gray-200 shadow-lg p-7 py-3 flex flex-col gap-2 z-40">
               {[
                 { name: "Unboxing Policy", path: "/unboxing-policy" },
                 { name: "Disclaimer", path: "/disclaimer" },
