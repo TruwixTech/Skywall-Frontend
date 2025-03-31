@@ -17,7 +17,7 @@ input[type="number"] {
   position: fixed;
   bottom: 62px;
   right: 20px;
-  z-index: 1000;
+  z-index: 40;
 }
 
 .whatsapp-float img {

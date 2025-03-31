@@ -42,6 +42,7 @@ import Invoice from './Components/AdminDashboardComponents/InvoiceComponents/Inv
 import MyInvoices from './Components/UsersComponents/MyInvoices.jsx'
 import ReturnRequest from './Components/AdminDashboardComponents/ReturnRequestComponents/ReturnRequest.jsx'
 import ForgotPassword from './Pages/ForgotPassword.jsx'
+import NewsUpdates from './Components/AdminDashboardComponents/NewsAndUpdatesComponents/NewsUpdates.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -85,6 +86,7 @@ const router = createBrowserRouter(
           <Route path='/admin-dashboard/invoices' element={<Invoice />} />
           <Route path='/admin-dashboard/return-requests' element={<ReturnRequest />} />
           <Route path='/admin-dashboard/area-of-services' element={<AreaOfServices />} />
+          <Route path='/admin-dashboard/news-updates' element={<NewsUpdates />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFound />} />

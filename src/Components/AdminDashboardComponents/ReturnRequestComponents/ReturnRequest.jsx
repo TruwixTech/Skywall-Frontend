@@ -92,7 +92,7 @@ const ReturnRequest = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6 w-full bg-gradient-to-b from-gray-50 to-blue-50">
+        <div className="min-h-screen bg-gray-50 p-6 w-full bg-gradient-to-b from-gray-50 to-blue-50 pt-14">
             <div className="max-w-7xl mx-auto">
                 {showConfirmPopup && (
                     <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -127,7 +127,7 @@ const ReturnRequest = () => {
                 {
                     loading && <LoadingSpinner />
                 }
-                <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-2">
+                <h1 className="text-xl sm:text-3xl font-bold text-gray-900 mb-8 flex items-center gap-2">
                     <ClipboardList className="w-8 h-8" />
                     Return Requests Management
                 </h1>
