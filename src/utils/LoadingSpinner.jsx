@@ -2,7 +2,7 @@ import React from "react";
 
 const LoadingSpinner = () => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-200/80 bg-opacity-100 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-200/80 bg-opacity-100 z-[1000]">
       <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
   );

@@ -12,6 +12,8 @@ function Television() {
   const [pageNum, setPageNum] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [customMin, setCustomMin] = useState("");
+  const [customMax, setCustomMax] = useState("");
 
   // Price ranges
   const priceRanges = {
@@ -47,6 +49,16 @@ function Television() {
     fetchAllProducts();
   }, [pageNum]);
 
+  const getSelectedPriceRange = () => {
+    if (priceRange === "Custom") {
+      return {
+        min: customMin ? parseInt(customMin, 10) : 0,
+        max: customMax ? parseInt(customMax, 10) : Infinity,
+      };
+    }
+    return priceRanges[priceRange];
+  };
+
   // Filter & Sorting Logic
   const filteredTelevisions = products.filter((tv) => {
     const availabilityFilter =
@@ -54,9 +66,8 @@ function Television() {
       (availability === "In Stock" && tv.stock > 0) ||
       (availability === "Out of Stock" && tv.stock <= 0);
 
-    const selectedRange = priceRanges[priceRange];
-    const priceFilter =
-      tv.new_price >= selectedRange.min && tv.new_price <= selectedRange.max;
+    const selectedRange = getSelectedPriceRange();
+    const priceFilter = tv.new_price >= selectedRange.min && tv.new_price <= selectedRange.max;
 
     return availabilityFilter && priceFilter;
   });
@@ -77,8 +88,8 @@ function Television() {
 
       <div className="w-full h-auto flex flex-col px-5 md:px-10 lg:px-20 xl:px-32 py-5 gap-8 lg:gap-10">
         {/* Filter & Sort Bar */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full py-4 px-6 border-b border-gray-300 text-black text-sm space-y-4 md:space-y-0">
-          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full md:w-auto">
+        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center w-full py-4 px-6 border-b border-gray-300 text-black text-sm space-y-4 xl:space-y-0">
+          <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto">
             <span className="font-medium">Filter:</span>
             <select
               className="outline-none p-2 rounded-md cursor-pointer"
@@ -90,6 +101,7 @@ function Television() {
               <option value="Out of Stock">Out of Stock</option>
             </select>
 
+            {/* Price Range Dropdown */}
             <select
               className="outline-none p-2 rounded-md cursor-pointer"
               value={priceRange}
@@ -100,7 +112,37 @@ function Television() {
               <option value="₹10,000 - ₹20,000">₹10,000 - ₹20,000</option>
               <option value="₹20,000 - ₹30,000">₹20,000 - ₹30,000</option>
               <option value="₹30,000 & Above">₹30,000 & Above</option>
+              <option value="Custom">Custom Range</option>
             </select>
+
+            {/* Custom Price Input Fields (Shown Only If "Custom" is Selected) */}
+            {priceRange === "Custom" && (
+              <div className="flex gap-2 mt-2">
+                <input
+                  type="number"
+                  value={customMin}
+                  onWheel={(e) => e.target.blur()}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setCustomMin(value >= 0 ? value : ""); // Ensure non-negative value
+                  }}
+                  placeholder="Min ₹"
+                  className="border p-2 rounded-md"
+                />
+                <input
+                  type="number"
+                  value={customMax}
+                  onWheel={(e) => e.target.blur()}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setCustomMax(value >= 0 ? value : ""); // Ensure non-negative value
+                  }}
+                  placeholder="Max ₹"
+                  className="border p-2 rounded-md"
+                />
+              </div>
+            )}
+
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full md:w-auto">
