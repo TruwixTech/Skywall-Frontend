@@ -241,7 +241,7 @@ function AreaOfServices() {
         <div className="container mx-auto px-4 py-8 pt-14">
             <div className="flex flex-col gap-3 sm:gap-0 sm:flex-row sm:justify-between sm:items-center mb-8">
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Service Areas</h1>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                     {/* Search Field */}
                     <form onSubmit={handleSearch} className="flex items-center">
                         <div className="relative">

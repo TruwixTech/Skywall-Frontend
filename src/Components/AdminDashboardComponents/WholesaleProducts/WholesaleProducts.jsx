@@ -397,8 +397,10 @@ const WholesaleProductsPage = () => {
             )}
 
             {(selectedProduct || editingWholesale) && (
-                <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex z-40 items-center justify-center">
-                    <div className="bg-white p-6 rounded-lg w-full max-w-2xl">
+                <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex z-50 items-center justify-center">
+                    <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-scroll" style={{
+                        scrollbarWidth: 'none'
+                    }}>
                         <h2 className="text-xl font-bold mb-4">
                             {editingWholesale ? 'Edit' : 'Configure'} Wholesale for {editingWholesale?.product?.name || selectedProduct?.name}
                         </h2>
