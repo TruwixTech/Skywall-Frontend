@@ -41,7 +41,6 @@ const TelevisionSinglePage = () => {
   const [ratingDistribution, setRatingDistribution] = useState({})
   const [averageRating, setAverageRating] = useState(0);
   const [ratingPage, setRatingPage] = useState(1);
-  const [alreadyInCart, setAlreadyInCart] = useState(false)
   const navigate = useNavigate()
 
   // Handle quantity changes
@@ -112,37 +111,6 @@ const TelevisionSinglePage = () => {
     return ratingPercentages;
   };
 
-  async function getCartItems(token) {
-    try {
-      setLoading(true)
-      const decodedToken = jwtDecode(token)
-      const response = await axios.post(`${backend}/cart/list`, {
-        filters: {
-          user: decodedToken?.userId
-        },
-        pageNum: 1,
-        pageSize: 50
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      if (response.data.status === "Success") {
-        const isProductInCart = response.data.data.cartList[0].items.some(item => item.product._id === id)
-        setAlreadyInCart(isProductInCart)
-        // setCartItems(response.data.data.cartList)
-        setLoading(false)
-      }
-
-    } catch (error) {
-      console.log("Error while fetching cart items", error)
-      setLoading(false)
-    }
-  }
-
-
-
   async function addToCart() {
     toast.dismiss()
     const token = JSON.parse(localStorage.getItem('token'))
@@ -173,7 +141,6 @@ const TelevisionSinglePage = () => {
         toast.success("Product added to cart successfully!")
         setShowWarrantyPopup(false)
         setSelectedWarranty(null)
-        setAlreadyInCart(true)
         setQuantity(1)
       }
     } catch (error) {
@@ -276,9 +243,7 @@ const TelevisionSinglePage = () => {
   function addToCartBtn() {
     toast.dismiss()
     singleProduct?.stock > 0
-      ? alreadyInCart
-        ? navigate('/cart')
-        : handlepopup()
+      ? handlepopup()
       : toast.error("Product is out of stock.");
   }
 
@@ -294,14 +259,6 @@ const TelevisionSinglePage = () => {
       setShowWarrantyPopup(true);
     }
   }
-
-
-  useEffect(() => {
-    const token = JSON.parse(localStorage.getItem('token'))
-    if (token) {
-      getCartItems(token)
-    }
-  }, [])
 
   return (
     <div className="min-h-screen">
@@ -504,11 +461,7 @@ const TelevisionSinglePage = () => {
                     <button onClick={addToCartBtn}
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md flex items-center justify-center">
                       <ShoppingCart size={18} className="mr-2" />
-                      {
-                        alreadyInCart
-                          ? "Already in Cart"
-                          : "Add to Cart"
-                      }
+                      Add to Cart
                     </button>
                   )}
                 </div>
@@ -817,11 +770,7 @@ const TelevisionSinglePage = () => {
               </div>
               <div className="flex justify-between space-x-4">
                 <button
-                  onClick={() => {
-                    setShowWarrantyPopup(false),
-                      setSelectedWarranty(null),
-                      setQuantity(1)
-                  }}
+                  onClick={addToCart}
                   className="flex-1 px-6 py-3 text-gray-600 font-medium rounded-lg hover:bg-gray-50 transition-colors border-2 border-gray-200"
                 >
                   No Thanks
