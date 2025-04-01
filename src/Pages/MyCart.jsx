@@ -4,9 +4,9 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { FiTrash2 } from "react-icons/fi";
 import { toast } from 'react-toastify';
- 
+
 const backend = import.meta.env.VITE_BACKEND;
- 
+
 function MyCart() {
     const [products, setProducts] = useState([])
     const [cartItems, setCartItems] = useState([])
@@ -41,12 +41,12 @@ function MyCart() {
                     'Authorization': `Bearer ${token}`
                 }
             })
- 
+
             if (response.data.status === "Success") {
                 setCartItems(response.data.data.cartList)
                 setLoading(false)
             }
- 
+
         } catch (error) {
             console.log("Error while fetching cart items", error)
             setLoading(false)
@@ -64,7 +64,12 @@ function MyCart() {
             let updatedQuantity = cartItem.quantity || 1; // Default to 1 if quantity is not defined
 
             if (action === "increase") {
-                updatedQuantity += 1;
+                if (updatedQuantity >= cartItem.product.stock) {
+                    toast.error("Available Stock Quantity Exceeded.");
+                    return
+                } else {
+                    updatedQuantity += 1;
+                }
             } else if (action === "decrease" && updatedQuantity > 1) {
                 updatedQuantity -= 1;
             } else {
@@ -92,13 +97,28 @@ function MyCart() {
             console.log("Error while increasing/decreasing quantity", error);
         }
     }
-  
+
     async function handleCheckout() {
         toast.dismiss();
-        toast.info("Proceeding to checkout...")
-        navigate('/checkout', { state: { from: "cart", items: cartItems, subtotal: (calculateSubtotal()) - (calculateSubtotal() * (discount / 100)), shipping: shippingCost } });
+        // Check stock availability
+        for (const item of cartItems[0].items) {
+            if (item.quantity > item.product.stock) {
+                toast.info(`Only ${item.product.stock} units of ${item.product.name} are available in stock.`);
+                return;
+            }
+        }
+
+        toast.info("Proceeding to checkout...");
+        navigate('/checkout', {
+            state: {
+                from: "cart",
+                items: cartItems,
+                subtotal: (calculateSubtotal()) - (calculateSubtotal() * (discount / 100)),
+                shipping: shippingCost
+            }
+        });
     }
- 
+
     async function fetchAllProducts() {
         try {
             setLoading(true)
@@ -107,7 +127,7 @@ function MyCart() {
                 pageSize: 4,
                 filters: {},
             });
- 
+
             if (response.data.status === "Success") {
                 setProducts(response.data.data.productList);
                 setLoading(false)
@@ -148,7 +168,7 @@ function MyCart() {
         fetchAllProducts();
         getCartItems()
     }, []);
- 
+
     async function removeFromCart(id) {
         try {
             setLoading(true)
@@ -170,20 +190,20 @@ function MyCart() {
             console.log("Error while removing from cart", error)
         }
     }
- 
+
     const formatWarrantyPeriod = (months) => {
         if (months < 12) return `${months} Month${months > 1 ? "s" : ""}`;
- 
+
         const years = Math.floor(months / 12);
         const remainingMonths = months % 12;
         return remainingMonths === 0
             ? `${years} Year${years > 1 ? "s" : ""}`
             : `${years}.${Math.round((remainingMonths / 12) * 10)} Years`;
     };
- 
+
     return (
         <div className='w-full h-auto flex  flex-col '>
- 
+
             <div className='lg:w-[70%] w-full  px-4  pt-8 min-h-screen mx-auto pb-10 md:pb-20'>
                 {
                     loading
@@ -386,7 +406,7 @@ function MyCart() {
                         </>
                 }
                 <h1 className='text-2xl md:text-3xl  py-12 text-gray-800 '>Featured collection</h1>
- 
+
                 {
                     loading
                         ? <div className="w-full h-80 flex justify-center items-center">
@@ -425,17 +445,17 @@ function MyCart() {
                                             />
                                         )}
                                     </div>
- 
+
                                     {/* TV Name */}
                                     <h3 className="text-gray-800 font-semibold mt-3 transition-all duration-300 ease-in-out group-hover:underline group-hover:underline-offset-4">
                                         {television?.name}
                                     </h3>
- 
+
                                     {/* TV Brand */}
                                     <p className="text-gray-500 text-sm uppercase mt-1">
                                         {television?.companyName}™ TV
                                     </p>
- 
+
                                     {/* Price Section */}
                                     <div className="mt-2">
                                         <span className="text-gray-400 line-through text-sm">
@@ -447,7 +467,7 @@ function MyCart() {
                                     </div>
                                 </Link>
                             ))}
- 
+
                         </div>
                 }
                 <div className='flex flex-col items-center justify-center text-center  mt-14 '>
@@ -457,5 +477,5 @@ function MyCart() {
         </div>
     )
 }
- 
+
 export default MyCart
