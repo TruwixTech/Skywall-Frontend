@@ -199,13 +199,13 @@ function MyCart() {
                                             return (
                                                 <div key={item._id} className="group relative flex flex-col md:flex-row gap-4 md:gap-6 px-4 py-5 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
                                                     {/* Product Image */}
-                                                    <div className="flex-shrink-0 mx-auto md:mx-0">
+                                                    <Link to={`/television/${item.product._id}`} className="flex-shrink-0 mx-auto md:mx-0">
                                                         <img
                                                             src={item.product.image[0]}
                                                             alt={item.product.name}
                                                             className="w-44 h-44 md:w-24 md:h-24 object-contain rounded-lg border border-gray-200"
                                                         />
-                                                    </div>
+                                                    </Link>
                                                     {/* Product Details */}
                                                     <div className="flex-grow">
                                                         <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1">
