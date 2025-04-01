@@ -776,7 +776,14 @@ const TelevisionSinglePage = () => {
                   No Thanks
                 </button>
                 <button
-                  onClick={addToCart}
+                  onClick={()=>{
+                    toast.dismiss()
+                    if(selectedWarranty === null) {
+                      toast.error("Please select a warranty")
+                      return
+                    }
+                    addToCart()
+                  }}
                   className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium rounded-lg hover:opacity-90 transition-opacity shadow-lg"
                 >
                   Add Protection
