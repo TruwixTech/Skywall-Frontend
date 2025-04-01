@@ -255,8 +255,13 @@ function WholesaleBulkOrders() {
 
     const handleCheckoutSubmit = async (e) => {
         try {
+            toast.dismiss();
             e.preventDefault();
             if (!validateForm()) return
+            if (selectedProducts.length === 0){
+                toast.error('Please select at least one product.');
+                return
+            }
             setLoading(true);
             const products = selectedProducts.map(product => ({
                 product_id: product.product_id._id,

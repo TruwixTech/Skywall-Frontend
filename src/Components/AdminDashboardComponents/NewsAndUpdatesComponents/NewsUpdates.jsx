@@ -167,6 +167,7 @@ function NewsUpdates() {
     };
 
     const handleImageUpload = (e) => {
+        if(images.length >= 5 || images.length + e.target.files.length > 5) return toast.error('You can only upload a maximum of 5 images.');
         const files = Array.from(e.target.files);
         setImages(files);
     };
@@ -586,8 +587,6 @@ function NewsUpdates() {
                                     ))}
                                 </div>
                             </div>
-
-                            {/* ... (rest of the form similar to create popup) */}
 
                             <button
                                 type="submit"

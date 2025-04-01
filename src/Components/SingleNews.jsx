@@ -100,7 +100,7 @@ function SingleNews() {
   const ImageCarousel = () => (
     <div className="relative w-full h-96 md:h-[500px] overflow-hidden">
       {/* Navigation arrows */}
-      {article.image.length > 1 && (
+      {article?.image?.length > 1 && (
         <>
           <button
             onClick={prevImage}
@@ -120,7 +120,7 @@ function SingleNews() {
       {/* Image container with transition */}
       <div className="relative h-full w-full flex transition-transform duration-500 ease-in-out"
         style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}>
-        {article.image.map((img, index) => (
+        {article?.image.map((img, index) => (
           <div key={index} className="w-full h-full flex-shrink-0">
             <img
               src={img}
@@ -160,26 +160,6 @@ function SingleNews() {
       </div>
     </div>
   );
-
-  if (!article) {
-    return (
-      <div className="w-full flex flex-col items-center justify-center py-20">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          Article Not Found
-        </h2>
-        <p className="text-gray-600 mb-6">
-          The article you're looking for doesn't exist or has been removed.
-        </p>
-        <Link
-          to="/news-media"
-          className="flex items-center text-blue-600 font-medium hover:underline"
-        >
-          <ArrowLeft size={16} className="mr-2" />
-          Back to News
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full bg-gray-50">
