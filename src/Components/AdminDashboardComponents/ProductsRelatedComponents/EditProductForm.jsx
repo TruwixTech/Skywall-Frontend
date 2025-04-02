@@ -273,6 +273,18 @@ const EditProduct = ({ selectedProduct, onOpen, onClose, fetchAllProducts }) => 
                             />
                         </div>
 
+                        {/* Description */}
+                        <div>
+                            <label className="block mb-1 font-medium">Description</label>
+                            <textarea
+                                type="text"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded-md h-40 resize-none"
+                            />
+                        </div>
+
                         {/* Pricing Section */}
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                             <div>
