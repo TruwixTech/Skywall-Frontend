@@ -184,7 +184,7 @@ const Footer = () => {
 
             <span className="flex gap-4 items-center lg:text-xs xl:text-base">
               <LuMailOpen size={20} className="flex-shrink-0" />{" "}
-              <a href="mailto:abcs@skywall.in">customer.care@foxskyindia.com</a>
+              <a href="mailto:customer.care@foxskyindia.com">customer.care@foxskyindia.com</a>
             </span>
             <span className="flex gap-4 items-center lg:text-xs xl:text-base">
               <LuPhoneCall size={20} />{" "}
