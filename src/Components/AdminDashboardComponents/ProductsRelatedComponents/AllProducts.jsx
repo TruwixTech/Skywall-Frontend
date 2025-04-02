@@ -24,6 +24,7 @@ const backend = import.meta.env.VITE_BACKEND
 
 const AllProducts = () => {
     const [products, setProducts] = useState([]);
+    const [totalProducts, setTotalProducts] = useState([]);
     const [showOutOfStock, setShowOutOfStock] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('price');
@@ -107,10 +108,7 @@ const AllProducts = () => {
     };
 
     // Pagination
-    const indexOfLastProduct = currentPage * productsPerPage;
-    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
-    const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
+    const totalPages = Math.ceil(totalProducts / productsPerPage);
 
     // Bulk actions
     const toggleProductSelection = (productId) => {
@@ -165,6 +163,7 @@ const AllProducts = () => {
             });
             if (response.data.status === "Success") {
                 setLoading(false);
+                setTotalProducts(response.data.data.productCount);
                 setProducts(response.data.data.productList);
             }
 
@@ -177,6 +176,11 @@ const AllProducts = () => {
     useEffect(() => {
         fetchAllProducts();
     }, [])
+
+    useEffect(() => {
+        fetchAllProducts();
+        window.scrollTo(0, 0);
+    }, [currentPage]); 
 
     // View mode toggle buttons
     const ViewModeToggle = () => (
@@ -625,13 +629,13 @@ const AllProducts = () => {
                     </div>
                 ) : viewMode === 'grid' ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {currentProducts.map(product => (
+                        {products.map(product => (
                             <ProductCard key={product._id} product={product} />
                         ))}
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {currentProducts.map(product => (
+                        {products.map(product => (
                             <ListItem key={product._id} product={product} />
                         ))}
                     </div>
@@ -641,7 +645,7 @@ const AllProducts = () => {
                 {totalPages > 1 && (
                     <div className="mt-8 flex justify-center items-center gap-2">
                         <button
-                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                             disabled={currentPage === 1}
                             className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50"
                         >
@@ -662,7 +666,7 @@ const AllProducts = () => {
                         ))}
 
                         <button
-                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                             disabled={currentPage === totalPages}
                             className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50"
                         >
