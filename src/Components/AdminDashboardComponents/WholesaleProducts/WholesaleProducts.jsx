@@ -22,11 +22,10 @@ const WholesaleProductsPage = () => {
     const { showPopup, closePopup, isAuthorized } = useAdminRouteProtection(["SuperAdmin"]);
 
     useEffect(() => {
-        fetchAllProducts();
-        fetchWholesaleProducts();
+        fetchWholesaleProducts()
     }, []);
 
-    async function fetchAllProducts() {
+    async function fetchAllProducts(products) {
         try {
             setLoading(true);
             const response = await axios.post(`${backend}/product/list`, {
@@ -35,7 +34,13 @@ const WholesaleProductsPage = () => {
                 filters: {}
             });
             if (response.data.status === "Success") {
-                setProducts(response.data.data.productList);
+                const allProducts = response.data.data.productList;
+                const filteredProducts = allProducts.filter(
+                    (product) => !products.some(
+                        (wholesale) => wholesale.product_id._id === product._id
+                    )
+                );
+                setProducts(filteredProducts);
             }
         } catch (error) {
             console.error('Error fetching products:', error);
@@ -55,6 +60,7 @@ const WholesaleProductsPage = () => {
             if (response.data.status === "Success") {
                 setLoading(false);
                 setSelectedProducts(response.data.data.wholesaleProductsList);
+                fetchAllProducts(response.data.data.wholesaleProductsList);
             }
         } catch (error) {
             console.error('Error fetching wholesale products:', error);

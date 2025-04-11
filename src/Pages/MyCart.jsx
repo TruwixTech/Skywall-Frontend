@@ -229,10 +229,10 @@ function MyCart() {
                                                     {/* Product Details */}
                                                     <div className="flex-grow">
                                                         <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1">
-                                                            <h3 className="text-lg font-semibold text-gray-800 truncate">
+                                                            <h3 className="text-lg font-semibold text-wrap text-gray-800 truncate">
                                                                 {item.product.name}
                                                             </h3>
-                                                            <div className="flex items-center gap-2 md:pt-4">
+                                                            <div className="flex items-center gap-2 md:pt-4 shrink-0">
                                                                 <button
                                                                     onClick={() => increaseDecreaseQuantity(item, "decrease")}
                                                                     className="px-2 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"

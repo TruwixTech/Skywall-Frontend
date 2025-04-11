@@ -251,8 +251,7 @@ const TelevisionSinglePage = () => {
   function handlepopup() {
     if (
       singleProduct?.warranty_pricing &&
-      Object.keys(singleProduct.warranty_pricing).length === 1 &&
-      singleProduct.warranty_pricing[""] === 0
+      Object.keys(singleProduct.warranty_pricing).length === 0
     ) {
       addToCart();
     } else {
