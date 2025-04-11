@@ -103,7 +103,8 @@ function SignUp() {
                 toast.error(verifyResponse.data.message || "OTP verification failed.");
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "An error occurred during verification.");
+            console.log(error);
+            toast.error(error.response?.data?.data?.message || "An error occurred during verification.");
         } finally {
             setLoading(false);
         }
