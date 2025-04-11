@@ -128,11 +128,12 @@ function CheckoutPage() {
             const response = await axios.post(`${backend}/zipcode/get-data`, { zipcode: formData.zip });
             if (response.data.status === 'Success') {
                 const { exists, beforeFive, afterFive } = response.data.data.zipcode;
-                if(!exists) {
+                if (!exists) {
                     const nearestZipCodes = beforeFive.concat(afterFive);
                     setNearestZipCodes(nearestZipCodes);
                 }
                 setZipcodeModel(!exists);
+                setLoading(false);
                 return exists;
             }
         } catch (error) {
@@ -312,11 +313,17 @@ function CheckoutPage() {
                                             type="number"
                                             onWheel={(e) => e.target.blur()}
                                             value={formData.zip}
-                                            onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
-                                            placeholder='ZIP Code'
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (value.length <= 6) {
+                                                    setFormData({ ...formData, zip: value });
+                                                }
+                                            }}
+                                            placeholder="ZIP Code"
                                             required
                                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         />
+
                                     </div>
                                 </div>
                             </div>

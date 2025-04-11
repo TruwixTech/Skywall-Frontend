@@ -78,8 +78,8 @@ function MyOrders() {
       setLoading(true);
       setCancellingOrderId(orderId);
       const response = await axios.post(
-        `${backend}/order/${orderId}/update`,
-        { status: CANCELLED },
+        `${backend}/order/${orderId._id}/update`,
+        { status: CANCELLED, order : selectedOrderId },
         {
           headers: {
             Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
@@ -312,7 +312,7 @@ function MyOrders() {
                 {order.status === PENDING && (
                   <button
                     onClick={() => {
-                      setSelectedOrderId(order._id);
+                      setSelectedOrderId(order);
                       setShowCancelConfirm(true);
                     }}
                     disabled={cancellingOrderId === order._id}
@@ -330,7 +330,7 @@ function MyOrders() {
                   <>
                     <button
                       onClick={() => {
-                        setSelectedOrderId(order._id);
+                        setSelectedOrderId(order);
                         setShowReturnPopup(true);
                       }}
                       disabled={processingReturnId === order._id}
@@ -342,7 +342,7 @@ function MyOrders() {
                       {processingReturnId === order._id ? 'Processing...' : 'Return Order'}
                     </button>
 
-                    {showReturnPopup && selectedOrderId === order._id && (
+                    {showReturnPopup && selectedOrderId._id === order._id && (
                       <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4 z-10">
                         <div className="bg-white rounded-lg p-6 w-full max-w-md">
                           <h3 className="text-lg font-semibold mb-4">Select Return Reason</h3>
