@@ -211,7 +211,7 @@ const ReturnRequest = () => {
                                                 {request.order_id.products.map((product, index) => (
                                                     <li key={index} className="flex justify-between text-sm">
                                                         <span>{product.product_id.name}</span>
-                                                        <span className="text-gray-500">Qty: {product.quantity}</span>
+                                                        <span className="text-gray-500 shrink-0">Qty: {product.quantity}</span>
                                                     </li>
                                                 ))}
                                             </ul>

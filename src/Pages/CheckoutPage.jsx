@@ -399,7 +399,7 @@ function CheckoutPage() {
                             {cartItems.map((item) => {
                                 const warrantyPrice = item.product.warranty_pricing[item.warranty_months] || 0;
                                 return (
-                                    <div key={item._id} className="flex justify-between items-center">
+                                    <div key={item._id} className="flex justify-between">
                                         <div>
                                             <p className="font-medium">{item.product.name}</p>
                                             <div className='w-auto h-auto flex gap-2 items-center'>
@@ -411,7 +411,7 @@ function CheckoutPage() {
                                                 }
                                             </div>
                                         </div>
-                                        <div className='w-auto h-auto flex flex-col'>
+                                        <div className='w-auto h-auto flex flex-col shrink-0'>
                                             <p className="font-medium">₹ {(item.product.new_price * item.quantity).toFixed(2)}</p>
                                             {
                                                 item.warranty_months
