@@ -189,7 +189,7 @@ function Header() {
 
   return (
     <>
-      <header className="w-full h-16 sm:h-20 md:h-24 flex px-5 items-center justify-between relative lg:px-10 xl:px-32 2xl:px-40">
+      <header className="w-full h-16 sm:h-20 md:h-24 flex px-5 items-center justify-between relative lg:px-10 xl:px-20 2xl:px-40">
         {/* Logo */}
         <NavLink to="/" className="w-auto h-9 md:h-12">
           <img src={Logo} alt="logo" className="w-full h-full" />
