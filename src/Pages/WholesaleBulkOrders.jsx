@@ -97,16 +97,16 @@ function WholesaleBulkOrders() {
 
     const handleQuantityChange = (index, value) => {
         const updatedProducts = [...wholesaleBulkProducts];
-    
+
         // Allow empty input to let the user clear the field
         updatedProducts[index].quantity = value === "" ? "" : Math.max(1, Number(value));
-    
+
         // Auto-select when quantity changes
         updatedProducts[index].selected = true;
-    
+
         setWholesaleBulkProducts(updatedProducts);
     };
-    
+
 
     const handleCheckboxChange = (index) => {
         const updatedProducts = [...wholesaleBulkProducts];
@@ -258,7 +258,7 @@ function WholesaleBulkOrders() {
             toast.dismiss();
             e.preventDefault();
             if (!validateForm()) return
-            if (selectedProducts.length === 0){
+            if (selectedProducts.length === 0) {
                 toast.error('Please select at least one product.');
                 return
             }
@@ -432,11 +432,16 @@ function WholesaleBulkOrders() {
                                                     <input
                                                         type="number"
                                                         min="1"
-                                                        value={item.quantity === 0 ? "" : item.quantity} // Allow empty value
+                                                        step="1" // Prevents decimals when using up/down arrows
+                                                        value={item.quantity === 0 ? "" : item.quantity}
                                                         onChange={(e) => handleQuantityChange(index, e.target.value)}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === '.' || e.key === 'e' || e.key === '+' || e.key === '-') {
+                                                                e.preventDefault();
+                                                            }
+                                                        }}
                                                         className="w-24 px-4 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                                                     />
-
                                                 </div>
 
                                                 <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8">
