@@ -13,7 +13,7 @@ const EditProduct = ({ selectedProduct, onOpen, onClose, fetchAllProducts }) => 
         discount_percentage: "",
         new_price: "",
         stock: "",
-        warranty_years: "",
+        warranty_months: "",
         highlights: [],
         specificationSchema: [],
         description: "",
@@ -36,7 +36,7 @@ const EditProduct = ({ selectedProduct, onOpen, onClose, fetchAllProducts }) => 
                 discount_percentage: selectedProduct.discount_percentage,
                 new_price: selectedProduct.new_price,
                 stock: selectedProduct.stock,
-                warranty_years: selectedProduct.warranty_years,
+                warranty_months: selectedProduct.warranty_months,
                 highlights: selectedProduct.highlights || [],
                 specificationSchema: selectedProduct.specificationSchema || [],
                 description: selectedProduct.description,
@@ -262,16 +262,29 @@ const EditProduct = ({ selectedProduct, onOpen, onClose, fetchAllProducts }) => 
                         </div>
 
                         {/* Category */}
-                        <div>
-                            <label className="block mb-1 font-medium">Category</label>
-                            <input
-                                type="text"
-                                name="category"
-                                value={formData.category}
-                                onChange={handleInputChange}
-                                className="w-full p-2 border rounded-md"
-                            />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block mb-1 font-medium">Category</label>
+                                <input
+                                    type="text"
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleInputChange}
+                                    className="w-full p-2 border rounded-md"
+                                />
+                            </div>
+                            <div>
+                                <label className="block mb-1 font-medium">Warranty (in Months)</label>
+                                <input
+                                    type="text"
+                                    name="warranty_months"
+                                    value={formData.warranty_months}
+                                    onChange={handleInputChange}
+                                    className="w-full p-2 border rounded-md"
+                                />
+                            </div>
                         </div>
+
 
                         {/* Description */}
                         <div>

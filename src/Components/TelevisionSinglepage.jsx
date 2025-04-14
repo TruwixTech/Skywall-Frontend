@@ -41,6 +41,7 @@ const TelevisionSinglePage = () => {
   const [ratingDistribution, setRatingDistribution] = useState({})
   const [averageRating, setAverageRating] = useState(0);
   const [ratingPage, setRatingPage] = useState(1);
+  const [relatedProducts, setRelatedProducts] = useState([])
   const navigate = useNavigate()
 
   // Handle quantity changes
@@ -210,6 +211,30 @@ const TelevisionSinglePage = () => {
     }
   }
 
+  async function fetchRelatedProducts(id) {
+    try {
+      setLoading(true);
+
+      const response = await axios.post(`${backend}/product/list`, {
+        pageNum: 1,
+        pageSize: 6,
+        filters: {},
+      });
+
+      if (response.data.status === "Success") {
+        let products = response.data.data.productList;
+        const productIdToExclude = id;
+        const filteredProducts = products.filter(product => product._id !== productIdToExclude);
+        setRelatedProducts(filteredProducts.slice(0, 4));
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
   async function getSingleProductDetails(id) {
     try {
       setLoading(true)
@@ -228,6 +253,7 @@ const TelevisionSinglePage = () => {
 
   useEffect(() => {
     getSingleProductDetails(id)
+    fetchRelatedProducts(id)
   }, [id, ratingPage])
 
   const formatWarrantyPeriod = (months) => {
@@ -578,6 +604,63 @@ const TelevisionSinglePage = () => {
             </div>
           </div>
 
+          <div className="w-full h-auto flex flex-col my-10">
+            <h1 className="mb-10 text-xl sm:text-2xl md:text-4xl font-semibold text-center">Related Products</h1>
+            <div className="w-full h-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {
+                relatedProducts.length > 0
+                  ? relatedProducts.map((tv, index) => (
+                    <Link to={`/television/${tv._id}`} key={tv._id}>
+                      <div className="group w-full p-4 rounded-lg bg-white relative duration-300 ease-in-out transition-all overflow-hidden cursor-pointer">
+                        <span
+                          className={`absolute z-20 top-2 left-2 text-white text-sm px-3 py-1 rounded-full ${tv.stock > 0 ? "bg-green-600" : "bg-red-600"
+                            }`}
+                        >
+                          {tv.stock > 0 ? "In Stock" : "Out of Stock"}
+                        </span>
+
+                        {/* Product Images */}
+                        <div className="relative w-full h-60 rounded-md overflow-hidden">
+                          <img
+                            src={tv.image[0]}
+                            alt={tv.name}
+                            className={`${tv.image.length > 1 ? "group-hover:opacity-0" : ""} absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-100`}
+                          />
+                          {tv.image.length > 1 && (
+                            <img
+                              src={tv.image[1]}
+                              alt={tv.name}
+                              className="absolute inset-0 w-full h-full object-contain rounded-md transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100"
+                            />
+                          )}
+                        </div>
+
+                        {/* Product Name */}
+                        <h3 className="text-gray-800 font-semibold mt-3 transition-all duration-300 ease-in-out group-hover:underline">
+                          {tv.name}
+                        </h3>
+                        {/* TV Brand */}
+                        <p className="text-gray-500 text-sm uppercase mt-1">
+                          {tv.companyName}™ TV
+                        </p>
+
+                        {/* Product Price */}
+                        <div className="mt-2">
+                          <span className="text-gray-400 line-through text-sm">
+                            Rs. {tv.price.toLocaleString()}
+                          </span>
+                          <span className="text-black text-lg ml-2">
+                            Rs. {tv.new_price.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))
+                  : <div className="w-full h-80 flex justify-center items-center col-span-4 text-xl font-semibold">No Products Found</div>
+              }
+            </div>
+          </div>
+
           {/* Reviews */}
           <div className="border-t p-6">
             <div className="flex justify-between items-center mb-6">
@@ -775,9 +858,9 @@ const TelevisionSinglePage = () => {
                   No Thanks
                 </button>
                 <button
-                  onClick={()=>{
+                  onClick={() => {
                     toast.dismiss()
-                    if(selectedWarranty === null) {
+                    if (selectedWarranty === null) {
                       toast.error("Please select a warranty")
                       return
                     }
