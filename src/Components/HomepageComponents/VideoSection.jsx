@@ -39,7 +39,7 @@ function VideoSection() {
         className="w-full h-auto"
         aria-label="Background video"
       >
-        <source src='https://res.cloudinary.com/daqtq6xns/video/upload/f_auto:video,q_auto/bmt6hni1u5hog7gih5an' type="video/mp4" />
+        <source src='https://sky-wall.s3.ap-south-1.amazonaws.com/1744631810058_skywall_64d44eec0a57468bafbcde5ebd47c2d3.mp4' type="video/mp4" />
         Your browser does not support the video tag.
       </video>
     </div>

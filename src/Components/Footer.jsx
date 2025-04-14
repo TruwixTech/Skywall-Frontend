@@ -19,20 +19,30 @@ const Footer = () => {
   const navigate = useNavigate();
 
   async function userSubsribes() {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await axios.post(`${backend}/otp/user-subscribes`, {
         email: email
-      })
+      });
+
       if (response.data.status === "Success") {
         toast.success('Subscribed successfully!');
-        setLoading(false);
         setEmail('');
       }
     } catch (error) {
+      toast.error('Subscription failed. Please try again.');
+    } finally {
       setLoading(false);
     }
   }
+
 
   return (
     <footer className="w-full h-auto flex flex-col bg-gray-200">
