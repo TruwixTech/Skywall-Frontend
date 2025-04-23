@@ -167,9 +167,15 @@ function NewsUpdates() {
     };
 
     const handleImageUpload = (e) => {
-        if(images.length >= 5 || images.length + e.target.files.length > 5) return toast.error('You can only upload a maximum of 5 images.');
         const files = Array.from(e.target.files);
-        setImages(files);
+        const newTotal = images.length + files.length;
+        
+        if (newTotal > 5) {
+            return toast.error('You can only upload a maximum of 5 images.');
+        }
+        
+        // Append new files to existing images
+        setImages(prev => [...prev, ...files.slice(0, 5 - prev.length)]);
     };
 
     return (
