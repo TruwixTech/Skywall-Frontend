@@ -9,7 +9,7 @@ function App() {
 
   return (
     <>
-      <GoogleAnalytics trackingId='G-5FW6Z2SZGF' />
+      <GoogleAnalytics trackingId='G-CJHXKS7002' />
       <Header />
       <ScrollToTop />
       <Outlet />
