@@ -15,6 +15,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
 import { convertUTCtoIST2 } from "../utils/TimeConverter";
+import { trackEvent } from "../utils/Ga4";
 
 
 const backend = import.meta.env.VITE_BACKEND;
@@ -121,6 +122,7 @@ const TelevisionSinglePage = () => {
       return
     }
     const decodedToken = jwtDecode(token)
+    trackEvent("Product Added to Cart", "Product", singleProduct?.name, singleProduct?._id)
     try {
       const response = await axios.post(`${backend}/cart/new`, {
         cart: {

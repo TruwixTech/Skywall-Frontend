@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
 import { FaCreditCard, FaTruck } from 'react-icons/fa';
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../utils/LoadingSpinner';
+import PageViewTracker from '../utils/Ga4';
 
 const backend = import.meta.env.VITE_BACKEND;
 
@@ -167,9 +167,11 @@ function CheckoutPage() {
             }
         )
     }, [location, navigate]);
+
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
+                <PageViewTracker />
                 <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
                 {
                     loading && <LoadingSpinner />
